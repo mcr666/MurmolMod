@@ -1,0 +1,33 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "abc",
+    "de ",
+    "f  "
+  ],
+  "key": {
+    "a": {
+      "item": "murmol:murmol_soul"
+    },
+    "b": {
+      "item": "murmol:petal"
+    },
+    "c": {
+      "item": "minecraft:melon_slice"
+    },
+    "d": {
+      "item": "minecraft:sweet_berries"
+    },
+    "e": {
+      "item": "murmol:the_astral_tome"
+    },
+    "f": {
+      "item": "minecraft:apple"
+    }
+  },
+  "result": {
+    "id": "murmol:petalfall_vernal_soul",
+    "count": 1
+  }
+}

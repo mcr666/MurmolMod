@@ -1,0 +1,115 @@
+{
+  "_fv": 89,
+  "_type": "biome",
+  "definition": {
+    "name": "Astral Infection Biome",
+    "groundBlock": "CUSTOM:Astraldirt",
+    "undergroundBlock": "CUSTOM:Astraldirt",
+    "underwaterBlock": "CUSTOM:Astralstone",
+    "airColor": {
+      "value": -10092391,
+      "falpha": 0.0
+    },
+    "fogColor": {
+      "value": -10092340,
+      "falpha": 0.0
+    },
+    "grassColor": {
+      "value": -13434829,
+      "falpha": 0.0
+    },
+    "foliageColor": {
+      "value": -13434829,
+      "falpha": 0.0
+    },
+    "waterColor": {
+      "value": -13434829,
+      "falpha": 0.0
+    },
+    "waterFogColor": {
+      "value": -10092340,
+      "falpha": 0.0
+    },
+    "ambientSound": "",
+    "additionsSound": "",
+    "music": "CUSTOM:astral_affection",
+    "moodSound": "",
+    "moodSoundDelay": 6000,
+    "spawnParticles": true,
+    "particleToSpawn": "CUSTOM:AstralEffect",
+    "particlesProbability": 1.2,
+    "rainingPossibility": 0.5,
+    "temperature": 0.0,
+    "spawnBiome": true,
+    "spawnInCaves": false,
+    "spawnBiomeNether": false,
+    "genTemperature": {
+      "min": -0.25,
+      "max": 0.25
+    },
+    "genHumidity": {
+      "min": -1.0,
+      "max": 0.5
+    },
+    "genContinentalness": {
+      "min": -0.3,
+      "max": 0.7
+    },
+    "genErosion": {
+      "min": -0.5,
+      "max": 0.5
+    },
+    "genWeirdness": {
+      "min": -0.25,
+      "max": 0.7
+    },
+    "genDepth": {
+      "min": 0.1,
+      "max": 1.2
+    },
+    "treesPerChunk": 1,
+    "vanillaTreeType": "Big trees",
+    "treeType": 1,
+    "minHeight": 15,
+    "treeStem": "CUSTOM:AstralLog",
+    "treeBranch": "CUSTOM:AstralLeaf",
+    "treeVines": "",
+    "treeFruits": "",
+    "defaultFeatures": [
+      "Caves",
+      "Ores",
+      "FrozenTopLayer",
+      "Dripstone",
+      "DeadBushes"
+    ],
+    "spawnStronghold": true,
+    "spawnMineshaft": true,
+    "spawnMineshaftMesa": true,
+    "spawnPillagerOutpost": true,
+    "villageType": "none",
+    "spawnWoodlandMansion": true,
+    "spawnJungleTemple": true,
+    "spawnDesertPyramid": true,
+    "spawnSwampHut": true,
+    "spawnIgloo": true,
+    "spawnOceanMonument": true,
+    "spawnShipwreck": true,
+    "spawnShipwreckBeached": true,
+    "spawnBuriedTreasure": true,
+    "oceanRuinType": "COLD",
+    "spawnNetherBridge": false,
+    "spawnNetherFossil": true,
+    "spawnBastionRemnant": false,
+    "spawnEndCity": false,
+    "spawnRuinedPortal": "NETHER",
+    "spawnEntries": [
+      {
+        "entity": "CUSTOM:FeralCat",
+        "minGroup": 2,
+        "maxGroup": 4,
+        "weight": 12,
+        "spawnType": "creature"
+      }
+    ]
+  }
+}

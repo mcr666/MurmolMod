@@ -1,0 +1,10 @@
+{
+  "type": "neoforge:add_spawns",
+  "biomes": "murmol:astral_infection_biome",
+  "spawners": {
+    "type": "murmol:astral_drake",
+    "weight": 120,
+    "minCount": 3,
+    "maxCount": 5
+  }
+}

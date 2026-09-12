@@ -1,0 +1,102 @@
+{
+  "_fv": 89,
+  "_type": "plant",
+  "definition": {
+    "renderType": 12,
+    "texture": "oxeye_daisy",
+    "customModelName": "Cross model",
+    "itemTexture": "",
+    "particleTexture": "",
+    "tintType": "No tint",
+    "isItemTinted": false,
+    "plantType": "normal",
+    "suspiciousStewEffect": "CUSTOM:Frozened",
+    "suspiciousStewDuration": 100,
+    "secondaryTreeChance": 0.1,
+    "trees": [
+      null,
+      null
+    ],
+    "flowerTrees": [
+      null,
+      null
+    ],
+    "megaTrees": [
+      null,
+      null
+    ],
+    "growapableSpawnType": "Plains",
+    "growapableMaxHeight": 3,
+    "customBoundingBox": false,
+    "disableOffset": false,
+    "boundingBoxes": [
+      {
+        "mx": 0.0,
+        "my": 0.0,
+        "mz": 0.0,
+        "Mx": 16.0,
+        "My": 16.0,
+        "Mz": 16.0,
+        "subtract": false
+      }
+    ],
+    "name": "Ice Flower Plant",
+    "specialInformation": {
+      "fixedValue": []
+    },
+    "creativeTabs": [
+      "CUSTOM:MurmolCx"
+    ],
+    "hardness": 0.0,
+    "resistance": 0.0,
+    "luminance": 0,
+    "unbreakable": false,
+    "isSolid": false,
+    "isWaterloggable": false,
+    "hasBlockItem": true,
+    "maxStackSize": 64,
+    "rarity": "COMMON",
+    "immuneToFire": false,
+    "soundOnStep": "PLANT",
+    "isCustomSoundType": false,
+    "breakSound": "",
+    "stepSound": "",
+    "placeSound": "",
+    "hitSound": "",
+    "fallSound": "",
+    "useLootTableForDrops": false,
+    "customDrop": "",
+    "dropAmount": 1,
+    "xpAmountMin": 0,
+    "xpAmountMax": 0,
+    "forceTicking": false,
+    "emissiveRendering": false,
+    "hasTileEntity": false,
+    "isReplaceable": false,
+    "colorOnMap": "DEFAULT",
+    "creativePickItem": "",
+    "offsetType": "XZ",
+    "aiPathNodeType": "DEFAULT",
+    "strippingResult": "",
+    "ignitedByLava": false,
+    "flammability": 100,
+    "fireSpreadSpeed": 60,
+    "jumpFactor": 1.0,
+    "speedFactor": 1.0,
+    "canBePlacedOn": [],
+    "isBonemealable": false,
+    "frequencyOnChunks": 7,
+    "generateFeature": true,
+    "restrictionBiomes": [
+      "mutated_ice_flats",
+      "snowy_slopes",
+      "cold_beach",
+      "snowy_tundra",
+      "taiga_cold",
+      "CUSTOM:AstralInfectionBiome"
+    ],
+    "generationType": "Flower",
+    "patchSize": 32,
+    "generateAtAnyHeight": true
+  }
+}

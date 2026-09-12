@@ -1,0 +1,21 @@
+{
+  "required": true,
+  "package": "net.mcr.astralcruse.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "mixins": [
+    "FeralPlayerDimensionsMixin"
+  ],
+  "client": [
+    "AstralMainMenuMusicMixin",
+    "AstralMenuPanoramaMixin",
+    "AstralTitleButtonMixin",
+    "FeralArmorLayerMixin",
+    "FeralCapeLayerMixin",
+    "FeralElytraLayerMixin",
+    "FeralItemInHandLayerMixin",
+    "FeralPlayerModelMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

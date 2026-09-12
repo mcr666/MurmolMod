@@ -1,0 +1,30 @@
+{
+  "_fv": 89,
+  "_type": "structure",
+  "definition": {
+    "structure": "maocryscupture",
+    "projection": "rigid",
+    "ignoredBlocks": [
+      "Blocks.STRUCTURE_BLOCK"
+    ],
+    "spacing": 32,
+    "separation": 18,
+    "restrictionBiomes": [
+      "CUSTOM:AstralInfectionBiome",
+      "cold_beach",
+      "snowy_slopes",
+      "snowy_tundra",
+      "taiga_cold"
+    ],
+    "terrainAdaptation": "none",
+    "generationStep": "SURFACE_STRUCTURES",
+    "surfaceDetectionType": "WORLD_SURFACE",
+    "useStartHeight": false,
+    "startHeightProviderType": "UNIFORM",
+    "startHeightMin": 0,
+    "startHeightMax": 128,
+    "size": 1,
+    "maxDistanceFromCenter": 64,
+    "jigsawPools": []
+  }
+}

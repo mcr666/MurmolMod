@@ -1,0 +1,39 @@
+{
+  "_fv": 89,
+  "_type": "tool",
+  "definition": {
+    "toolType": "Sword",
+    "renderType": 0,
+    "blockingRenderType": 0,
+    "texture": "bing_yu_huo_zhi_ge_",
+    "customModelName": "Normal",
+    "blockingModelName": "Normal blocking",
+    "guiTexture": "",
+    "name": "Ice And Fire",
+    "rarity": "COMMON",
+    "specialInformation": {
+      "fixedValue": [
+        "Simultaneously possessing the characteristics of ice and fire"
+      ]
+    },
+    "creativeTabs": [
+      "CUSTOM:MurmolCx"
+    ],
+    "efficiency": 4.0,
+    "attackSpeed": 1.6,
+    "enchantability": 17,
+    "damageVsEntity": 10.0,
+    "usageCount": 2031,
+    "glowCondition": {
+      "fixedValue": false
+    },
+    "repairItems": [],
+    "immuneToFire": true,
+    "blockDropsTier": "DIAMOND",
+    "blocksAffected": [],
+    "attributeModifiers": [],
+    "stayInGridWhenCrafting": false,
+    "damageOnCrafting": false,
+    "onEntityHitWith": "Giveiaf"
+  }
+}

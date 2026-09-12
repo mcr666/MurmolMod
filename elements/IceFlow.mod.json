@@ -1,0 +1,31 @@
+{
+  "_fv": 89,
+  "_type": "recipe",
+  "definition": {
+    "recipeType": "Crafting",
+    "recipeRetstackSize": 1,
+    "group": "",
+    "unlockingItems": [
+      "CUSTOM:IceBoltItem"
+    ],
+    "cookingBookCategory": "MISC",
+    "xpReward": 0.0,
+    "cookingTime": 200,
+    "craftingBookCategory": "MISC",
+    "recipeShapeless": false,
+    "recipeSlots": [
+      "",
+      "",
+      "",
+      "CUSTOM:IceBoltItem",
+      "CUSTOM:MagicCrystal",
+      "CUSTOM:IceFlowerPlant",
+      "",
+      "",
+      ""
+    ],
+    "recipeReturnStack": "CUSTOM:IceFlower",
+    "name": "ice_flow",
+    "namespace": "mod"
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:block",
+  "random_sequence": "murmol:blocks/astral_stone",
+  "pools": [
+    {
+      "rolls": 1.0,
+      "conditions": [
+        {
+          "condition": "minecraft:survives_explosion"
+        }
+      ],
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "murmol:cobbled_astral_stone"
+        }
+      ]
+    }
+  ]
+}

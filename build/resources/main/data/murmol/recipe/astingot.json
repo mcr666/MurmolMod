@@ -1,0 +1,27 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "aaa",
+    "bcc",
+    "dd "
+  ],
+  "key": {
+    "a": {
+      "item": "murmol:astral_ore_shard"
+    },
+    "b": {
+      "item": "murmol:astral_matrix"
+    },
+    "c": {
+      "item": "minecraft:diamond"
+    },
+    "d": {
+      "item": "minecraft:gold_ingot"
+    }
+  },
+  "result": {
+    "id": "murmol:astral_ingot",
+    "count": 1
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "_fv": 89,
+  "_type": "enchantment",
+  "definition": {
+    "name": "Human Killer",
+    "supportedSlots": "any",
+    "weight": 5,
+    "anvilCost": 1,
+    "maxLevel": 7,
+    "damageModifier": 1,
+    "incompatibleEnchantments": [],
+    "supportedItems": [
+      "TAG:minecraft:enchantable/sharp_weapon"
+    ],
+    "isTreasureEnchantment": false,
+    "isCurse": false,
+    "canGenerateInLootTables": true,
+    "canVillagerTrade": true,
+    "effectsxml": "<xml xmlns=\"https://developers.google.com/blockly/xml\"><block type=\"enchantment_effects_start\" deletable=\"false\" x=\"40\" y=\"80\"></block></xml>"
+  }
+}

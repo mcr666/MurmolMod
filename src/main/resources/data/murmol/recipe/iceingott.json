@@ -1,0 +1,25 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "minecraft:iron_ingot"
+    },
+    {
+      "item": "murmol:ice_sharp"
+    },
+    {
+      "item": "murmol:ice_sharp"
+    },
+    {
+      "item": "murmol:ice_sharp"
+    },
+    {
+      "item": "murmol:ice_sharp"
+    }
+  ],
+  "result": {
+    "id": "murmol:frost_ingotm",
+    "count": 1
+  }
+}

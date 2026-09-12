@@ -1,0 +1,31 @@
+{
+  "_fv": 89,
+  "_type": "recipe",
+  "definition": {
+    "recipeType": "Crafting",
+    "recipeRetstackSize": 1,
+    "group": "",
+    "unlockingItems": [
+      "CUSTOM:Mango"
+    ],
+    "cookingBookCategory": "MISC",
+    "xpReward": 0.0,
+    "cookingTime": 200,
+    "craftingBookCategory": "MISC",
+    "recipeShapeless": false,
+    "recipeSlots": [
+      "Items.GOLD_INGOT",
+      "Items.GOLD_INGOT",
+      "Items.GOLD_INGOT",
+      "Items.GOLD_INGOT",
+      "CUSTOM:Mango",
+      "Items.GOLD_INGOT",
+      "Items.GOLD_INGOT",
+      "Items.GOLD_INGOT",
+      "Items.GOLD_INGOT"
+    ],
+    "recipeReturnStack": "CUSTOM:MangoGolden",
+    "name": "goldenmongo",
+    "namespace": "mod"
+  }
+}

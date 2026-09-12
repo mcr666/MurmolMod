@@ -1,0 +1,25 @@
+{
+  "_fv": 89,
+  "_type": "particle",
+  "definition": {
+    "texture": "spiteff",
+    "animate": false,
+    "frameDuration": 1,
+    "width": 0.1,
+    "height": 0.1,
+    "scale": {
+      "fixedValue": 1.0
+    },
+    "fixedScale": true,
+    "speedFactor": 0.5,
+    "gravity": 0.2,
+    "maxAge": 240,
+    "maxAgeDiff": 60,
+    "angularVelocity": 0.03,
+    "angularAcceleration": 0.0,
+    "canCollide": true,
+    "alwaysShow": true,
+    "emissiveRendering": false,
+    "renderType": "TRANSLUCENT"
+  }
+}

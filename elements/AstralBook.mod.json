@@ -1,0 +1,169 @@
+{
+  "_fv": 89,
+  "_type": "gui",
+  "definition": {
+    "type": 1,
+    "width": 500,
+    "height": 220,
+    "inventoryOffsetX": 0,
+    "inventoryOffsetY": 43,
+    "renderBgLayer": false,
+    "doesPauseGame": false,
+    "components": [
+      {
+        "type": "image",
+        "data": {
+          "image": "astralbg.png",
+          "use1Xscale": false,
+          "x": -35,
+          "y": 9,
+          "locked": false
+        }
+      },
+      {
+        "type": "button",
+        "data": {
+          "name": "button_0",
+          "text": "OMEN",
+          "isUndecorated": false,
+          "onClick": "ChangedTf",
+          "width": 30,
+          "height": 20,
+          "x": 199,
+          "y": 200,
+          "locked": false
+        }
+      },
+      {
+        "type": "entitymodel",
+        "data": {
+          "entityModel": "Renderply",
+          "scale": 30,
+          "rotationX": 0,
+          "followMouseMovement": true,
+          "x": 63,
+          "y": 147,
+          "locked": false
+        }
+      },
+      {
+        "type": "label",
+        "data": {
+          "name": "label_sis_itemreturnpreviewitem",
+          "text": {
+            "fixedValue": "sis_item:ReturnPreviewItem"
+          },
+          "color": {
+            "value": -12829636,
+            "falpha": 0.0
+          },
+          "hasShadow": false,
+          "x": 206,
+          "y": 111,
+          "locked": false
+        }
+      },
+      {
+        "type": "label",
+        "data": {
+          "name": "label_sis_slots0_8",
+          "text": {
+            "fixedValue": "sis_slots:0_8"
+          },
+          "color": {
+            "value": -12829636,
+            "falpha": 0.0
+          },
+          "hasShadow": false,
+          "x": 45,
+          "y": 39,
+          "locked": false
+        }
+      },
+      {
+        "type": "inputslot",
+        "data": {
+          "inputLimit": {
+            "value": ""
+          },
+          "disablePlacement": {
+            "fixedValue": false
+          },
+          "id": 0,
+          "disablePickup": {
+            "fixedValue": false
+          },
+          "dropItemsWhenNotBound": true,
+          "x": 135,
+          "y": 108,
+          "locked": false
+        }
+      },
+      {
+        "type": "inputslot",
+        "data": {
+          "inputLimit": {
+            "value": ""
+          },
+          "disablePlacement": {
+            "fixedValue": false
+          },
+          "id": 1,
+          "disablePickup": {
+            "fixedValue": false
+          },
+          "dropItemsWhenNotBound": true,
+          "x": 204,
+          "y": 41,
+          "locked": false
+        }
+      },
+      {
+        "type": "inputslot",
+        "data": {
+          "inputLimit": {
+            "value": ""
+          },
+          "disablePlacement": {
+            "fixedValue": false
+          },
+          "id": 2,
+          "disablePickup": {
+            "fixedValue": false
+          },
+          "dropItemsWhenNotBound": true,
+          "x": 275,
+          "y": 108,
+          "locked": false
+        }
+      },
+      {
+        "type": "inputslot",
+        "data": {
+          "inputLimit": {
+            "value": ""
+          },
+          "disablePlacement": {
+            "fixedValue": false
+          },
+          "id": 3,
+          "disablePickup": {
+            "fixedValue": false
+          },
+          "dropItemsWhenNotBound": true,
+          "x": 204,
+          "y": 175,
+          "locked": false
+        }
+      }
+    ],
+    "onOpen": "Playbooksound",
+    "gridSettings": {
+      "sx": 18,
+      "sy": 12,
+      "ox": 11,
+      "oy": 15,
+      "snapOnGrid": false
+    }
+  }
+}

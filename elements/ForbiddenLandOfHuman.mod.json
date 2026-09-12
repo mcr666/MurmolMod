@@ -1,0 +1,20 @@
+{
+  "_fv": 89,
+  "_type": "achievement",
+  "definition": {
+    "achievementName": "Forbidden Land of Human",
+    "achievementDescription": "Enter Astral Infection",
+    "achievementIcon": "CUSTOM:Astralstone",
+    "background": "Default",
+    "disableDisplay": false,
+    "showPopup": true,
+    "announceToChat": true,
+    "hideIfNotCompleted": false,
+    "rewardLoot": [],
+    "rewardRecipes": [],
+    "rewardXP": 0,
+    "achievementType": "task",
+    "parent": "CUSTOM:Murmolrrott",
+    "triggerxml": "<xml xmlns=\"https://developers.google.com/blockly/xml\"><block type=\"advancement_trigger\" deletable=\"false\" x=\"40\" y=\"80\"><next><block type=\"biome_entered\"><field name=\"biome\">CUSTOM:AstralInfectionBiome</field></block><shadow type=\"custom_trigger\"></shadow></next></block></xml>"
+  }
+}

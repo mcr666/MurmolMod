@@ -1,0 +1,10 @@
+{
+  "astralbookgui": {
+    "sounds": [
+      {
+        "name": "astral_cruse:astralbookgui",
+        "stream": true
+      }
+    ]
+  }
+}

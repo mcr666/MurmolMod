@@ -1,0 +1,49 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "java",
+      "request": "launch",
+      "name": "Client",
+      "presentation": {
+        "group": "Mod Development - MurmolMod",
+        "order": 0
+      },
+      "projectName": "MurmolMod",
+      "mainClass": "net.neoforged.devlaunch.Main",
+      "args": [
+        "@D:\\Code\\MurmolMod\\build\\moddev\\clientRunProgramArgs.txt"
+      ],
+      "vmArgs": [
+        "@D:\\Code\\MurmolMod\\build\\moddev\\clientRunVmArgs.txt",
+        "-Dfml.modFolders\u003dmcreator%%D:\\Code\\MurmolMod\\bin\\main"
+      ],
+      "cwd": "${workspaceFolder}\\run",
+      "env": {},
+      "console": "internalConsole",
+      "shortenCommandLine": "none"
+    },
+    {
+      "type": "java",
+      "request": "launch",
+      "name": "Server",
+      "presentation": {
+        "group": "Mod Development - MurmolMod",
+        "order": 1
+      },
+      "projectName": "MurmolMod",
+      "mainClass": "net.neoforged.devlaunch.Main",
+      "args": [
+        "@D:\\Code\\MurmolMod\\build\\moddev\\serverRunProgramArgs.txt"
+      ],
+      "vmArgs": [
+        "@D:\\Code\\MurmolMod\\build\\moddev\\serverRunVmArgs.txt",
+        "-Dfml.modFolders\u003dmcreator%%D:\\Code\\MurmolMod\\bin\\main"
+      ],
+      "cwd": "${workspaceFolder}\\run",
+      "env": {},
+      "console": "internalConsole",
+      "shortenCommandLine": "none"
+    }
+  ]
+}

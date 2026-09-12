@@ -1,0 +1,13 @@
+{
+  "type": "neoforge:add_features",
+  "biomes": [
+    "ice_spikes",
+    "snowy_slopes",
+    "snowy_beach",
+    "snowy_plains",
+    "snowy_taiga",
+    "murmol:astral_infection_biome"
+  ],
+  "features": "murmol:ice_sharp_ore",
+  "step": "underground_ores"
+}

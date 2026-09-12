@@ -1,0 +1,33 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "abc",
+    "de ",
+    "f  "
+  ],
+  "key": {
+    "a": {
+      "item": "murmol:murmol_soul"
+    },
+    "b": {
+      "item": "minecraft:golden_apple"
+    },
+    "c": {
+      "item": "murmol:mango"
+    },
+    "d": {
+      "item": "minecraft:sugar"
+    },
+    "e": {
+      "item": "murmol:the_astral_tome"
+    },
+    "f": {
+      "item": "minecraft:honey_bottle"
+    }
+  },
+  "result": {
+    "id": "murmol:ch_soul",
+    "count": 1
+  }
+}

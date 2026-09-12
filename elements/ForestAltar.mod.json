@@ -1,0 +1,26 @@
+{
+  "_fv": 89,
+  "_type": "structure",
+  "definition": {
+    "structure": "forest_altar",
+    "projection": "rigid",
+    "ignoredBlocks": [
+      "Blocks.STRUCTURE_BLOCK"
+    ],
+    "spacing": 40,
+    "separation": 24,
+    "restrictionBiomes": [
+      "#minecraft:is_forest"
+    ],
+    "terrainAdaptation": "none",
+    "generationStep": "SURFACE_STRUCTURES",
+    "surfaceDetectionType": "WORLD_SURFACE",
+    "useStartHeight": false,
+    "startHeightProviderType": "UNIFORM",
+    "startHeightMin": 0,
+    "startHeightMax": 128,
+    "size": 1,
+    "maxDistanceFromCenter": 64,
+    "jigsawPools": []
+  }
+}

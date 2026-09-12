@@ -1,0 +1,47 @@
+{
+  "cgamemode": {
+    "subtitle": "subtitles.cgamemode",
+    "sounds": [
+      {
+        "name": "murmol:clawing",
+        "stream": false
+      }
+    ]
+  },
+  "frozening": {
+    "subtitle": "subtitles.frozening",
+    "sounds": [
+      {
+        "name": "murmol:item_27.wav",
+        "stream": false
+      }
+    ]
+  },
+  "astral_affection": {
+    "subtitle": "subtitles.astral_affection",
+    "sounds": [
+      {
+        "name": "murmol:astral_affection",
+        "stream": true
+      }
+    ]
+  },
+  "drake_0": {
+    "subtitle": "subtitles.drake_0",
+    "sounds": [
+      {
+        "name": "murmol:drake_0",
+        "stream": false
+      }
+    ]
+  },
+  "drake_death": {
+    "subtitle": "subtitles.drake_death",
+    "sounds": [
+      {
+        "name": "murmol:drake_death",
+        "stream": false
+      }
+    ]
+  }
+}

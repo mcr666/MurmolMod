@@ -1,0 +1,160 @@
+{
+  "_fv": 89,
+  "_type": "livingentity",
+  "definition": {
+    "mobName": "Alfar",
+    "mobLabel": "",
+    "mobModelName": "Modelforest_colossus",
+    "mobModelTexture": "alfar.png",
+    "transparentModelCondition": {
+      "fixedValue": false
+    },
+    "isShakingCondition": {
+      "fixedValue": false
+    },
+    "solidBoundingBox": {
+      "fixedValue": false
+    },
+    "visualScale": {
+      "fixedValue": 0.5
+    },
+    "boundingBoxScale": {
+      "fixedValue": 1.0
+    },
+    "modelLayers": [],
+    "animations": [
+      {
+        "animation": "CUSTOM:AlfarAnimation.alfar_bite",
+        "speed": 1.0,
+        "condition": "Alfaratt",
+        "walking": false,
+        "amplitude": 1.0
+      },
+      {
+        "animation": "CUSTOM:AlfarAnimation.alfar_walk",
+        "speed": 2.0,
+        "walking": true,
+        "amplitude": 2.0
+      },
+      {
+        "animation": "CUSTOM:AlfarAnimation.alfar_idle",
+        "speed": 1.0,
+        "walking": false,
+        "amplitude": 1.0
+      }
+    ],
+    "modelWidth": 2.0,
+    "modelHeight": 2.0,
+    "modelShadowSize": 2.0,
+    "mountedYOffset": 1.8,
+    "hasSpawnEgg": true,
+    "spawnEggBaseColor": {
+      "value": -6737152,
+      "falpha": 0.0
+    },
+    "spawnEggDotColor": {
+      "value": -13421824,
+      "falpha": 0.0
+    },
+    "spawnEggTexture": "",
+    "creativeTabs": [
+      "CUSTOM:MurmolCx"
+    ],
+    "isBoss": true,
+    "bossBarColor": "GREEN",
+    "bossBarType": "PROGRESS",
+    "equipmentMainHand": "",
+    "equipmentOffHand": "",
+    "equipmentHelmet": "",
+    "equipmentBody": "",
+    "equipmentLeggings": "",
+    "equipmentBoots": "",
+    "mobBehaviourType": "Mob",
+    "mobCreatureType": "UNDEFINED",
+    "attackStrength": 8,
+    "attackKnockback": 1.8,
+    "knockbackResistance": 0.5,
+    "movementSpeed": 0.2,
+    "stepHeight": 0.7999999999999999,
+    "armorBaseValue": 10.0,
+    "trackingRange": 128,
+    "followRange": 16,
+    "health": 300,
+    "xpAmount": 1024,
+    "waterMob": false,
+    "breatheUnderwater": {
+      "fixedValue": true
+    },
+    "pushedByFluids": {
+      "fixedValue": false
+    },
+    "flyingMob": false,
+    "inventorySize": 9,
+    "inventoryStackSize": 99,
+    "disableCollisions": false,
+    "ridable": false,
+    "canControlForward": false,
+    "canControlStrafe": false,
+    "immuneToFire": true,
+    "immuneToArrows": false,
+    "immuneToFallDamage": true,
+    "immuneToCactus": true,
+    "immuneToDrowning": true,
+    "immuneToLightning": true,
+    "immuneToPotions": false,
+    "immuneToPlayer": false,
+    "immuneToExplosion": true,
+    "immuneToTrident": false,
+    "immuneToAnvil": false,
+    "immuneToWither": true,
+    "immuneToDragonBreath": true,
+    "mobDrop": "",
+    "livingSound": "",
+    "hurtSound": "entity.generic.hurt",
+    "deathSound": "entity.generic.death",
+    "stepSound": "",
+    "raidCelebrationSound": "",
+    "entityDataEntries": [
+      {
+        "name": "spattack",
+        "type": "logic",
+        "value": true
+      }
+    ],
+    "whenMobDies": "AlfarShiTiSiWangShi",
+    "onMobTickUpdate": "Alfarsptt",
+    "hasAI": true,
+    "aiBase": "(none)",
+    "aixml": "<xml xmlns=\"https://developers.google.com/blockly/xml\"><block type=\"aitasks_container\" deletable=\"false\" x=\"40\" y=\"40\"><next><block type=\"attack_entity\"><field name=\"entity\">EntityPlayer</field><field name=\"insight\">TRUE</field><field name=\"nearby\">TRUE</field><field name=\"condition\">Alfarattdistance,Alfarattdistance</field><next><block type=\"attack_on_collide\"><field name=\"speed\">1.2</field><field name=\"longmemory\">TRUE</field><field name=\"condition\">Alfarattdistance,Alfarattdistance</field><next><block type=\"attack_action\"><field name=\"callhelp\">TRUE</field><field name=\"condition\">null,null</field><next><block type=\"look_around\"><field name=\"condition\">null,null</field><next><block type=\"swim_in_water\"><field name=\"condition\">null,null</field></block></next></block></next></block></next></block></next></block></next></block></xml>",
+    "breedable": false,
+    "tameable": false,
+    "breedTriggerItems": [],
+    "ranged": true,
+    "rangedAttackItem": "",
+    "rangedItemType": "AlfaSpitProj",
+    "rangedAttackInterval": 20,
+    "rangedAttackRadius": 10.0,
+    "spawnThisMob": false,
+    "doesDespawnWhenIdle": false,
+    "spawningProbability": 20,
+    "mobSpawningType": "monster",
+    "minNumberOfMobsPerGroup": 4,
+    "maxNumberOfMobsPerGroup": 4,
+    "restrictionBiomes": [],
+    "spawnInDungeons": false,
+    "raidSpawnsCount": [
+      4,
+      3,
+      3,
+      4,
+      4,
+      4,
+      2
+    ],
+    "sensitiveToVibration": false,
+    "vibrationalEvents": [],
+    "vibrationSensitivityRadius": {
+      "fixedValue": 7.0
+    }
+  }
+}

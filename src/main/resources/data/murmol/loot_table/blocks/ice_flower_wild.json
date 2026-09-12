@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:block",
+  "random_sequence": "murmol:blocks/ice_flower_wild",
+  "pools": [
+    {
+      "rolls": 1.0,
+      "conditions": [
+        {
+          "condition": "minecraft:survives_explosion"
+        }
+      ],
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "murmol:ice_flower_wild"
+        }
+      ]
+    }
+  ]
+}

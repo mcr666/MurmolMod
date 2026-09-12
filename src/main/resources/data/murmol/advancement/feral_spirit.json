@@ -1,0 +1,34 @@
+{
+  "display": {
+    "icon": {
+      "id": "murmol:murmol_soul"
+    },
+    "title": {
+      "translate": "advancements.feral_spirit.title"
+    },
+    "description": {
+      "translate": "advancements.feral_spirit.descr"
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "feral_spirit_1": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "murmol:murmol_soul",
+            "count": {
+              "min": 1,
+              "max": 64
+            }
+          }
+        ]
+      }
+    }
+  },
+  "parent": "murmol:forbidden_land_of_human"
+}

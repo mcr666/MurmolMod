@@ -1,0 +1,14 @@
+{
+  "structures": [
+    {
+      "structure": "murmol:maocrysscupture",
+      "weight": 1
+    }
+  ],
+  "placement": {
+    "type": "minecraft:random_spread",
+    "spacing": 32,
+    "separation": 18,
+    "salt": 2007485347
+  }
+}

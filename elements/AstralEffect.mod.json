@@ -1,0 +1,25 @@
+{
+  "_fv": 89,
+  "_type": "particle",
+  "definition": {
+    "texture": "astraleffect",
+    "animate": false,
+    "frameDuration": 1,
+    "width": 0.1,
+    "height": 0.1,
+    "scale": {
+      "fixedValue": 1.0
+    },
+    "fixedScale": true,
+    "speedFactor": 0.5,
+    "gravity": 0.1,
+    "maxAge": 240,
+    "maxAgeDiff": 60,
+    "angularVelocity": 0.03,
+    "angularAcceleration": 0.0,
+    "canCollide": false,
+    "alwaysShow": true,
+    "emissiveRendering": false,
+    "renderType": "TRANSLUCENT"
+  }
+}

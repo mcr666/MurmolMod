@@ -1,0 +1,6 @@
+{
+  "exhaustion": 0.2,
+  "message_id": "astral_infection_damage",
+  "scaling": "always",
+  "effects": "burning"
+}

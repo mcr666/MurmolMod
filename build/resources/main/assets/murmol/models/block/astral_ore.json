@@ -1,0 +1,8 @@
+{
+  "parent": "block/cube_all",
+  "textures": {
+    "all": "murmol:block/astral_ore",
+    "particle": "murmol:block/astral_ore"
+  },
+  "render_type": "solid"
+}

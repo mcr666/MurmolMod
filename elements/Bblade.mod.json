@@ -1,0 +1,31 @@
+{
+  "_fv": 89,
+  "_type": "recipe",
+  "definition": {
+    "recipeType": "Crafting",
+    "recipeRetstackSize": 1,
+    "group": "",
+    "unlockingItems": [
+      "Blocks.MOSS_BLOCK"
+    ],
+    "cookingBookCategory": "MISC",
+    "xpReward": 0.0,
+    "cookingTime": 200,
+    "craftingBookCategory": "MISC",
+    "recipeShapeless": false,
+    "recipeSlots": [
+      "",
+      "Blocks.MOSS_BLOCK",
+      "",
+      "",
+      "Blocks.MOSS_BLOCK",
+      "",
+      "",
+      "Blocks.BAMBOO",
+      ""
+    ],
+    "recipeReturnStack": "CUSTOM:BloomingBlade",
+    "name": "bblade",
+    "namespace": "mod"
+  }
+}

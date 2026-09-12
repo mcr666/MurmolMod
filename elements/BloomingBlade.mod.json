@@ -1,0 +1,42 @@
+{
+  "_fv": 89,
+  "_type": "tool",
+  "definition": {
+    "toolType": "Sword",
+    "renderType": 0,
+    "blockingRenderType": 0,
+    "texture": "blooming_blade",
+    "customModelName": "Normal",
+    "blockingModelName": "Normal blocking",
+    "guiTexture": "",
+    "name": "Blooming Blade",
+    "rarity": "COMMON",
+    "specialInformation": {
+      "fixedValue": [
+        "§o§2The wilderness bears wounds beyond race, ",
+        "§o§2sworn to exact blood repayment from all two-legged folk."
+      ]
+    },
+    "creativeTabs": [
+      "CUSTOM:MurmolCx"
+    ],
+    "efficiency": 4.0,
+    "attackSpeed": 1.6,
+    "enchantability": 17,
+    "damageVsEntity": 5.0,
+    "usageCount": 1024,
+    "glowCondition": {
+      "fixedValue": false
+    },
+    "repairItems": [
+      "Blocks.BAMBOO"
+    ],
+    "immuneToFire": false,
+    "blockDropsTier": "IRON",
+    "blocksAffected": [],
+    "attributeModifiers": [],
+    "stayInGridWhenCrafting": false,
+    "damageOnCrafting": false,
+    "onCrafted": "BloomingBladeWuPinBeiHeChengHuoRongLianShi"
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "_fv": 89,
+  "_type": "humanoidmodel",
+  "definition": {
+    "modelName": "ModelCHmodel",
+    "helmetModelPart": "head",
+    "bodyModelPart": "torso",
+    "armsModelPartL": "left_arm",
+    "armsModelPartR": "right_arm",
+    "leggingsModelPartL": "left_leg",
+    "leggingsModelPartR": "right_leg"
+  }
+}
