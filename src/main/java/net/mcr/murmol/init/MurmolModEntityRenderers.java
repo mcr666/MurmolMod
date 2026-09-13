@@ -11,7 +11,6 @@ import net.neoforged.api.distmarker.Dist;
 import net.minecraft.client.renderer.entity.ThrownItemRenderer;
 
 import net.mcr.murmol.client.renderer.PepperCHRenderer;
-import net.mcr.murmol.client.renderer.FeralCatRenderer;
 import net.mcr.murmol.client.renderer.AstralDrakeRenderer;
 import net.mcr.murmol.client.renderer.AlfarRenderer;
 
@@ -21,7 +20,6 @@ public class MurmolModEntityRenderers {
 	public static void registerEntityRenderers(EntityRenderersEvent.RegisterRenderers event) {
 		event.registerEntityRenderer(MurmolModEntities.XIAO_HUI_PROJECTILE.get(), ThrownItemRenderer::new);
 		event.registerEntityRenderer(MurmolModEntities.ICE_BOLT.get(), ThrownItemRenderer::new);
-		event.registerEntityRenderer(MurmolModEntities.FERAL_CAT.get(), FeralCatRenderer::new);
 		event.registerEntityRenderer(MurmolModEntities.PEPPER_CH.get(), PepperCHRenderer::new);
 		event.registerEntityRenderer(MurmolModEntities.PETAL_PROJECTILE.get(), ThrownItemRenderer::new);
 		event.registerEntityRenderer(MurmolModEntities.ALFAR.get(), AlfarRenderer::new);

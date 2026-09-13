@@ -13,7 +13,8 @@ public class HumanForm extends FeralForm {
 	public HumanForm() {
 		super(ID, null, null, null, null,
 				() -> ItemStack.EMPTY,
-				null,
+				// 变回人类时授予 returntohuman 进度
+				ResourceLocation.fromNamespaceAndPath("murmol", "returntohuman"),
 				null,
 				null);
 	}

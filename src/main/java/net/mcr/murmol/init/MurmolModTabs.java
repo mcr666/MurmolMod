@@ -73,7 +73,6 @@ public class MurmolModTabs {
 				tabData.accept(MurmolModItems.MANGO_ASTRAL.get());
 				tabData.accept(MurmolModItems.ALFAR_SPAWN_EGG.get());
 				tabData.accept(MurmolModItems.PEPPER_CH_SPAWN_EGG.get());
-				tabData.accept(MurmolModItems.FERAL_CAT_SPAWN_EGG.get());
 				tabData.accept(MurmolModItems.ASTRAL_DRAKE_SPAWN_EGG.get());
 			}).build());
 }

@@ -30,7 +30,6 @@ public class MurmolModItems {
 	public static final DeferredItem<Item> ICE_BOLT_ITEM;
 	public static final DeferredItem<Item> ICE_WAND;
 	public static final DeferredItem<Item> MAGIC_CRYSTAL;
-	public static final DeferredItem<Item> FERAL_CAT_SPAWN_EGG;
 	public static final DeferredItem<Item> MAGIC_CRYSTAL_CLUSTER;
 	public static final DeferredItem<Item> ICE_FLOWER_WILD;
 	public static final DeferredItem<Item> ICE_AND_FIRE_SWORD;
@@ -91,7 +90,6 @@ public class MurmolModItems {
 		ICE_BOLT_ITEM = REGISTRY.register("ice_bolt_item", IceBoltItemItem::new);
 		ICE_WAND = REGISTRY.register("ice_wand", IceWandItem::new);
 		MAGIC_CRYSTAL = REGISTRY.register("magic_crystal", MagicCrystalItem::new);
-		FERAL_CAT_SPAWN_EGG = REGISTRY.register("feral_cat_spawn_egg", () -> new DeferredSpawnEggItem(MurmolModEntities.FERAL_CAT, -13421773, -6710887, new Item.Properties()));
 		MAGIC_CRYSTAL_CLUSTER = block(MurmolModBlocks.MAGIC_CRYSTAL_CLUSTER, new Item.Properties().rarity(Rarity.UNCOMMON));
 		ICE_FLOWER_WILD = block(MurmolModBlocks.ICE_FLOWER_WILD);
 		ICE_AND_FIRE_SWORD = REGISTRY.register("ice_and_fire_sword", IceAndFireSwordItem::new);

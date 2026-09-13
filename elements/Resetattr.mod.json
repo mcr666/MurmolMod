@@ -1,8 +1,0 @@
-{
-  "_fv": 89,
-  "_type": "procedure",
-  "definition": {
-    "procedurexml": "<xml xmlns=\"https://developers.google.com/blockly/xml\"><block type=\"event_trigger\" deletable=\"false\" x=\"40\" y=\"40\"><field name=\"trigger\">no_ext_trigger</field><next><block type=\"entity_remove_modifier\"><field name=\"attribute\">MAX_HEALTH</field><field name=\"name\">tf</field><value name=\"entity\"><block type=\"entity_from_deps\"></block></value><next><block type=\"entity_remove_modifier\"><field name=\"attribute\">MOVEMENT_SPEED</field><field name=\"name\">tf</field><value name=\"entity\"><block type=\"entity_from_deps\"></block></value><next><block type=\"entity_remove_modifier\"><field name=\"attribute\">ATTACK_SPEED</field><field name=\"name\">tf</field><value name=\"entity\"><block type=\"entity_from_deps\"></block></value><next><block type=\"entity_remove_modifier\"><field name=\"attribute\">ATTACK_KNOCKBACK</field><field name=\"name\">tf</field><value name=\"entity\"><block type=\"entity_from_deps\"></block></value><next><block type=\"entity_remove_modifier\"><field name=\"attribute\">ATTACK_DAMAGE</field><field name=\"name\">tf</field><value name=\"entity\"><block type=\"entity_from_deps\"></block></value><next><block type=\"entity_remove_modifier\"><field name=\"attribute\">JUMP_STRENGTH</field><field name=\"name\">tf</field><value name=\"entity\"><block type=\"entity_from_deps\"></block></value><next><block type=\"entity_remove_modifier\"><field name=\"attribute\">LUCK</field><field name=\"name\">tf</field><value name=\"entity\"><block type=\"entity_from_deps\"></block></value></block></next></block></next></block></next></block></next></block></next></block></next></block></next></block></xml>",
-    "skipDependencyNullCheck": false
-  }
-}

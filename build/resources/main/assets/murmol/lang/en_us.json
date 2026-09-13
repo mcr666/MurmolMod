@@ -13,8 +13,6 @@
   "item.murmol.ice_wand": "Ice Wand",
   "item.murmol.ice_wand.description_0": "Shoot ice bolt",
   "item.murmol.magic_crystal": "Magic Crystal",
-  "entity.murmol.feral_cat": "Feral Cat",
-  "item.murmol.feral_cat_spawn_egg": "Feral Cat Spawn Egg",
   "block.murmol.magic_crystal_cluster": "Magic Crystal Cluster",
   "block.murmol.ice_flower_wild.description_0": "Wild ice flowers need to be processed before they can be used",
   "block.murmol.ice_flower_wild": "Ice Flower Plant",
@@ -124,5 +122,8 @@
   "item.murmol.moss_soul": "Moss Soul",
   "advancements.stands_a_loquat_tree.title": "Stands A Loquat Tree",
   "advancements.stands_a_loquat_tree.descr": "Trans into the Moss Beast",
-  "item.murmol.mango_golden_enchant": "Enchant Golden mango"
+  "item.murmol.mango_golden_enchant": "Enchant Golden mango",
+  "jei.murmol.feral_transform": "Astral Tome",
+  "jei.murmol.feral_transform.desc": "Place into the Astral Tome and consume 5 XP levels",
+  "jei.murmol.feral_transform.human.desc": "return to human"
 }

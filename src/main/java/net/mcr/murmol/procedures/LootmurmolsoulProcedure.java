@@ -11,9 +11,9 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.util.RandomSource;
 import net.minecraft.util.Mth;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.core.BlockPos;
 
+import net.mcr.murmol.init.MurmolModBiomes;
 import net.mcr.murmol.init.MurmolModItems;
 
 import javax.annotation.Nullable;
@@ -32,7 +32,7 @@ public class LootmurmolsoulProcedure {
 	}
 
 	private static void execute(@Nullable Event event, LevelAccessor world, double x, double y, double z) {
-		if (world.getBiome(BlockPos.containing(x, y, z)).is(ResourceLocation.parse("murmol:astral_infection_biome"))) {
+		if (world.getBiome(BlockPos.containing(x, y, z)).is(MurmolModBiomes.ASTRAL_INFECTION_BIOME)) {
 			if (Mth.nextInt(RandomSource.create(), 0, 100) < 5) {
 				if (world instanceof ServerLevel _level) {
 					ItemEntity entityToSpawn = new ItemEntity(_level, x, y, z, new ItemStack(MurmolModItems.MURMOL_SOUL.get()));

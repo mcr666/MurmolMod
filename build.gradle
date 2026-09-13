@@ -3,10 +3,24 @@ plugins {
     id 'net.neoforged.moddev' version '2.0.141'
 }
 
-version = '1.2.1'
+version = '2.0.0'
 base.archivesName = "murmol"
 
 java.toolchain.languageVersion = JavaLanguageVersion.of(21)
+
+repositories {
+    maven {
+        // JEI maven
+        url = "https://maven.blamejared.com/"
+    }
+}
+
+dependencies {
+    // JEI：编译用 API，本地运行时带完整 JEI（不打包进最终 JAR）
+    compileOnly "mezz.jei:jei-1.21.1-common-api:19.54.0.429"
+    compileOnly "mezz.jei:jei-1.21.1-neoforge-api:19.54.0.429"
+    runtimeOnly "mezz.jei:jei-1.21.1-neoforge:19.54.0.429"
+}
 
 neoForge {
     version = "21.1.232"

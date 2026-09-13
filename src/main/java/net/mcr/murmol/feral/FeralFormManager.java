@@ -200,6 +200,9 @@ public class FeralFormManager {
 			var slot = menu.getSlots().get(i);
 			slotItems.add(slot == null ? ItemStack.EMPTY : slot.getItem());
 		}
+		// 人类形态（变回人类）：水桶 + 不死图腾 + 绿宝石 + 任意船
+		if (matchesHumanRevert(slotItems))
+			return FeralForms.HUMAN;
 		for (FeralForm form : FeralForms.all()) {
 			if (form == FeralForms.HUMAN)
 				continue;
@@ -207,6 +210,22 @@ public class FeralFormManager {
 				return form;
 		}
 		return null;
+	}
+
+	private static boolean matchesHumanRevert(java.util.List<ItemStack> slotItems) {
+		return hasItem(slotItems, Items.WATER_BUCKET)
+				&& hasItem(slotItems, Items.TOTEM_OF_UNDYING)
+				&& hasItem(slotItems, Items.EMERALD)
+				&& hasBoat(slotItems);
+	}
+
+	private static boolean hasItem(java.util.List<ItemStack> items, net.minecraft.world.item.Item item) {
+		return items.stream().anyMatch(s -> s.is(item));
+	}
+
+	private static boolean hasBoat(java.util.List<ItemStack> items) {
+		TagKey<net.minecraft.world.item.Item> boats = ItemTags.create(ResourceLocation.parse("minecraft:boats"));
+		return items.stream().anyMatch(s -> s.is(boats));
 	}
 
 	private static boolean matchesMaterials(java.util.List<ItemStack> slotItems, java.util.List<ItemStack> required) {

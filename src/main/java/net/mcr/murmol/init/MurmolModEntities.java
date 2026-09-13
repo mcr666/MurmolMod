@@ -25,10 +25,6 @@ public class MurmolModEntities {
 			EntityType.Builder.<XiaoHuiProjectileEntity>of(XiaoHuiProjectileEntity::new, MobCategory.MISC).setShouldReceiveVelocityUpdates(true).setTrackingRange(64).setUpdateInterval(1).sized(0.3f, 0.3f));
 	public static final DeferredHolder<EntityType<?>, EntityType<IceBoltEntity>> ICE_BOLT = register("ice_bolt",
 			EntityType.Builder.<IceBoltEntity>of(IceBoltEntity::new, MobCategory.MISC).setShouldReceiveVelocityUpdates(true).setTrackingRange(64).setUpdateInterval(1).sized(0.3f, 0.3f));
-	public static final DeferredHolder<EntityType<?>, EntityType<FeralCatEntity>> FERAL_CAT = register("feral_cat",
-			EntityType.Builder.<FeralCatEntity>of(FeralCatEntity::new, MobCategory.CREATURE).setShouldReceiveVelocityUpdates(true).setTrackingRange(64).setUpdateInterval(3)
-
-					.sized(0.6f, 0.9f));
 	public static final DeferredHolder<EntityType<?>, EntityType<PepperCHEntity>> PEPPER_CH = register("pepper_ch",
 			EntityType.Builder.<PepperCHEntity>of(PepperCHEntity::new, MobCategory.CREATURE).setShouldReceiveVelocityUpdates(true).setTrackingRange(64).setUpdateInterval(3)
 
@@ -54,7 +50,6 @@ public class MurmolModEntities {
 
 	@SubscribeEvent
 	public static void init(RegisterSpawnPlacementsEvent event) {
-		FeralCatEntity.init(event);
 		PepperCHEntity.init(event);
 		AlfarEntity.init(event);
 		AstralDrakeEntity.init(event);
@@ -62,7 +57,6 @@ public class MurmolModEntities {
 
 	@SubscribeEvent
 	public static void registerAttributes(EntityAttributeCreationEvent event) {
-		event.put(FERAL_CAT.get(), FeralCatEntity.createAttributes().build());
 		event.put(PEPPER_CH.get(), PepperCHEntity.createAttributes().build());
 		event.put(ALFAR.get(), AlfarEntity.createAttributes().build());
 		event.put(ASTRAL_DRAKE.get(), AstralDrakeEntity.createAttributes().build());
