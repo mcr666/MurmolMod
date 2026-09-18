@@ -40,5 +40,6 @@ public class MurmolModBlocks {
 		ASTRAL_BLOCK = REGISTRY.register("astral_block", AstralBlockBlock::new);
 	}
 	// Start of user code block custom blocks
+	public static final DeferredBlock<Block> SPIRIT_TABLE = REGISTRY.register("spirit_table", () -> new SpiritTableBlock());
 	// End of user code block custom blocks
 }

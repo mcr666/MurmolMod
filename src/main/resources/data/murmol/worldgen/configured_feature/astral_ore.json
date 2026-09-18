@@ -1,13 +1,15 @@
 {
-  "type": "minecraft:ore",
+  "type": "minecraft:scattered_ore",
   "config": {
-    "size": 3,
-    "discard_chance_on_air_exposure": 0.0,
+    "size": 2,
+    "discard_chance_on_air_exposure": 1.0,
     "targets": [
       {
         "target": {
-          "predicate_type": "tag_match",
-          "tag": "minecraft:stone_ore_replaceables"
+          "predicate_type": "minecraft:blockstate_match",
+          "block_state": {
+            "Name": "minecraft:stone"
+          }
         },
         "state": {
           "Name": "murmol:astral_ore"
@@ -15,8 +17,10 @@
       },
       {
         "target": {
-          "predicate_type": "tag_match",
-          "tag": "minecraft:deepslate_ore_replaceables"
+          "predicate_type": "minecraft:blockstate_match",
+          "block_state": {
+            "Name": "minecraft:deepslate"
+          }
         },
         "state": {
           "Name": "murmol:astral_ore"
@@ -24,7 +28,7 @@
       },
       {
         "target": {
-          "predicate_type": "blockstate_match",
+          "predicate_type": "minecraft:blockstate_match",
           "block_state": {
             "Name": "murmol:astral_stone"
           }

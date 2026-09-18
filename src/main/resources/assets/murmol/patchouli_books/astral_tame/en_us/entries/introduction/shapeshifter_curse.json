@@ -1,0 +1,23 @@
+{
+  "name": "The Shapeshifter's Curse",
+  "icon": "murmol:the_astral_tome",
+  "category": "murmol:introduction",
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "murmol:the_astral_tome",
+      "title": "The Astral Tome",
+      "text": "A tome bound in starlit hide. Those who read it are never quite human again. Right-click to open its pages and study the ways of the wild."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "The Ritual",
+      "text": "Place four materials upon a $(item)Spirit Table$(0), then right-click the table while holding a $(item)Murmol Soul$(0) to seal the offering. If the offering matches a form, the stars will remake you.$(br)Each transformation burns $(thing)5 experience levels$(0)."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Known Forms",
+      "text": "$(li)Chen Huang: golden apple, mango, sugar, honey bottle$(li)Petalfall Vernal: petal, sweet berries, glistering melon slice, apple$(li)Moss Beast: tree heart, moss block, vine, spore blossom"
+    }
+  ]
+}

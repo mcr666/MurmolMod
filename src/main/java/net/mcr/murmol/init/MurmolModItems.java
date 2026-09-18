@@ -7,21 +7,15 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 import net.neoforged.neoforge.registries.DeferredItem;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.common.DeferredSpawnEggItem;
-import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
-import net.neoforged.neoforge.capabilities.Capabilities;
-import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.bus.api.SubscribeEvent;
 
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.item.Rarity;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.BlockItem;
 
-import net.mcr.murmol.item.inventory.TheAstralTomeInventoryCapability;
 import net.mcr.murmol.item.*;
 import net.mcr.murmol.MurmolMod;
 
-@EventBusSubscriber
 public class MurmolModItems {
 	public static final DeferredRegister.Items REGISTRY = DeferredRegister.createItems(MurmolMod.MODID);
 	public static final DeferredItem<Item> MAOCRY_BLESSING;
@@ -42,6 +36,7 @@ public class MurmolModItems {
 	public static final DeferredItem<Item> FROST_ARMOR_BOOTS;
 	public static final DeferredItem<Item> FROST_SWORD;
 	public static final DeferredItem<Item> FROST_PICKAXE;
+	public static final DeferredItem<Item> SPIRIT_TABLE;
 	public static final DeferredItem<Item> ASTRAL_DIRT;
 	public static final DeferredItem<Item> ASTRAL_STONE;
 	public static final DeferredItem<Item> COBBLED_ASTRAL_STONE;
@@ -102,6 +97,7 @@ public class MurmolModItems {
 		FROST_ARMOR_BOOTS = REGISTRY.register("frost_armor_boots", FrostArmorItem.Boots::new);
 		FROST_SWORD = REGISTRY.register("frost_sword", FrostSwordItem::new);
 		FROST_PICKAXE = REGISTRY.register("frost_pickaxe", FrostPickaxeItem::new);
+		SPIRIT_TABLE = block(MurmolModBlocks.SPIRIT_TABLE);
 		ASTRAL_DIRT = block(MurmolModBlocks.ASTRAL_DIRT);
 		ASTRAL_STONE = block(MurmolModBlocks.ASTRAL_STONE);
 		COBBLED_ASTRAL_STONE = block(MurmolModBlocks.COBBLED_ASTRAL_STONE);
@@ -147,10 +143,6 @@ public class MurmolModItems {
 
 	// Start of user code block custom items
 	// End of user code block custom items
-	@SubscribeEvent
-	public static void registerCapabilities(RegisterCapabilitiesEvent event) {
-		event.registerItem(Capabilities.ItemHandler.ITEM, (stack, context) -> new TheAstralTomeInventoryCapability(stack), THE_ASTRAL_TOME.get());
-	}
 
 	private static DeferredItem<Item> block(DeferredHolder<Block, Block> block) {
 		return block(block, new Item.Properties());

@@ -46,6 +46,7 @@ public class MurmolModTabs {
 				tabData.accept(MurmolModBlocks.ASTRAL_PLANKS.get().asItem());
 				tabData.accept(MurmolModBlocks.ASTRAL_BLOCK.get().asItem());
 				tabData.accept(MurmolModBlocks.ALFAR_SHRINE.get().asItem());
+				tabData.accept(MurmolModItems.SPIRIT_TABLE.get());
 				tabData.accept(MurmolModBlocks.MAGIC_CRYSTAL_CLUSTER.get().asItem());
 				tabData.accept(MurmolModItems.XIAOHUI.get());
 				tabData.accept(MurmolModItems.ICE_FLOWER.get());

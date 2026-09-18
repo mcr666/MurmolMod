@@ -4,7 +4,7 @@ license="Not specified"
 
 [[mods]]
 modId="murmol"
-version="2.0.0"
+version="2.1.0"
 displayName="Murmol"
 displayURL="https://bilibili.com"
 logoFile="logo.png"
@@ -34,6 +34,13 @@ description="Murmol & Maocry"
     modId="minecraft"
     type="required"
     versionRange="[1.21.1]"
+    ordering="AFTER"
+    side="BOTH"
+
+[[dependencies.murmol]]
+    modId="patchouli"
+    type="optional"
+    versionRange="[1.21.1-93,)"
     ordering="AFTER"
     side="BOTH"
 

@@ -34,7 +34,6 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.BlockPos;
 
-import net.mcr.murmol.init.MurmolModMenus;
 import net.mcr.murmol.init.MurmolModMobEffects;
 import net.mcr.murmol.init.MurmolModItems;
 import net.mcr.murmol.network.MurmolModVariables;
@@ -120,44 +119,6 @@ public class FeralFormManager {
 		addTransformEffects(entity);
 	}
 
-	/**
-	 * 幻星秘典 GUI 触发的变形。检查 4 格材料，匹配到形态后变形。
-	 * 需要经验等级 >= 5，否则施加星幻感染。
-	 */
-	public static void transformFromBook(LevelAccessor world, double x, double y, double z, Entity entity) {
-		if (entity == null)
-			return;
-		Player player = entity instanceof Player ? (Player) entity : null;
-		if (player == null)
-			return;
-
-		if (player.experienceLevel >= 5) {
-			FeralForm matched = findFormByMaterials(entity);
-			if (matched != null) {
-				consumeMaterials(entity);
-				setForm(entity, matched);
-				awardAdvancement(entity, matched);
-				if (!entity.level().isClientSide()) {
-					player.displayClientMessage(Component.literal("\u00A76Starlight shall bestow its guardianship upon thee."), true);
-				}
-			} else {
-				playTransformSound(world, x, y, z);
-				if (!entity.level().isClientSide())
-					player.displayClientMessage(Component.literal("\u00A74Error Recipes."), true);
-			}
-		} else {
-			playTransformSound(world, x, y, z);
-			if (entity instanceof LivingEntity le && !le.level().isClientSide())
-				le.addEffect(new MobEffectInstance(MurmolModMobEffects.ASTRAL_INFECTION, 200, 2));
-			if (!entity.level().isClientSide())
-				player.displayClientMessage(Component.literal("\u00A74Your understanding is far insufficient."), true);
-		}
-
-		if (entity instanceof Player p)
-			p.closeContainer();
-		addTransformEffects(entity);
-	}
-
 	private static void playTransformSound(LevelAccessor world, double x, double y, double z) {
 		if (world instanceof Level level) {
 			var sound = BuiltInRegistries.SOUND_EVENT.get(ResourceLocation.parse("entity.elder_guardian.curse"));
@@ -192,15 +153,12 @@ public class FeralFormManager {
 
 	// ==================== 材料匹配 ====================
 
-	public static FeralForm findFormByMaterials(Entity entity) {
-		if (!(entity instanceof Player player) || !(player.containerMenu instanceof MurmolModMenus.MenuAccessor menu))
-			return null;
-		java.util.List<ItemStack> slotItems = new java.util.ArrayList<>();
-		for (int i = 0; i < 4; i++) {
-			var slot = menu.getSlots().get(i);
-			slotItems.add(slot == null ? ItemStack.EMPTY : slot.getItem());
-		}
-		// 人类形态（变回人类）：水桶 + 不死图腾 + 绿宝石 + 任意船
+	/**
+	 * 无序材料匹配：传入 4 个槽位的物品列表（可含 EMPTY），按物品 id 计数后与配方材料计数比对
+	 * （每种材料出现次数相同即可），返回匹配到的形态，未匹配返回 null。
+	 * 人类形态（变回人类）：水桶 + 不死图腾 + 绿宝石 + 任意船 特判在前。
+	 */
+	public static FeralForm findFormByMaterials(java.util.List<ItemStack> slotItems) {
 		if (matchesHumanRevert(slotItems))
 			return FeralForms.HUMAN;
 		for (FeralForm form : FeralForms.all()) {
@@ -212,51 +170,37 @@ public class FeralFormManager {
 		return null;
 	}
 
+	/** 统计非空槽位中每种物品的数量（每个 ItemStack 槽位计 1 次） */
+	private static java.util.Map<net.minecraft.world.item.Item, Integer> countItems(java.util.List<ItemStack> slotItems) {
+		java.util.Map<net.minecraft.world.item.Item, Integer> counts = new java.util.HashMap<>();
+		for (ItemStack stack : slotItems) {
+			if (!stack.isEmpty())
+				counts.merge(stack.getItem(), 1, Integer::sum);
+		}
+		return counts;
+	}
+
+	/** 人类配方：水桶 + 不死图腾 + 绿宝石 + 任意船（boats 标签），无序且每种材料出现次数须完全一致 */
 	private static boolean matchesHumanRevert(java.util.List<ItemStack> slotItems) {
-		return hasItem(slotItems, Items.WATER_BUCKET)
-				&& hasItem(slotItems, Items.TOTEM_OF_UNDYING)
-				&& hasItem(slotItems, Items.EMERALD)
-				&& hasBoat(slotItems);
-	}
-
-	private static boolean hasItem(java.util.List<ItemStack> items, net.minecraft.world.item.Item item) {
-		return items.stream().anyMatch(s -> s.is(item));
-	}
-
-	private static boolean hasBoat(java.util.List<ItemStack> items) {
-		TagKey<net.minecraft.world.item.Item> boats = ItemTags.create(ResourceLocation.parse("minecraft:boats"));
-		return items.stream().anyMatch(s -> s.is(boats));
+		java.util.Map<net.minecraft.world.item.Item, Integer> counts = countItems(slotItems);
+		int total = counts.values().stream().mapToInt(Integer::intValue).sum();
+		if (total != 4)
+			return false;
+		if (counts.getOrDefault(Items.WATER_BUCKET, 0) != 1
+				|| counts.getOrDefault(Items.TOTEM_OF_UNDYING, 0) != 1
+				|| counts.getOrDefault(Items.EMERALD, 0) != 1)
+			return false;
+		// 剩余第 4 个物品须为任意船
+		return slotItems.stream().anyMatch(s -> !s.isEmpty() && s.is(ItemTags.BOATS));
 	}
 
 	private static boolean matchesMaterials(java.util.List<ItemStack> slotItems, java.util.List<ItemStack> required) {
 		if (required.isEmpty())
 			return false;
-		java.util.List<ItemStack> remaining = new java.util.ArrayList<>(slotItems);
-		for (ItemStack req : required) {
-			boolean found = false;
-			for (int i = 0; i < remaining.size(); i++) {
-				if (ItemStack.isSameItem(remaining.get(i), req)) {
-					remaining.remove(i);
-					found = true;
-					break;
-				}
-			}
-			if (!found)
-				return false;
-		}
-		return true;
-	}
-
-	private static void consumeMaterials(Entity entity) {
-		if (!(entity instanceof Player player) || !(player.containerMenu instanceof MurmolModMenus.MenuAccessor menu))
-			return;
-		for (int i = 0; i < 4; i++) {
-			var slot = menu.getSlots().get(i);
-			if (slot != null)
-				slot.remove(1);
-		}
-		player.containerMenu.broadcastChanges();
-		player.giveExperienceLevels(-5);
+		java.util.Map<net.minecraft.world.item.Item, Integer> need = new java.util.HashMap<>();
+		for (ItemStack req : required)
+			need.merge(req.getItem(), 1, Integer::sum);
+		return countItems(slotItems).equals(need);
 	}
 
 	// ==================== 事件监听 ====================

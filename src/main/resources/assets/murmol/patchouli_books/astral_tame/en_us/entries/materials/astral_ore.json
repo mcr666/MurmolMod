@@ -1,0 +1,18 @@
+{
+  "name": "Astral Ore",
+  "icon": "murmol:astral_ore",
+  "category": "murmol:materials",
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "murmol:astral_ore",
+      "title": "Astral Ore",
+      "text": "It glows faintly wherever the astral seeps into stone. It generates in the $(item)Astral Infection biome$(0) and must be mined with a diamond pickaxe."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Refining",
+      "text": "Smelt the ore into $(item)Astral Ore Shards$(0). Three shards, one $(item)Astral Matrix$(0) (dropped by Astral Drakes), two diamonds and two gold ingots craft an $(item)Astral Ingot$(0)."
+    }
+  ]
+}

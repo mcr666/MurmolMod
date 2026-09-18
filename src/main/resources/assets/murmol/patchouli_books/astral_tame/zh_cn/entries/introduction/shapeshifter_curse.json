@@ -1,0 +1,23 @@
+{
+  "name": "幻形者的诅咒",
+  "icon": "murmol:the_astral_tome",
+  "category": "murmol:introduction",
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "murmol:the_astral_tome",
+      "title": "幻星秘典",
+      "text": "以星光皮革装订的秘典。读过它的人，再难算作纯粹的人类。右键翻开书页，研习野性的途径。"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "变形仪式",
+      "text": "在$(item)唤灵台$(0)上摆好四种材料，手持$(item)摩摩尔之魂$(0)右键唤灵台即可确认祭品。若祭品匹配某种形态，星辰便会重塑你的躯体。$(br)每次变形都会消耗$(thing)5 级经验$(0)。"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "已知形态",
+      "text": "$(li)乘黄：金苹果、芒果、糖、蜂蜜瓶$(li)落瓣春花：花瓣、甜浆果、闪烁的西瓜片、苹果$(li)苔叶兽：植之心、苔藓块、藤蔓、孢子花"
+    }
+  ]
+}

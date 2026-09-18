@@ -1,0 +1,16 @@
+{
+  "name": "唤灵台",
+  "icon": "murmol:spirit_table",
+  "category": "murmol:materials",
+  "pages": [
+    {
+      "type": "patchouli:crafting",
+      "recipe": "murmol:spirit_table",
+      "title": "唤灵台"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "以磨制深板岩、幻星锭、工作台与黑曜石制成。将四份祭品摆上台面，再手持$(item)摩摩尔之魂$(0)右键唤灵台，即可完成仪式。"
+    }
+  ]
+}

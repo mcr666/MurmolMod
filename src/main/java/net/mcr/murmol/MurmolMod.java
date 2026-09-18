@@ -39,11 +39,17 @@ public class MurmolMod {
 	public MurmolMod(IEventBus modEventBus, net.neoforged.fml.ModContainer modContainer) {
 		// Start of user code block mod constructor
 		modContainer.registerConfig(net.neoforged.fml.config.ModConfig.Type.CLIENT, MurmolModConfig.SPEC);
+		// 客户端注册配置界面（模组菜单中的"配置"按钮）
+		if (net.neoforged.fml.loading.FMLEnvironment.dist.isClient()) {
+			modContainer.registerExtensionPoint(net.neoforged.neoforge.client.gui.IConfigScreenFactory.class,
+					net.neoforged.neoforge.client.gui.ConfigurationScreen::new);
+		}
 		// End of user code block mod constructor
 		NeoForge.EVENT_BUS.register(this);
 		modEventBus.addListener(this::registerNetworking);
 		MurmolModSounds.REGISTRY.register(modEventBus);
 		MurmolModBlocks.REGISTRY.register(modEventBus);
+		MurmolModBlockEntities.REGISTRY.register(modEventBus);
 		MurmolModItems.REGISTRY.register(modEventBus);
 		MurmolModEntities.REGISTRY.register(modEventBus);
 		MurmolModTabs.REGISTRY.register(modEventBus);
@@ -52,7 +58,6 @@ public class MurmolMod {
 		MurmolModMenus.REGISTRY.register(modEventBus);
 		MurmolModParticleTypes.REGISTRY.register(modEventBus);
 		MurmolModAttributes.REGISTRY.register(modEventBus);
-		net.mcr.astralcruse.init.AstralCruseModSounds.REGISTRY.register(modEventBus);
 		// Start of user code block mod init
 		// End of user code block mod init
 	}

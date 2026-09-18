@@ -87,14 +87,18 @@ public class MurmolModBiomes {
 
 	public static <T> Climate.ParameterList<T> modifyOverworldParameterPoints(Climate.ParameterList<T> originalList, Function<ResourceKey<Biome>, T> lookup) {
 		List<Pair<Climate.ParameterPoint, T>> parameters = new ArrayList<>(originalList.values());
-		// 收窄气候参数范围：减少与原版群系的重叠，使星幻感染群系出现在温和偏冷、中等侵蚀度的区域
+		// 大范围内陆气候格 + offset=0（最高优先级）：
+		// offset 实际是第 7 个气候维度（取值 0.0~1.0，采样目标恒为 0，越大距离越远），
+		// 0 表示与原版常规群系同优先级，在大气候格内公平竞争即可形成大片连续区域。
+		// 注意：不能用负值——负值会作为距离参与计算（平方），导致参数点永远落选。
 		Climate.ParameterPoint surfacePoint = new Climate.ParameterPoint(
-				Climate.Parameter.span(-0.45f, -0.15f),
-				Climate.Parameter.span(-0.15f, 0.25f),
-				Climate.Parameter.span(-0.15f, 0.15f),
-				Climate.Parameter.span(0.10f, 0.40f),
-				Climate.Parameter.span(-0.05f, 0.20f),
-				Climate.Parameter.span(0.0f, 0.0f), 0);
+				Climate.Parameter.span(-0.60f, 0.40f),   // 温度：偏冷到温和
+				Climate.Parameter.span(-0.40f, 0.40f),   // 湿度：中等区间
+				Climate.Parameter.span(-0.19f, 0.55f),   // 大陆性：海岸到内陆（排除海洋）
+				Climate.Parameter.span(-0.78f, 0.55f),   // 侵蚀度：排除尖峰山地
+				Climate.Parameter.span(0.0f, 0.0f),      // 深度：仅地表
+				Climate.Parameter.span(-1.0f, 1.0f),     // 奇异性：全范围
+				0);
 		parameters.add(new Pair<>(surfacePoint, lookup.apply(ASTRAL_INFECTION_BIOME)));
 		return new Climate.ParameterList<>(parameters);
 	}

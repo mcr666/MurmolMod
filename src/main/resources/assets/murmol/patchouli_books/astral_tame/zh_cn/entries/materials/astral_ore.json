@@ -1,0 +1,18 @@
+{
+  "name": "幻星矿",
+  "icon": "murmol:astral_ore",
+  "category": "murmol:materials",
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "murmol:astral_ore",
+      "title": "幻星矿",
+      "text": "在星幻侵蚀之处隐隐发光。生成于$(item)幻星瘟疫群系$(0)（星幻感染之地），需要钻石镐才能开采。"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "提炼",
+      "text": "将幻星矿熔炼为$(item)幻星矿碎片$(0)。三块碎片搭配一颗$(item)星辰源质$(0)（星界幼龙掉落）、两颗钻石与两根金锭，可合成$(item)幻星锭$(0)。"
+    }
+  ]
+}

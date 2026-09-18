@@ -1,0 +1,18 @@
+{
+  "name": "重归人类",
+  "icon": "murmol:totemof_fallen",
+  "category": "murmol:introduction",
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "murmol:totemof_fallen",
+      "title": "堕落者图腾",
+      "text": "食用堕落者图腾，便可褪去野性的形态，重归人类。"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "净化仪式",
+      "text": "唤灵台同样接受逆转祭品：一桶$(item)水$(0)、一个$(item)不死图腾$(0)、一颗$(item)绿宝石$(0)与任意一种$(item)船$(0)。同样以摩摩尔之魂确认。"
+    }
+  ]
+}

@@ -17,10 +17,12 @@ import mezz.jei.api.recipe.RecipeIngredientRole;
 import mezz.jei.api.recipe.RecipeType;
 import mezz.jei.api.recipe.category.IRecipeCategory;
 
+import net.mcr.murmol.init.MurmolModBlocks;
 import net.mcr.murmol.init.MurmolModItems;
 
 /**
- * 幻星秘典配方分类：左侧 2x2 材料，右侧输出对应形态灵魂物品。
+ * 形态配方分类：左侧 2x2 材料，右侧输出对应形态灵魂物品。
+ * 图标为唤灵台方块；tooltip 说明两种变形途径（幻星秘典仪式 / 唤灵台）。
  * 仅在 JEI 加载时被实例化（软依赖）。
  */
 public class FormTransformRecipeCategory implements IRecipeCategory<FormTransformRecipe> {
@@ -31,7 +33,7 @@ public class FormTransformRecipeCategory implements IRecipeCategory<FormTransfor
 	private final IDrawable icon;
 
 	public FormTransformRecipeCategory(IGuiHelper guiHelper) {
-		this.icon = guiHelper.createDrawableItemStack(new ItemStack(MurmolModItems.THE_ASTRAL_TOME.get()));
+		this.icon = guiHelper.createDrawableItemStack(new ItemStack(MurmolModBlocks.SPIRIT_TABLE.get()));
 	}
 
 	@Override
@@ -72,6 +74,10 @@ public class FormTransformRecipeCategory implements IRecipeCategory<FormTransfor
 			IRecipeSlotBuilder boat = builder.addSlot(RecipeIngredientRole.INPUT, 28, 28);
 			boat.addIngredients(net.minecraft.world.item.crafting.Ingredient.of(
 					net.minecraft.tags.ItemTags.create(ResourceLocation.parse("minecraft:boats"))));
+			addMethodTooltip(water);
+			addMethodTooltip(totem);
+			addMethodTooltip(emerald);
+			addMethodTooltip(boat);
 			return;
 		}
 		List<ItemStack> materials = recipe.getForm().getTransformMaterials();
@@ -80,11 +86,17 @@ public class FormTransformRecipeCategory implements IRecipeCategory<FormTransfor
 		for (int i = 0; i < positions.length && i < materials.size(); i++) {
 			IRecipeSlotBuilder slot = builder.addSlot(RecipeIngredientRole.INPUT, positions[i][0], positions[i][1]);
 			slot.addItemStack(materials.get(i));
+			addMethodTooltip(slot);
 		}
 		// 右侧输出：形态灵魂物品
 		IRecipeSlotBuilder output = builder.addSlot(RecipeIngredientRole.OUTPUT, 84, 19);
 		output.addItemStack(recipe.getForm().getSoulItem());
-		output.addRichTooltipCallback((view, tooltip) ->
+		addMethodTooltip(output);
+	}
+
+	/** 槽位 tooltip：说明两种变形途径（幻星秘典仪式 / 唤灵台）皆可 */
+	private static void addMethodTooltip(IRecipeSlotBuilder slot) {
+		slot.addRichTooltipCallback((view, tooltip) ->
 				tooltip.add(Component.translatable("jei.murmol.feral_transform.desc")));
 	}
 

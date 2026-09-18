@@ -1,0 +1,16 @@
+{
+  "name": "Spirit Table",
+  "icon": "murmol:spirit_table",
+  "category": "murmol:materials",
+  "pages": [
+    {
+      "type": "patchouli:crafting",
+      "recipe": "murmol:spirit_table",
+      "title": "Spirit Table"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Built from polished deepslate, an astral ingot, a crafting table and obsidian. Lay your four offerings upon its altar, then right-click with a $(item)Murmol Soul$(0) to complete the ritual."
+    }
+  ]
+}

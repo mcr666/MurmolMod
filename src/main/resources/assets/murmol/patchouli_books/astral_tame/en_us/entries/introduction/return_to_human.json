@@ -1,0 +1,18 @@
+{
+  "name": "Return to Human",
+  "icon": "murmol:totemof_fallen",
+  "category": "murmol:introduction",
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "murmol:totemof_fallen",
+      "title": "Totem of the Fallen",
+      "text": "Eat a Totem of the Fallen to shed your feral shape and become human once more."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "The Cleansing Ritual",
+      "text": "The Spirit Table also accepts a reversal offering: a $(item)water bucket$(0), a $(item)Totem of Undying$(0), an $(item)emerald$(0) and any $(item)boat$(0). Confirm with a Murmol Soul as usual."
+    }
+  ]
+}

@@ -14,6 +14,7 @@ import mezz.jei.api.registration.IRecipeRegistration;
 
 import net.mcr.murmol.feral.FeralForm;
 import net.mcr.murmol.feral.FeralForms;
+import net.mcr.murmol.init.MurmolModBlocks;
 import net.mcr.murmol.init.MurmolModItems;
 
 /**
@@ -48,7 +49,10 @@ public class MurmolJeiPlugin implements IModPlugin {
 
 	@Override
 	public void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {
+		// 两种变形途径的载体均注册为配方催化剂
 		registration.addRecipeCatalyst(new ItemStack(MurmolModItems.THE_ASTRAL_TOME.get()),
+				FormTransformRecipeCategory.RECIPE_TYPE);
+		registration.addRecipeCatalyst(new ItemStack(MurmolModBlocks.SPIRIT_TABLE.get()),
 				FormTransformRecipeCategory.RECIPE_TYPE);
 	}
 }

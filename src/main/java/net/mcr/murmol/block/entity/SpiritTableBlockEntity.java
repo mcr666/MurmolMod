@@ -31,8 +31,8 @@ public class SpiritTableBlockEntity extends BlockEntity {
 	}
 
 	@Override
-	protected void load(CompoundTag tag, HolderLookup.Provider registries) {
-		super.load(tag, registries);
+	protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
+		super.loadAdditional(tag, registries);
 		if (tag.contains("inventory"))
 			this.inventory.deserializeNBT(registries, tag.getCompound("inventory"));
 	}

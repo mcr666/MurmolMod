@@ -1,6 +1,6 @@
 package net.mcr.astralcruse.mixin;
 
-import net.mcr.astralcruse.init.AstralCruseModSounds;
+import net.mcr.murmol.init.MurmolModSounds;
 import net.minecraft.client.Minecraft;
 import net.minecraft.sounds.Music;
 import org.spongepowered.asm.mixin.Mixin;
@@ -11,7 +11,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Mixin(Minecraft.class)
 public abstract class AstralMainMenuMusicMixin {
     private static final Music ASTRAL_CRUSE$MAIN_MENU_MUSIC =
-        new Music(AstralCruseModSounds.ASTRAL_BOOK_GUI, 40, 40, true);
+        new Music(MurmolModSounds.ASTRAL_AFFECTION, 40, 40, true);
 
     @Inject(method = "getSituationalMusic", at = @At("HEAD"), cancellable = true)
     private void astralCruse$useCustomMainMenuMusic(CallbackInfoReturnable<Music> cir) {
