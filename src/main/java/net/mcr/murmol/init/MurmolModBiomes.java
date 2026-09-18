@@ -4,6 +4,7 @@
 package net.mcr.murmol.init;
 
 import net.neoforged.neoforge.event.server.ServerAboutToStartEvent;
+import net.neoforged.neoforge.event.server.ServerStartingEvent;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -17,6 +18,12 @@ import net.minecraft.world.level.dimension.BuiltinDimensionTypes;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.biome.Climate;
 import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.ChunkPos;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.PlayerRespawnLogic;
+import net.minecraft.world.level.storage.ServerLevelData;
+import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.core.registries.Registries;
@@ -43,6 +50,37 @@ public class MurmolModBiomes {
 	@SubscribeEvent
 	public static void onCommonSetup(FMLCommonSetupEvent event) {
 		BOOTSTRAP_VALIDATION_PASSED = true;
+	}
+
+	/**
+	 * 出生点兜底搜索：PlayerRespawnLogicMixin 已让原版 ±5 区块螺旋搜索跳过星幻之地，
+	 * 但若候选点周边整片都是星幻之地，则原版会退回噪声中心（仍在群系内）。
+	 * 此处在服务器启动时检测最终出生点，若落在星幻之地，则向外逐圈搜索（最多 32 圈），
+	 * 找到第一个可落脚的正常群系区块并设为出生点。
+	 */
+	@SubscribeEvent
+	public static void onServerStarting(ServerStartingEvent event) {
+		MinecraftServer server = event.getServer();
+		ServerLevel level = server.overworld();
+		if (level == null)
+			return;
+		BlockPos spawnPos = level.getSharedSpawnPos();
+		if (!level.getBiome(spawnPos).is(ASTRAL_INFECTION_BIOME))
+			return;
+		ChunkPos center = new ChunkPos(spawnPos);
+		for (int r = 1; r <= 32; r++) {
+			for (int dx = -r; dx <= r; dx++) {
+				for (int dz = -r; dz <= r; dz++) {
+					if (Math.max(Math.abs(dx), Math.abs(dz)) != r)
+						continue;
+					BlockPos found = PlayerRespawnLogic.getSpawnPosInChunk(level, new ChunkPos(center.x + dx, center.z + dz));
+					if (found != null) {
+						((ServerLevelData) server.getWorldData()).setSpawn(found, level.getSharedSpawnAngle());
+						return;
+					}
+				}
+			}
+		}
 	}
 
 	@SubscribeEvent
@@ -91,11 +129,12 @@ public class MurmolModBiomes {
 		// offset 实际是第 7 个气候维度（取值 0.0~1.0，采样目标恒为 0，越大距离越远），
 		// 0 表示与原版常规群系同优先级，在大气候格内公平竞争即可形成大片连续区域。
 		// 注意：不能用负值——负值会作为距离参与计算（平方），导致参数点永远落选。
+		// 各气候维度区间宽度已减半（中心不变），使群系生成范围约为原来的一半。
 		Climate.ParameterPoint surfacePoint = new Climate.ParameterPoint(
-				Climate.Parameter.span(-0.60f, 0.40f),   // 温度：偏冷到温和
-				Climate.Parameter.span(-0.40f, 0.40f),   // 湿度：中等区间
-				Climate.Parameter.span(-0.19f, 0.55f),   // 大陆性：海岸到内陆（排除海洋）
-				Climate.Parameter.span(-0.78f, 0.55f),   // 侵蚀度：排除尖峰山地
+				Climate.Parameter.span(-0.35f, 0.15f),   // 温度：偏冷到温和（原 -0.60~0.40，减半）
+				Climate.Parameter.span(-0.20f, 0.20f),   // 湿度：中等区间（原 -0.40~0.40，减半）
+				Climate.Parameter.span(0.00f, 0.37f),    // 大陆性：海岸到内陆（原 -0.19~0.55，减半）
+				Climate.Parameter.span(-0.45f, 0.22f),   // 侵蚀度：排除尖峰山地（原 -0.78~0.55，减半）
 				Climate.Parameter.span(0.0f, 0.0f),      // 深度：仅地表
 				Climate.Parameter.span(-1.0f, 1.0f),     // 奇异性：全范围
 				0);

@@ -18,14 +18,14 @@ public class MurmolModTabs {
 	public static final DeferredHolder<CreativeModeTab, CreativeModeTab> MURMOL_CX = REGISTRY.register("murmol_cx",
 			() -> CreativeModeTab.builder().title(Component.translatable("item_group.murmol.murmol_cx")).icon(() -> new ItemStack(MurmolModItems.MAOCRY_BLESSING.get())).displayItems((parameters, tabData) -> {
 				tabData.accept(MurmolModItems.MAOCRY_BLESSING.get());
-				tabData.accept(MurmolModItems.MURMOL_TALE.get());
 				tabData.accept(MurmolModItems.THE_ASTRAL_TOME.get());
 				tabData.accept(MurmolModItems.ICE_AND_FIRE_SWORD.get());
 				tabData.accept(MurmolModItems.FROST_SWORD.get());
 				tabData.accept(MurmolModItems.FROST_PICKAXE.get());
 				tabData.accept(MurmolModItems.ICE_WAND.get());
-				tabData.accept(MurmolModItems.BLOOMING_BLADE.get());
-				tabData.accept(MurmolModItems.BLOOMING_BLADE_FULL.get());
+				// 绽花之刃 / 升级版绽花之刃：初始携带人类杀手附魔
+				tabData.accept(net.mcr.murmol.item.BloomingBladeItem.createEnchantedStack(parameters.holders()));
+				tabData.accept(net.mcr.murmol.item.BloomingBladeFullItem.createEnchantedStack(parameters.holders()));
 				tabData.accept(MurmolModItems.FIRE_BLADE_CLAW.get());
 				tabData.accept(MurmolModItems.FROST_ARMOR_HELMET.get());
 				tabData.accept(MurmolModItems.FROST_ARMOR_CHESTPLATE.get());
@@ -64,6 +64,13 @@ public class MurmolModTabs {
 				tabData.accept(MurmolModItems.ASTRAL_INGOT.get());
 				tabData.accept(MurmolModItems.PETAL.get());
 				tabData.accept(MurmolModItems.MURMOL_SOUL.get());
+				tabData.accept(MurmolModItems.SOUL_BOTTLE.get());
+				// 古代知识残页：每种形态各一份
+				tabData.accept(net.mcr.murmol.item.AncientKnowledgeScrapItem.forForm("luohong"));
+				tabData.accept(net.mcr.murmol.item.AncientKnowledgeScrapItem.forForm("chen_huang"));
+				tabData.accept(net.mcr.murmol.item.AncientKnowledgeScrapItem.forForm("moss_beast"));
+				// 绽花之刃：初始携带人类杀手附魔
+				tabData.accept(net.mcr.murmol.item.BloomingBladeItem.createEnchantedStack(parameters.holders()));
 				tabData.accept(MurmolModItems.PETALFALL_VERNAL_SOUL.get());
 				tabData.accept(MurmolModItems.MOSS_SOUL.get());
 				tabData.accept(MurmolModItems.CH_SOUL.get());

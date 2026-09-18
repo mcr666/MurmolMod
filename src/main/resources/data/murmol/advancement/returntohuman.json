@@ -1,4 +1,4 @@
-{
+﻿{
   "display": {
     "icon": {
       "id": "minecraft:oak_boat"
@@ -9,7 +9,7 @@
     "description": {
       "translate": "advancements.returntohuman.descr"
     },
-    "frame": "challenge",
+    "frame": "task",
     "show_toast": true,
     "announce_to_chat": true,
     "hidden": true

@@ -264,6 +264,56 @@
           ]
         }
       ]
+    },
+    {
+      "rolls": 1,
+      "conditions": [
+        {
+          "condition": "minecraft:random_chance",
+          "chance": 0.2
+        }
+      ],
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "murmol:ancient_knowledge_scrap",
+          "weight": 1,
+          "functions": [
+            {
+              "function": "minecraft:set_custom_data",
+              "tag": {
+                "FormId": "luohong"
+              }
+            }
+          ]
+        },
+        {
+          "type": "minecraft:item",
+          "name": "murmol:ancient_knowledge_scrap",
+          "weight": 1,
+          "functions": [
+            {
+              "function": "minecraft:set_custom_data",
+              "tag": {
+                "FormId": "chen_huang"
+              }
+            }
+          ]
+        },
+        {
+          "type": "minecraft:item",
+          "name": "murmol:ancient_knowledge_scrap",
+          "weight": 1,
+          "functions": [
+            {
+              "function": "minecraft:set_custom_data",
+              "tag": {
+                "FormId": "moss_beast"
+              }
+            }
+          ]
+        }
+      ]
     }
   ],
   "random_sequence": "murmol:chests/maocryscuptre"

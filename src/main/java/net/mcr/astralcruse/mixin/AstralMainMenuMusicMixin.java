@@ -10,8 +10,11 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(Minecraft.class)
 public abstract class AstralMainMenuMusicMixin {
-    private static final Music ASTRAL_CRUSE$MAIN_MENU_MUSIC =
-        new Music(MurmolModSounds.ASTRAL_AFFECTION, 40, 40, true);
+    // 延迟初始化：不能在静态字段中引用 MurmulModSounds，
+    // 否则会在 Minecraft 类初始化期间提前加载注册器导致闪退
+    private static Music astralCruse$mainMenuMusic() {
+        return new Music(MurmolModSounds.ASTRAL_AFFECTION, 40, 40, true);
+    }
 
     @Inject(method = "getSituationalMusic", at = @At("HEAD"), cancellable = true)
     private void astralCruse$useCustomMainMenuMusic(CallbackInfoReturnable<Music> cir) {
@@ -21,9 +24,9 @@ public abstract class AstralMainMenuMusicMixin {
         }
         Minecraft minecraft = (Minecraft) (Object) this;
         if (minecraft.player == null) {
-            cir.setReturnValue(ASTRAL_CRUSE$MAIN_MENU_MUSIC);
+            cir.setReturnValue(astralCruse$mainMenuMusic());
         } else {
-            minecraft.getMusicManager().stopPlaying(ASTRAL_CRUSE$MAIN_MENU_MUSIC);
+            minecraft.getMusicManager().stopPlaying(astralCruse$mainMenuMusic());
         }
     }
 }

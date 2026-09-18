@@ -11,7 +11,12 @@ bin/
 # Evaluator / run directories
 run/
 runs/
-data/
+/data/
+config/
+logs/
+
+# IDE
+.eclipse/
 
 # Java
 *.class

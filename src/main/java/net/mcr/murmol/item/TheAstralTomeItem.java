@@ -2,7 +2,6 @@ package net.mcr.murmol.item;
 
 import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.api.distmarker.Dist;
-import net.neoforged.fml.ModList;
 
 import net.minecraft.world.level.Level;
 import net.minecraft.world.item.TooltipFlag;
@@ -44,17 +43,10 @@ public class TheAstralTomeItem extends Item {
 	}
 
 	@Override
-	@OnlyIn(Dist.CLIENT)
-	public void appendHoverText(ItemStack itemstack, Item.TooltipContext context, List<Component> list, TooltipFlag flag) {
-		super.appendHoverText(itemstack, context, list, flag);
-		list.add(Component.translatable("item.murmol.the_astral_tome.description_0"));
-		list.add(Component.translatable("item.murmol.the_astral_tome.description_1"));
-	}
-
-	@Override
 	public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
 		ItemStack stack = player.getItemInHand(hand);
-		if (!level.isClientSide() && player instanceof ServerPlayer serverPlayer && ModList.get().isLoaded("patchouli")) {
+		// Patchouli 为必要前置（mods.toml type=required），无需再检查 ModList
+		if (!level.isClientSide() && player instanceof ServerPlayer serverPlayer) {
 			PatchouliAPI.get().openBookGUI(serverPlayer, BOOK_ID);
 		}
 		return InteractionResultHolder.sidedSuccess(stack, level.isClientSide());

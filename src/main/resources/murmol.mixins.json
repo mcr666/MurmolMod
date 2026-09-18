@@ -4,7 +4,8 @@
   "compatibilityLevel": "JAVA_21",
   "mixins": [
     "NoiseGeneratorSettingsMixin",
-    "BiomeSourcePresetMixin"
+    "BiomeSourcePresetMixin",
+    "PlayerRespawnLogicMixin"
   ],
   "client": [],
   "injectors": {

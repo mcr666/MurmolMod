@@ -1,4 +1,4 @@
-{
+﻿{
   "display": {
     "icon": {
       "id": "murmol:petalfall_vernal_soul"
@@ -9,7 +9,7 @@
     "description": {
       "translate": "advancements.witnessof_petal_spring.descr"
     },
-    "frame": "challenge",
+    "frame": "task",
     "show_toast": true,
     "announce_to_chat": true,
     "hidden": true

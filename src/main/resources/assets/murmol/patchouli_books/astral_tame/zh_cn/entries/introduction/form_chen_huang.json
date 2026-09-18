@@ -1,0 +1,24 @@
+﻿{
+  "name": "乘黄",
+  "icon": "murmol:ch_soul",
+  "category": "murmol:fengyang_classic",
+  "advancement": "murmol:unlock/chen_huang",
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "murmol:ch_soul",
+      "title": "乘黄",
+      "text": "乘它者寿两千岁。古籍中的乘黄形如四角之鹿，通体覆着星辉般的鳞毛，是上古神兽中最为迅捷的存在。迷途的旅人若得乘黄驮负，往往能在一日之间横穿整片荒野。"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "特性",
+      "text": "化身为乘黄后，你将获得远超常人的$(thing)速度与耐力$(0)——这正是它被古人奉为祥瑞的原因。凡人的双脚穷尽一生追逐的距离，对乘黄而言不过一次晨间的漫步。"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "变形配方",
+      "text": "在$(item)唤灵台$(0)上摆好以下四种祭品，手持$(item)摩摩尔之魂$(0)右键确认：$(li)金苹果$(li)芒果$(li)糖$(li)蜂蜜瓶$(br)每次变形消耗$(thing)5 级经验$(0)。$(br)也可将$(item)古代知识残页（乘黄）$(0)、$(item)摩摩尔之魂$(0)与上述四种材料在工作台合成$(item)乘黄之魂$(0)。"
+    }
+  ]
+}

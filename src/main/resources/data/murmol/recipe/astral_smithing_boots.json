@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:smithing_transform",
+  "template": {
+    "item": "minecraft:netherite_upgrade_smithing_template"
+  },
+  "base": {
+    "item": "minecraft:netherite_boots"
+  },
+  "addition": {
+    "item": "murmol:astral_ingot"
+  },
+  "result": {
+    "id": "murmol:astral_armor_boots",
+    "count": 1
+  }
+}

@@ -22,7 +22,7 @@ import net.mcr.murmol.init.MurmolModItems;
 
 /**
  * 形态配方分类：左侧 2x2 材料，右侧输出对应形态灵魂物品。
- * 图标为唤灵台方块；tooltip 说明两种变形途径（幻星秘典仪式 / 唤灵台）。
+ * 图标为唤灵台方块；tooltip 说明唤灵台激活方式。
  * 仅在 JEI 加载时被实例化（软依赖）。
  */
 public class FormTransformRecipeCategory implements IRecipeCategory<FormTransformRecipe> {
@@ -103,7 +103,7 @@ public class FormTransformRecipeCategory implements IRecipeCategory<FormTransfor
 		addMethodTooltip(output);
 	}
 
-	/** 槽位 tooltip：说明两种变形途径（幻星秘典仪式 / 唤灵台）皆可 */
+	/** 槽位 tooltip：说明唤灵台激活方式 */
 	private static void addMethodTooltip(IRecipeSlotBuilder slot) {
 		slot.addRichTooltipCallback((view, tooltip) ->
 				tooltip.add(Component.translatable("jei.murmol.feral_transform.desc")));

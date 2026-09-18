@@ -1,4 +1,4 @@
-{
+﻿{
   "display": {
     "icon": {
       "id": "murmol:moss_soul"
@@ -9,7 +9,7 @@
     "description": {
       "translate": "advancements.stands_a_loquat_tree.descr"
     },
-    "frame": "challenge",
+    "frame": "task",
     "show_toast": true,
     "announce_to_chat": true,
     "hidden": true

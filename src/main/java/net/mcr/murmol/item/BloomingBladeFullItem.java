@@ -57,6 +57,15 @@ public class BloomingBladeFullItem extends SwordItem {
 		super(TOOL_TIER, new Item.Properties().attributes(SwordItem.createAttributes(TOOL_TIER, 5.5f, -2.4f)).rarity(Rarity.RARE));
 	}
 
+	/** 创建带初始人类杀手附魔的堆栈（用于创造物品栏） */
+	public static ItemStack createEnchantedStack(net.minecraft.core.HolderLookup.Provider provider) {
+		ItemStack stack = new ItemStack(net.mcr.murmol.init.MurmolModItems.BLOOMING_BLADE_FULL.get());
+		stack.enchant(provider.lookupOrThrow(net.minecraft.core.registries.Registries.ENCHANTMENT)
+				.getOrThrow(net.minecraft.resources.ResourceKey.create(net.minecraft.core.registries.Registries.ENCHANTMENT,
+						net.minecraft.resources.ResourceLocation.parse("murmol:human_killer"))), 5);
+		return stack;
+	}
+
 	@Override
 	@OnlyIn(Dist.CLIENT)
 	public void appendHoverText(ItemStack itemstack, Item.TooltipContext context, List<Component> list, TooltipFlag flag) {

@@ -1,4 +1,4 @@
-{
+﻿{
   "display": {
     "icon": {
       "id": "murmol:the_astral_tome"
@@ -9,7 +9,7 @@
     "description": {
       "translate": "advancements.get_book.descr"
     },
-    "frame": "challenge",
+    "frame": "task",
     "show_toast": true,
     "announce_to_chat": true,
     "hidden": true

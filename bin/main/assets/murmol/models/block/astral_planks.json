@@ -1,8 +1,0 @@
-{
-  "parent": "block/cube_all",
-  "textures": {
-    "all": "murmol:block/astral_planks",
-    "particle": "murmol:block/astral_planks"
-  },
-  "render_type": "solid"
-}

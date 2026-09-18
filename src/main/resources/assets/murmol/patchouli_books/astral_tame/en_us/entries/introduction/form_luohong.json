@@ -1,0 +1,24 @@
+﻿{
+  "name": "Petalfall Vernal",
+  "icon": "murmol:petalfall_vernal_soul",
+  "category": "murmol:fengyang_classic",
+  "advancement": "murmol:unlock/luohong",
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "murmol:petalfall_vernal_soul",
+      "title": "Petalfall Vernal",
+      "text": "Springs depart and return; petals fall and bloom again. Legend says the Petalfall Vernal was born of the wilderness's final longing for spring: whenever the first spring flower withers, its form blossoms anew. Petals swirl around it in an unending rain of flowers."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Traits",
+      "text": "In the form of Petalfall Vernal, you gain the spring's power of $(thing)nourishment and renewal$(0). Withered things bloom again and wounds heal slowly — just as plants broken by winter always reawaken in the spring breeze."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Transformation Recipe",
+      "text": "Arrange these four offerings on the $(item)Spirit Table$(0), then right-click it holding a $(item)Murmol Soul$(0): $(li)petal$(li)sweet berries$(li)glistering melon slice$(li)apple$(br)Each transformation consumes $(thing)5 XP levels$(0). $(br)Alternatively, craft the $(item)Petalfall Vernal Soul$(0) at a crafting table from an $(item)Ancient Knowledge Scrap (Petalfall Vernal)$(0), a $(item)Murmol Soul$(0) and the four materials above."
+    }
+  ]
+}

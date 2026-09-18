@@ -1,8 +1,0 @@
-{
-  "parent": "block/cross",
-  "textures": {
-    "cross": "murmol:block/oxeye_daisy",
-    "particle": "murmol:block/oxeye_daisy"
-  },
-  "render_type": "cutout"
-}

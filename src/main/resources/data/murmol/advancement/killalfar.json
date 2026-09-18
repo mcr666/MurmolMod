@@ -1,4 +1,4 @@
-{
+﻿{
   "display": {
     "icon": {
       "id": "murmol:tree_heart"
@@ -9,7 +9,7 @@
     "description": {
       "translate": "advancements.killalfar.descr"
     },
-    "frame": "challenge",
+    "frame": "task",
     "show_toast": true,
     "announce_to_chat": true,
     "hidden": false

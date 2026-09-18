@@ -47,9 +47,10 @@ public class MurmolModItems {
 	public static final DeferredItem<Item> ASTRAL_LOG;
 	public static final DeferredItem<Item> ASTRAL_PLANKS;
 	public static final DeferredItem<Item> ASTRAL_LEAF;
-	public static final DeferredItem<Item> MURMOL_TALE;
 	public static final DeferredItem<Item> MURMOL_SOUL;
 	public static final DeferredItem<Item> THE_ASTRAL_TOME;
+	public static final DeferredItem<Item> SOUL_BOTTLE;
+	public static final DeferredItem<Item> ANCIENT_KNOWLEDGE_SCRAP;
 	public static final DeferredItem<Item> ASTRAL_ARMOR_HELMET;
 	public static final DeferredItem<Item> ASTRAL_ARMOR_CHESTPLATE;
 	public static final DeferredItem<Item> ASTRAL_ARMOR_LEGGINGS;
@@ -108,9 +109,10 @@ public class MurmolModItems {
 		ASTRAL_LOG = block(MurmolModBlocks.ASTRAL_LOG);
 		ASTRAL_PLANKS = block(MurmolModBlocks.ASTRAL_PLANKS);
 		ASTRAL_LEAF = block(MurmolModBlocks.ASTRAL_LEAF);
-		MURMOL_TALE = REGISTRY.register("murmol_tale", MurmolTaleItem::new);
 		MURMOL_SOUL = REGISTRY.register("murmol_soul", MurmolSoulItem::new);
 		THE_ASTRAL_TOME = REGISTRY.register("the_astral_tome", TheAstralTomeItem::new);
+		SOUL_BOTTLE = REGISTRY.register("soul_bottle", SoulBottleItem::new);
+		ANCIENT_KNOWLEDGE_SCRAP = REGISTRY.register("ancient_knowledge_scrap", AncientKnowledgeScrapItem::new);
 		ASTRAL_ARMOR_HELMET = REGISTRY.register("astral_armor_helmet", AstralArmorItem.Helmet::new);
 		ASTRAL_ARMOR_CHESTPLATE = REGISTRY.register("astral_armor_chestplate", AstralArmorItem.Chestplate::new);
 		ASTRAL_ARMOR_LEGGINGS = REGISTRY.register("astral_armor_leggings", AstralArmorItem.Leggings::new);

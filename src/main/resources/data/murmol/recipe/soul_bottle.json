@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "murmol:murmol_soul"
+    },
+    {
+      "item": "murmol:astral_matrix"
+    },
+    {
+      "item": "minecraft:glass_bottle"
+    }
+  ],
+  "result": {
+    "id": "murmol:soul_bottle",
+    "count": 1
+  }
+}

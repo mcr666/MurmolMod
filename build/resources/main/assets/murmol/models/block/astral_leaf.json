@@ -1,7 +1,0 @@
-{
-  "parent": "block/cube_all",
-  "textures": {
-    "all": "murmol:block/astral_leaves",
-    "particle": "murmol:block/astral_leaves"
-  }
-}

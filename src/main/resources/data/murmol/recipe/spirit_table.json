@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "BDB",
+    " A ",
+    "CCC"
+  ],
+  "key": {
+    "A": { "item": "minecraft:crafting_table" },
+    "B": { "item": "minecraft:polished_deepslate" },
+    "C": { "item": "minecraft:obsidian" },
+    "D": { "item": "murmol:astral_ingot" }
+  },
+  "result": {
+    "id": "murmol:spirit_table",
+    "count": 1
+  }
+}

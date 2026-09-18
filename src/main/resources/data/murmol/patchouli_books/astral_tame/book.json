@@ -1,0 +1,8 @@
+{
+  "name": "book.murmol.astral_tame.title",
+  "landing_text": "book.murmol.astral_tame.landing",
+  "model": "murmol:the_astral_tome",
+  "version": "1",
+  "creative_tab": "murmol:murmol_cx",
+  "use_resource_pack": true
+}

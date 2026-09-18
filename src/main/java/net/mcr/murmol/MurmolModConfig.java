@@ -9,6 +9,8 @@ public class MurmolModConfig {
 
 	/** 是否让 mod 修改标题界面（按钮样式与主菜单音乐，默认开启） */
 	public static final ModConfigSpec.BooleanValue MODIFY_TITLE_SCREEN;
+	/** 是否让 mod 替换标题菜单全景背景（默认开启） */
+	public static final ModConfigSpec.BooleanValue MODIFY_TITLE_PANORAMA;
 	/** 手动开关：强制显示在形态定义中被隐藏的第一人称形态手臂（默认关闭） */
 	public static final ModConfigSpec.BooleanValue SHOW_HIDDEN_FERAL_ARM;
 
@@ -19,6 +21,9 @@ public class MurmolModConfig {
 		MODIFY_TITLE_SCREEN = builder
 				.comment("Whether the mod should modify the title screen (button style and main menu music). Default: true")
 				.define("modifyTitleScreen", true);
+		MODIFY_TITLE_PANORAMA = builder
+				.comment("Whether the mod should replace the title menu panorama background. Default: true")
+				.define("modifyTitlePanorama", true);
 		SHOW_HIDDEN_FERAL_ARM = builder
 				.comment("Manual switch: force-render the first-person feral arm that the form definition hides. Default: false")
 				.define("showHiddenFeralArm", false);

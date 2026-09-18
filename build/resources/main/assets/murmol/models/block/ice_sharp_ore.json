@@ -1,8 +1,0 @@
-{
-  "parent": "block/cube_all",
-  "textures": {
-    "all": "murmol:block/ice_shard_ore",
-    "particle": "murmol:block/ice_shard_ore"
-  },
-  "render_type": "solid"
-}

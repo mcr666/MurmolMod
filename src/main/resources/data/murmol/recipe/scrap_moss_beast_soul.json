@@ -1,0 +1,32 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "type": "neoforge:components",
+      "items": ["murmol:ancient_knowledge_scrap"],
+      "components": {
+        "minecraft:custom_data": { "FormId": "moss_beast" }
+      }
+    },
+    {
+      "item": "murmol:murmol_soul"
+    },
+    {
+      "item": "murmol:tree_heart"
+    },
+    {
+      "item": "minecraft:moss_block"
+    },
+    {
+      "item": "minecraft:vine"
+    },
+    {
+      "item": "minecraft:spore_blossom"
+    }
+  ],
+  "result": {
+    "id": "murmol:moss_soul",
+    "count": 1
+  }
+}

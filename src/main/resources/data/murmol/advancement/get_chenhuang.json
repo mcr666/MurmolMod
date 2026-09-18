@@ -1,4 +1,4 @@
-{
+﻿{
   "display": {
     "icon": {
       "id": "murmol:ch_soul"
@@ -9,7 +9,7 @@
     "description": {
       "translate": "advancements.get_chenhuang.descr"
     },
-    "frame": "challenge",
+    "frame": "task",
     "show_toast": true,
     "announce_to_chat": true,
     "hidden": true

@@ -1,0 +1,24 @@
+﻿{
+  "name": "落瓣春花",
+  "icon": "murmol:petalfall_vernal_soul",
+  "category": "murmol:fengyang_classic",
+  "advancement": "murmol:unlock/luohong",
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "murmol:petalfall_vernal_soul",
+      "title": "落瓣春花",
+      "text": "春去春又回，花落花再开。传说落瓣春花是荒野对春天最后的执念所化：每当第一朵春花凋零，它的身形便会随之绽放。花瓣纷纷扬扬，绕着它盘旋不去，如一场永不停歇的花雨。"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "特性",
+      "text": "化身为落瓣春花后，你将得到春之生命的$(thing)滋养与复苏$(0)之力。枯萎的会重新盛开，受伤的会缓慢愈合——正如被寒冬摧折的草木，总会在春风里重新苏醒。"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "变形配方",
+      "text": "在$(item)唤灵台$(0)上摆好以下四种祭品，手持$(item)摩摩尔之魂$(0)右键确认：$(li)花瓣$(li)甜浆果$(li)闪烁的西瓜片$(li)苹果$(br)每次变形消耗$(thing)5 级经验$(0)。$(br)也可将$(item)古代知识残页（落瓣春花）$(0)、$(item)摩摩尔之魂$(0)与上述四种材料在工作台合成$(item)落瓣春花之魂$(0)。"
+    }
+  ]
+}

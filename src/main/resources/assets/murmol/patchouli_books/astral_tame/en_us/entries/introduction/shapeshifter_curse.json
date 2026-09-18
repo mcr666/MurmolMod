@@ -1,23 +1,34 @@
 {
-  "name": "The Shapeshifter's Curse",
+  "name": "Seed of the Astral",
   "icon": "murmol:the_astral_tome",
   "category": "murmol:introduction",
   "pages": [
     {
       "type": "patchouli:spotlight",
       "item": "murmol:the_astral_tome",
-      "title": "The Astral Tome",
-      "text": "A tome bound in starlit hide. Those who read it are never quite human again. Right-click to open its pages and study the ways of the wild."
+      "title": "Seed of the Astral",
+      "text": "Legend has it that the ancients were always blessed by the divine beasts of old. In the common era, a wandering star from an alien system fell to the earth, bringing the Astral Plague that slowly devours the land. Some say this is the disappointment of the guardians above at the destruction of nature. At first, no one believed it, until people found those cryptic fragments in the vast sea of ancient texts — the very tome in your hands."
     },
     {
       "type": "patchouli:text",
-      "title": "The Ritual",
-      "text": "Place four materials upon a $(item)Spirit Table$(0), then right-click the table while holding a $(item)Murmol Soul$(0) to seal the offering. If the offering matches a form, the stars will remake you.$(br)Each transformation burns $(thing)5 experience levels$(0)."
+      "title": "The Astral Lands",
+      "text": "Between the unknown pathogens that assimilate all things, those with steadfast faith may find the traces of the divine beasts. Under the influence of the plague, many strange things appear frequently, coupled with the attacks of alien creatures everywhere — it is truly a forbidden land for ordinary humans. $(br)Creatures that die in the Astral Lands may drop $(item)Murmol Soul$(0), which can be used to craft items from this mod."
     },
     {
       "type": "patchouli:text",
-      "title": "Known Forms",
-      "text": "$(li)Chen Huang: golden apple, mango, sugar, honey bottle$(li)Petalfall Vernal: petal, sweet berries, glistering melon slice, apple$(li)Moss Beast: tree heart, moss block, vine, spore blossom"
+      "title": "Transformation Ritual",
+      "text": "Gather the tokens, and the devout may take the form of different mythical beasts. To do so, you need to craft a $(item)Spirit Table$(0) and find the details of the ritual in the ancient texts: arrange four materials on the Spirit Table, then right-click it holding a $(item)Murmol Soul$(0) to confirm the offering. If the offering matches a form, the stars will reshape your body. $(br)Each transformation consumes $(thing)5 XP levels$(0). $(br)If you do not wish to transform right away, you may right-click the table holding a $(item)Soul Bottle$(0) to collect the form's $(item)soul item$(0) (Murmol Soul excluded). A wrong offering will bring a needless explosion."
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "murmol:astral_matrix",
+      "title": "Ritual Materials",
+      "text": "$(li)$(item)Astral Matrix$(0): dropped by the $(thing)Astral Drake$(0); a key material for crafting $(item)Astral Ingots$(0) and $(item)The Astral Tome$(0) (book + astral matrix). $(li)$(item)Ice Shard$(0): obtained by mining $(item)Ice Shard Ore$(0), which generates only beneath snow-covered surfaces and is the source of ice-tier gear and materials."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Lost Wisdom",
+      "text": "The origins and powers of the divine beasts lie scattered among the ruins consumed by the plague. Find and use an $(item)Ancient Knowledge Scrap$(0) to unlock the lore, traits and transformation recipe of its form. $(br)As for the way back to $(thing)human form$(0), the ancient texts record it openly."
     }
   ]
 }

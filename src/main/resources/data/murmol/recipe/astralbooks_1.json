@@ -1,34 +1,14 @@
 {
-  "type": "minecraft:crafting_shaped",
+  "type": "minecraft:crafting_shapeless",
   "category": "misc",
-  "pattern": [
-    "aba",
-    "cde",
-    "fgf"
-  ],
-  "key": {
-    "a": {
-      "item": "murmol:astral_ingot"
-    },
-    "b": {
-      "item": "minecraft:netherite_ingot"
-    },
-    "c": {
-      "item": "minecraft:ender_pearl"
-    },
-    "d": {
-      "item": "murmol:ice_flower"
-    },
-    "e": {
-      "item": "minecraft:ender_eye"
-    },
-    "f": {
-      "item": "murmol:murmol_soul"
-    },
-    "g": {
+  "ingredients": [
+    {
       "item": "minecraft:book"
+    },
+    {
+      "item": "murmol:astral_matrix"
     }
-  },
+  ],
   "result": {
     "id": "murmol:the_astral_tome",
     "count": 1

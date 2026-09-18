@@ -33,6 +33,8 @@ public abstract class FeralForm {
 	private final ResourceLocation advancement;
 	private final Map<Holder<Attribute>, AttributeModifier> modifiers;
 	private final List<ItemStack> transformMaterials;
+	/** 形态显示名的翻译键，默认 form.murmol.<id>，子类可通过 setNameKey 覆盖 */
+	private String nameKey;
 
 	/** 变形状态下是否渲染第一人称手臂模型（配合全局配置 renderFirstPersonArm 使用，默认关闭） */
 	private boolean showFirstPersonArm = false;
@@ -50,15 +52,26 @@ public abstract class FeralForm {
 		this.advancement = advancement;
 		this.modifiers = modifiers == null ? Collections.emptyMap() : modifiers;
 		this.transformMaterials = transformMaterials == null ? Collections.emptyList() : transformMaterials;
+		this.nameKey = "form.murmol." + id;
 	}
 
 	public String getId() {
 		return id;
 	}
 
+	/** 自定义形态显示名的翻译键（默认 form.murmol.<id>） */
+	protected void setNameKey(String nameKey) {
+		this.nameKey = nameKey;
+	}
+
+	/** 形态显示名，用于提示信息等界面文本 */
+	public net.minecraft.network.chat.Component getDisplayName() {
+		return net.minecraft.network.chat.Component.translatable(nameKey);
+	}
+
 	/** 开启该形态的第一人称手臂渲染 */
 	protected void enableFirstPersonArm() {
-		this.showFirstPersonArm = true;
+		this.showFirstPersonArm = false;
 	}
 
 	public boolean showFirstPersonArm() {

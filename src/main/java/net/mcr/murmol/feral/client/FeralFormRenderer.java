@@ -41,7 +41,7 @@ import net.mcr.murmol.feral.FeralFormManager;
 public class FeralFormRenderer {
 
 	/** 整体偏移（模型坐标 Y+ 朝下），当前值由玩家实测调定为 13 */
-	private static final float BODY_Y_OFFSET = 14.0F;
+	private static final float BODY_Y_OFFSET = 13.0F;
 
 	/** 蹲下/潜行时的额外上移（沿用原 applyBodyRenderTransform 的 CROUCH_RENDER_Y_OFFSET = 2 个模型单位 = 0.125 格） */
 	private static final float CROUCH_Y_OFFSET = -2.0F;

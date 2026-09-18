@@ -268,12 +268,15 @@ public class FeralFormManager {
 		int level = weapon.getEnchantmentLevel(target.level().registryAccess().lookupOrThrow(Registries.ENCHANTMENT).getOrThrow(enchantmentKey));
 		if (level <= 0)
 			return;
-		// 人类杀手附魔：对人类（form==HUMAN）或灾厄村民/村民造成额外伤害
-		boolean isHumanTarget = getForm(target) == FeralForms.HUMAN;
-		boolean isIllager = target.getType().is(net.minecraft.tags.EntityTypeTags.ILLAGER);
-		boolean isVillager = target.getType().is(TagKey.create(Registries.ENTITY_TYPE, ResourceLocation.parse("minecraft:villager")));
-		if (isHumanTarget || isIllager || isVillager) {
-			target.hurt(new DamageSource(target.level().holderOrThrow(DamageTypes.GENERIC)), level * 2);
+		// 人类杀手附魔：对人型生物（玩家、僵尸、骷髅、村民、灾厄村民、猪灵等）造成额外伤害
+		boolean isHumanoid = target instanceof net.minecraft.world.entity.player.Player
+				|| target instanceof net.minecraft.world.entity.monster.Zombie
+				|| target instanceof net.minecraft.world.entity.monster.AbstractSkeleton
+				|| target instanceof net.minecraft.world.entity.npc.AbstractVillager
+				|| target instanceof net.minecraft.world.entity.monster.AbstractIllager
+				|| target instanceof net.minecraft.world.entity.monster.piglin.AbstractPiglin;
+		if (isHumanoid) {
+			target.hurt(target.damageSources().generic(), level * 2);
 		}
 	}
 }
