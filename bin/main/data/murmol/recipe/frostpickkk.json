@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    "aaa",
+    " b ",
+    " b "
+  ],
+  "key": {
+    "a": {
+      "item": "murmol:frost_ingotm"
+    },
+    "b": {
+      "item": "murmol:ice_sharp"
+    }
+  },
+  "result": {
+    "id": "murmol:frost_pickaxe",
+    "count": 1
+  }
+}

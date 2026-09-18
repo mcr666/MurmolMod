@@ -17,12 +17,12 @@ import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 
 /**
- * 乘黄形态（FERAL_TYPE = 2）。
+ * 乘黄形态。
  * 身体模型 model_c_hmodel，尾巴 model_c_htail，纹理 feralch.png。
  */
 public class ChenHuangForm extends FeralForm {
 
-	public static final int ID = 2;
+	public static final String ID = "chen_huang";
 
 	public ChenHuangForm() {
 		super(ID,
@@ -36,10 +36,12 @@ public class ChenHuangForm extends FeralForm {
 						Attributes.MAX_HEALTH, new AttributeModifier(ResourceLocation.fromNamespaceAndPath("murmol", "tf"), 4, AttributeModifier.Operation.ADD_VALUE),
 						Attributes.ATTACK_KNOCKBACK, new AttributeModifier(ResourceLocation.fromNamespaceAndPath("murmol", "tf"), 0.5, AttributeModifier.Operation.ADD_VALUE)),
 				List.of(
-						new ItemStack(Items.GOLDEN_APPLE),
-						new ItemStack(MurmolModItems.MANGO.get()),
-						new ItemStack(Items.SUGAR),
-						new ItemStack(Items.HONEY_BOTTLE)));
+							new ItemStack(Items.GOLDEN_APPLE),
+							new ItemStack(MurmolModItems.MANGO.get()),
+							new ItemStack(Items.SUGAR),
+							new ItemStack(Items.HONEY_BOTTLE)));
+		// 该形态显示第一人称手臂（配合全局配置 renderFirstPersonArm）
+		enableFirstPersonArm();
 	}
 
 	@OnlyIn(Dist.CLIENT)

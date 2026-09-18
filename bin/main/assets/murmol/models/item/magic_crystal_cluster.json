@@ -1,0 +1,7 @@
+{
+  "parent": "item/generated",
+  "textures": {
+    "layer0": "murmol:item/amethyst_cluster"
+  },
+  "render_type": "translucent"
+}

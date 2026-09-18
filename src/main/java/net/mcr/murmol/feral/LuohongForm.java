@@ -17,12 +17,12 @@ import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 
 /**
- * 落瓣春花形态（FERAL_TYPE = 1）。
+ * 落瓣春花形态。
  * 身体模型 modelfurplayermodel，尾巴 modelfurtals，纹理 luohong.png。
  */
 public class LuohongForm extends FeralForm {
 
-	public static final int ID = 1;
+	public static final String ID = "luohong";
 
 	public LuohongForm() {
 		super(ID,
@@ -38,10 +38,12 @@ public class LuohongForm extends FeralForm {
 						Attributes.ATTACK_SPEED, new AttributeModifier(ResourceLocation.fromNamespaceAndPath("murmol", "tf"), 0.3, AttributeModifier.Operation.ADD_VALUE),
 						Attributes.JUMP_STRENGTH, new AttributeModifier(ResourceLocation.fromNamespaceAndPath("murmol", "tf"), 0.2, AttributeModifier.Operation.ADD_VALUE)),
 				List.of(
-						new ItemStack(MurmolModItems.PETAL.get()),
-						new ItemStack(Items.SWEET_BERRIES),
-						new ItemStack(Items.GLISTERING_MELON_SLICE),
-						new ItemStack(Items.APPLE)));
+							new ItemStack(MurmolModItems.PETAL.get()),
+							new ItemStack(Items.SWEET_BERRIES),
+							new ItemStack(Items.GLISTERING_MELON_SLICE),
+							new ItemStack(Items.APPLE)));
+		// 该形态显示第一人称手臂（配合全局配置 renderFirstPersonArm）
+		enableFirstPersonArm();
 	}
 
 	@OnlyIn(Dist.CLIENT)

@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "a",
+    "a",
+    "b"
+  ],
+  "key": {
+    "a": {
+      "item": "minecraft:moss_block"
+    },
+    "b": {
+      "item": "minecraft:bamboo"
+    }
+  },
+  "result": {
+    "id": "murmol:blooming_blade",
+    "count": 1
+  }
+}

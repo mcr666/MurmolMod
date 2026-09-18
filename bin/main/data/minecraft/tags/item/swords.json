@@ -1,0 +1,10 @@
+{
+  "replace": false,
+  "values": [
+    "murmol:fire_blade_claw",
+    "murmol:blooming_blade_full",
+    "murmol:frost_sword",
+    "murmol:blooming_blade",
+    "murmol:ice_and_fire_sword"
+  ]
+}

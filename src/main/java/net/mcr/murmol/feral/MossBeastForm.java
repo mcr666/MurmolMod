@@ -17,12 +17,12 @@ import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 
 /**
- * 苔叶兽形态（FERAL_TYPE = 3）。
+ * 苔叶兽形态。
  * 身体模型 modelleaf，尾巴 modelleaftail，身体纹理 furleaf.png，尾巴纹理 leaftail.png。
  */
 public class MossBeastForm extends FeralForm {
 
-	public static final int ID = 3;
+	public static final String ID = "moss_beast";
 
 	public MossBeastForm() {
 		super(ID,
@@ -39,10 +39,12 @@ public class MossBeastForm extends FeralForm {
 						Attributes.MOVEMENT_SPEED, new AttributeModifier(ResourceLocation.fromNamespaceAndPath("murmol", "tf"), 0.01, AttributeModifier.Operation.ADD_VALUE),
 						Attributes.MINING_EFFICIENCY, new AttributeModifier(ResourceLocation.fromNamespaceAndPath("murmol", "tf"), 1, AttributeModifier.Operation.ADD_VALUE)),
 				List.of(
-						new ItemStack(MurmolModItems.TREE_HEART.get()),
-						new ItemStack(Blocks.MOSS_BLOCK),
-						new ItemStack(Blocks.VINE),
-						new ItemStack(Blocks.SPORE_BLOSSOM)));
+							new ItemStack(MurmolModItems.TREE_HEART.get()),
+							new ItemStack(Blocks.MOSS_BLOCK),
+							new ItemStack(Blocks.VINE),
+							new ItemStack(Blocks.SPORE_BLOSSOM)));
+		// 该形态显示第一人称手臂（配合全局配置 renderFirstPersonArm）
+		enableFirstPersonArm();
 	}
 
 	@OnlyIn(Dist.CLIENT)

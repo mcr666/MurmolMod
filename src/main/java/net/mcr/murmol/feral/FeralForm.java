@@ -21,7 +21,10 @@ import net.mcr.murmol.feral.client.FeralFormModels;
  */
 public abstract class FeralForm {
 
-	private final int id;
+	/** 人类形态的字符串 id */
+	public static final String HUMAN_ID = "human";
+
+	private final String id;
 	private final ResourceLocation texture;
 	private final ResourceLocation tailTexture;
 	private final ResourceLocation bodyLayer;
@@ -31,7 +34,10 @@ public abstract class FeralForm {
 	private final Map<Holder<Attribute>, AttributeModifier> modifiers;
 	private final List<ItemStack> transformMaterials;
 
-	protected FeralForm(int id, ResourceLocation texture, ResourceLocation tailTexture,
+	/** 变形状态下是否渲染第一人称手臂模型（配合全局配置 renderFirstPersonArm 使用，默认关闭） */
+	private boolean showFirstPersonArm = false;
+
+	protected FeralForm(String id, ResourceLocation texture, ResourceLocation tailTexture,
 			ResourceLocation bodyLayer, ResourceLocation tailLayer,
 			Supplier<ItemStack> soulItem, ResourceLocation advancement,
 			Map<Holder<Attribute>, AttributeModifier> modifiers, List<ItemStack> transformMaterials) {
@@ -46,8 +52,17 @@ public abstract class FeralForm {
 		this.transformMaterials = transformMaterials == null ? Collections.emptyList() : transformMaterials;
 	}
 
-	public int getId() {
+	public String getId() {
 		return id;
+	}
+
+	/** 开启该形态的第一人称手臂渲染 */
+	protected void enableFirstPersonArm() {
+		this.showFirstPersonArm = true;
+	}
+
+	public boolean showFirstPersonArm() {
+		return showFirstPersonArm;
 	}
 
 	public ResourceLocation getTexture() {
@@ -84,7 +99,7 @@ public abstract class FeralForm {
 	}
 
 	public boolean isFeral() {
-		return id != 0;
+		return !HUMAN_ID.equals(id);
 	}
 
 	@OnlyIn(Dist.CLIENT)

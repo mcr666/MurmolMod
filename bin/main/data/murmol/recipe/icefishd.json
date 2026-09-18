@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "aba"
+  ],
+  "key": {
+    "a": {
+      "item": "murmol:ice_sharp"
+    },
+    "b": {
+      "tag": "minecraft:fishes"
+    }
+  },
+  "result": {
+    "id": "murmol:ice_fish",
+    "count": 1
+  }
+}

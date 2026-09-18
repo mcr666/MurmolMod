@@ -16,7 +16,7 @@ public final class FeralForms {
 	public static final FeralForm CHEN_HUANG = new ChenHuangForm();
 	public static final FeralForm MOSS_BEAST = new MossBeastForm();
 
-	private static final Map<Integer, FeralForm> BY_ID = new HashMap<>();
+	private static final Map<String, FeralForm> BY_ID = new HashMap<>();
 
 	static {
 		register(HUMAN);
@@ -32,7 +32,7 @@ public final class FeralForms {
 		BY_ID.put(form.getId(), form);
 	}
 
-	public static FeralForm byId(int id) {
+	public static FeralForm byId(String id) {
 		return BY_ID.getOrDefault(id, HUMAN);
 	}
 

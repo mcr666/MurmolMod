@@ -1,0 +1,13 @@
+{
+  "parent": "block/cube",
+  "textures": {
+    "down": "murmol:block/astral_log_top",
+    "up": "murmol:block/astral_log_top",
+    "north": "murmol:block/astral_log",
+    "east": "murmol:block/astral_log",
+    "south": "murmol:block/astral_log",
+    "west": "murmol:block/astral_log",
+    "particle": "murmol:block/astral_log_top"
+  },
+  "render_type": "solid"
+}

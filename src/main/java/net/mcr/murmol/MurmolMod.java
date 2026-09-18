@@ -36,8 +36,9 @@ public class MurmolMod {
 	public static final Logger LOGGER = LogManager.getLogger(MurmolMod.class);
 	public static final String MODID = "murmol";
 
-	public MurmolMod(IEventBus modEventBus) {
+	public MurmolMod(IEventBus modEventBus, net.neoforged.fml.ModContainer modContainer) {
 		// Start of user code block mod constructor
+		modContainer.registerConfig(net.neoforged.fml.config.ModConfig.Type.CLIENT, MurmolModConfig.SPEC);
 		// End of user code block mod constructor
 		NeoForge.EVENT_BUS.register(this);
 		modEventBus.addListener(this::registerNetworking);

@@ -8,7 +8,7 @@ import net.minecraft.resources.ResourceLocation;
  */
 public class HumanForm extends FeralForm {
 
-	public static final int ID = 0;
+	public static final String ID = FeralForm.HUMAN_ID;
 
 	public HumanForm() {
 		super(ID, null, null, null, null,

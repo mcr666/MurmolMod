@@ -84,6 +84,9 @@ public class FeralFormRenderer {
 		FeralForm form = FeralFormManager.getForm(player);
 		if (!form.isFeral())
 			return;
+		// 按形态属性决定是否显示；手动开关可强制显示形态定义中隐藏的手臂
+		if (!form.showFirstPersonArm() && !net.mcr.murmol.MurmolModConfig.SHOW_HIDDEN_FERAL_ARM.get())
+			return;
 
 		PlayerModel bodyModel = form.getBodyModel();
 		if (bodyModel == null)

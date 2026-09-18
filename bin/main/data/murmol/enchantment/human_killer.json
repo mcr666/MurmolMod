@@ -1,0 +1,46 @@
+{
+  "description": {
+    "translate": "enchantment.murmol.human_killer"
+  },
+  "supported_items": "#minecraft:enchantable/sharp_weapon",
+  "weight": 5,
+  "max_level": 7,
+  "min_cost": {
+    "base": 1,
+    "per_level_above_first": 10
+  },
+  "max_cost": {
+    "base": 6,
+    "per_level_above_first": 10
+  },
+  "anvil_cost": 1,
+  "slots": [
+    "any"
+  ],
+  "exclusive_set": [],
+  "effects": {
+    "minecraft:damage_protection": [
+      {
+        "effect": {
+          "type": "minecraft:add",
+          "value": {
+            "type": "minecraft:linear",
+            "base": 1,
+            "per_level_above_first": 1
+          }
+        },
+        "requirements": {
+          "condition": "minecraft:damage_source_properties",
+          "predicate": {
+            "tags": [
+              {
+                "expected": false,
+                "id": "minecraft:bypasses_invulnerability"
+              }
+            ]
+          }
+        }
+      }
+    ]
+  }
+}

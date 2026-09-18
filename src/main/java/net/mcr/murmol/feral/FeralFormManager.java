@@ -58,7 +58,7 @@ public class FeralFormManager {
 		if (entity == null)
 			return FeralForms.HUMAN;
 		if (entity instanceof Player player && player.hasData(MurmolModVariables.PLAYER_VARIABLES)) {
-			int id = player.getData(MurmolModVariables.PLAYER_VARIABLES).feralFormId;
+			String id = player.getData(MurmolModVariables.PLAYER_VARIABLES).feralFormId;
 			return FeralForms.byId(id);
 		}
 		return FeralForms.HUMAN;

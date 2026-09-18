@@ -44,6 +44,10 @@ public abstract class AstralTitleButtonMixin extends AbstractWidget {
 		if (!(minecraft.screen instanceof TitleScreen)) {
 			return;
 		}
+		// 配置关闭时不修改标题界面按钮样式
+		if (!net.mcr.murmol.MurmolModConfig.MODIFY_TITLE_SCREEN.get()) {
+			return;
+		}
 
 		guiGraphics.setColor(1.0F, 1.0F, 1.0F, this.alpha);
 		RenderSystem.enableBlend();

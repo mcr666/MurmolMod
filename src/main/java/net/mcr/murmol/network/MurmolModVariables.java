@@ -25,6 +25,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.core.HolderLookup;
 
 import net.mcr.murmol.MurmolMod;
+import net.mcr.murmol.feral.FeralForm;
 
 import java.util.function.Supplier;
 
@@ -90,20 +91,33 @@ public class MurmolModVariables {
 	public static class PlayerVariables implements INBTSerializable<CompoundTag> {
 		boolean _syncDirty = false;
 		public boolean alfarspatt = true;
-		public int feralFormId = 0;
+		/** 形态标识（字符串）。旧存档中的数字 id 会在反序列化时自动迁移。 */
+		public String feralFormId = FeralForm.HUMAN_ID;
 
 		@Override
 		public CompoundTag serializeNBT(HolderLookup.Provider lookupProvider) {
 			CompoundTag nbt = new CompoundTag();
 			nbt.putBoolean("alfarspatt", alfarspatt);
-			nbt.putInt("feralFormId", feralFormId);
+			nbt.putString("feralFormId", feralFormId);
 			return nbt;
 		}
 
 		@Override
 		public void deserializeNBT(HolderLookup.Provider lookupProvider, CompoundTag nbt) {
 			alfarspatt = nbt.getBoolean("alfarspatt");
-			feralFormId = nbt.getInt("feralFormId");
+			// 读取字符串 id；旧存档为数字 id 时自动迁移
+			if (nbt.contains("feralFormId", net.minecraft.nbt.Tag.TAG_STRING)) {
+				feralFormId = nbt.getString("feralFormId");
+			} else if (nbt.contains("feralFormId", net.minecraft.nbt.Tag.TAG_INT)) {
+				feralFormId = switch (nbt.getInt("feralFormId")) {
+					case 1 -> "luohong";
+					case 2 -> "chen_huang";
+					case 3 -> "moss_beast";
+					default -> FeralForm.HUMAN_ID;
+				};
+			} else {
+				feralFormId = FeralForm.HUMAN_ID;
+			}
 		}
 
 		public void markSyncDirty() {
