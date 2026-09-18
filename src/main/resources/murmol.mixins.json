@@ -5,7 +5,8 @@
   "mixins": [
     "NoiseGeneratorSettingsMixin",
     "BiomeSourcePresetMixin",
-    "PlayerRespawnLogicMixin"
+    "PlayerRespawnLogicMixin",
+    "RecipeManagerMixin"
   ],
   "client": [],
   "injectors": {

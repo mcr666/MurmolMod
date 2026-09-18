@@ -81,14 +81,14 @@ public class MurmolCommands {
 			ids.add(entry);
 		}
 		Collection<ServerPlayer> targets = EntityArgument.getPlayers(context, "targets");
-		int changed = 0;
+		int[] changed = new int[1];
 		for (ServerPlayer player : targets) {
 			for (String id : ids) {
 				var holder = player.server.getAdvancements()
 						.get(net.minecraft.resources.ResourceLocation.fromNamespaceAndPath(net.mcr.murmol.MurmolMod.MODID, "unlock/" + id));
-				if (holder.isEmpty())
+				if (holder == null)
 					continue;
-				var progress = player.getAdvancements().getAdvancement(holder.get());
+				var progress = player.getAdvancements().getOrStartProgress(holder);
 				if (progress == null)
 					continue;
 				if (unlock) {
@@ -98,12 +98,12 @@ public class MurmolCommands {
 					if (progress.isDone())
 						progress.revokeProgress("impossible");
 				}
-				changed++;
+				changed[0]++;
 			}
 		}
-		context.getSource().sendSuccess(() -> Component.literal((unlock ? "unlocked " : "locked ") + changed
+		context.getSource().sendSuccess(() -> Component.literal((unlock ? "unlocked " : "locked ") + changed[0]
 				+ " book entry(ies) for " + targets.size() + " player(s)"), true);
-		return changed;
+		return changed[0];
 	}
 
 	private static int executeTransform(CommandContext<CommandSourceStack> context) throws com.mojang.brigadier.exceptions.CommandSyntaxException {

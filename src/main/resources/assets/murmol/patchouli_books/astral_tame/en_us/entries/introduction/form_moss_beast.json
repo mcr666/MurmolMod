@@ -28,7 +28,7 @@
     {
       "type": "patchouli:text",
       "title": "Transformation Recipe",
-      "text": "Arrange these four offerings on the $(item)Spirit Table$(0), then right-click it holding a $(item)Murmol Soul$(0): $(li)heart of flora$(li)moss block$(li)vine$(li)spore blossom$(br)Each transformation consumes $(thing)5 XP levels$(0). $(br)Alternatively, craft the $(item)Moss Beast Soul$(0) at a crafting table from an $(item)Ancient Knowledge Scrap (Moss Beast)$(0), a $(item)Murmol Soul$(0) and the four materials above."
+      "text": "Arrange these four offerings on the $(item)Spirit Table$(0), then right-click it holding a $(item)Murmol Soul$(0): $(li)big dripleaf$(li)moss block$(li)vine$(li)spore blossom$(br)Each transformation consumes $(thing)5 XP levels$(0). $(br)Alternatively, craft the $(item)Moss Beast Soul$(0) at a crafting table from an $(item)Ancient Knowledge Scrap (Moss Beast)$(0), a $(item)Murmol Soul$(0) and the four materials above."
     }
   ]
 }

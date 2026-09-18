@@ -39,7 +39,7 @@ public class MossBeastForm extends FeralForm {
 						Attributes.MOVEMENT_SPEED, new AttributeModifier(ResourceLocation.fromNamespaceAndPath("murmol", "tf"), 0.01, AttributeModifier.Operation.ADD_VALUE),
 						Attributes.MINING_EFFICIENCY, new AttributeModifier(ResourceLocation.fromNamespaceAndPath("murmol", "tf"), 1, AttributeModifier.Operation.ADD_VALUE)),
 				List.of(
-							new ItemStack(MurmolModItems.TREE_HEART.get()),
+							new ItemStack(Blocks.BIG_DRIPLEAF),
 							new ItemStack(Blocks.MOSS_BLOCK),
 							new ItemStack(Blocks.VINE),
 							new ItemStack(Blocks.SPORE_BLOSSOM)));
