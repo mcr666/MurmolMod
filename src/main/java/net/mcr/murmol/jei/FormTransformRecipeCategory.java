@@ -63,6 +63,15 @@ public class FormTransformRecipeCategory implements IRecipeCategory<FormTransfor
 
 	@Override
 	public void setRecipe(IRecipeLayoutBuilder builder, FormTransformRecipe recipe, IFocusGroup focuses) {
+		try {
+			fillLayout(builder, recipe);
+		} catch (Exception e) {
+			// 防御：绝不让本分类抛异常，避免 JEI 走 errored layout 兜底路径
+			// （JEI 的 errored layout 在 runtime 未就绪时会二次崩溃）
+		}
+	}
+
+	private void fillLayout(IRecipeLayoutBuilder builder, FormTransformRecipe recipe) {
 		// 人类形态（书中配方）：水桶 + 不死图腾 + 绿宝石 + 任意船
 		if (recipe.getForm().getTransformMaterials().isEmpty()) {
 			IRecipeSlotBuilder water = builder.addSlot(RecipeIngredientRole.INPUT, 10, 10);
