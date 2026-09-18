@@ -36,7 +36,7 @@ public abstract class RecipeManagerMixin {
 
 	@Inject(method = "apply", at = @At("TAIL"))
 	private void murmol$addDynamicRecipes(Map<ResourceLocation, JsonElement> object, ResourceManager resources,
-			CallbackInfo ci) {
+			net.minecraft.util.profiling.ProfilerFiller profiler, CallbackInfo ci) {
 		com.google.common.collect.LinkedHashMultimap<RecipeType<?>, RecipeHolder<?>> newByType =
 				com.google.common.collect.LinkedHashMultimap.create(byType);
 		Map<ResourceLocation, RecipeHolder<?>> newByName = new java.util.HashMap<>(byName);

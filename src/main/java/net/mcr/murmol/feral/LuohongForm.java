@@ -33,10 +33,11 @@ public class LuohongForm extends FeralForm {
 				() -> new ItemStack(MurmolModItems.PETALFALL_VERNAL_SOUL.get()),
 				ResourceLocation.fromNamespaceAndPath("murmol", "witnessof_petal_spring"),
 				Map.of(
-						Attributes.MAX_HEALTH, new AttributeModifier(ResourceLocation.fromNamespaceAndPath("murmol", "tf"), -4, AttributeModifier.Operation.ADD_VALUE),
-						Attributes.MOVEMENT_SPEED, new AttributeModifier(ResourceLocation.fromNamespaceAndPath("murmol", "tf"), 0.025, AttributeModifier.Operation.ADD_VALUE),
-						Attributes.ATTACK_SPEED, new AttributeModifier(ResourceLocation.fromNamespaceAndPath("murmol", "tf"), 0.3, AttributeModifier.Operation.ADD_VALUE),
-						Attributes.JUMP_STRENGTH, new AttributeModifier(ResourceLocation.fromNamespaceAndPath("murmol", "tf"), 0.2, AttributeModifier.Operation.ADD_VALUE)),
+							Attributes.MAX_HEALTH, new AttributeModifier(ResourceLocation.fromNamespaceAndPath("murmol", "tf"), -4, AttributeModifier.Operation.ADD_VALUE),
+							Attributes.MOVEMENT_SPEED, new AttributeModifier(ResourceLocation.fromNamespaceAndPath("murmol", "tf"), 0.025, AttributeModifier.Operation.ADD_VALUE),
+							Attributes.ATTACK_SPEED, new AttributeModifier(ResourceLocation.fromNamespaceAndPath("murmol", "tf"), 0.3, AttributeModifier.Operation.ADD_VALUE),
+							Attributes.JUMP_STRENGTH, new AttributeModifier(ResourceLocation.fromNamespaceAndPath("murmol", "tf"), 0.2, AttributeModifier.Operation.ADD_VALUE),
+							Attributes.SCALE, new AttributeModifier(ResourceLocation.fromNamespaceAndPath("murmol", "tf"), -0.25, AttributeModifier.Operation.ADD_VALUE)),
 				List.of(
 							new ItemStack(MurmolModItems.PETAL.get()),
 							new ItemStack(Items.SWEET_BERRIES),

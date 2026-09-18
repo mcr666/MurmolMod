@@ -43,6 +43,9 @@ public class FeralFormRenderer {
 	/** 整体偏移（模型坐标 Y+ 朝下），当前值由玩家实测调定为 13 */
 	private static final float BODY_Y_OFFSET = 13.0F;
 
+	/** 整体向前偏移（模型坐标 -Z 为实体面朝方向），5 个模型单位 = 5/16 格 */
+	private static final float BODY_Z_OFFSET = -5.0F;
+
 	/** 蹲下/潜行时的额外上移（沿用原 applyBodyRenderTransform 的 CROUCH_RENDER_Y_OFFSET = 2 个模型单位 = 0.125 格） */
 	private static final float CROUCH_Y_OFFSET = -2.0F;
 
@@ -85,8 +88,11 @@ public class FeralFormRenderer {
 		if (!form.isFeral())
 			return;
 		// 按形态属性决定是否显示；手动开关可强制显示形态定义中隐藏的手臂
-		if (!form.showFirstPersonArm() && !net.mcr.murmol.MurmolModConfig.SHOW_HIDDEN_FERAL_ARM.get())
+		if (!form.showFirstPersonArm() && !net.mcr.murmol.MurmolModConfig.SHOW_HIDDEN_FERAL_ARM.get()) {
+			// 不显示形态手臂时，同时隐藏原版玩家第一人称手臂
+			event.setCanceled(true);
 			return;
+		}
 
 		PlayerModel bodyModel = form.getBodyModel();
 		if (bodyModel == null)
@@ -130,6 +136,7 @@ public class FeralFormRenderer {
 		if (bodyModel == null)
 			return;
 		shiftModelY(bodyModel, -BODY_Y_OFFSET);
+		shiftModelZ(bodyModel, -BODY_Z_OFFSET);
 	}
 
 	private static void shiftModelY(PlayerModel model, float dy) {
@@ -139,6 +146,15 @@ public class FeralFormRenderer {
 		model.rightArm.y += dy;
 		model.leftLeg.y += dy;
 		model.rightLeg.y += dy;
+	}
+
+	private static void shiftModelZ(PlayerModel model, float dz) {
+		model.head.z += dz;
+		model.body.z += dz;
+		model.leftArm.z += dz;
+		model.rightArm.z += dz;
+		model.leftLeg.z += dz;
+		model.rightLeg.z += dz;
 	}
 
 	private static void offsetScale(PlayerModel model, Vector3f offset) {
@@ -195,6 +211,8 @@ public class FeralFormRenderer {
 		applyTailAnimation(form, model, limbSwing, limbSwingAmount, ageInTicks);
 		// 整体向下偏移，直接烘进骨骼坐标，手持物品等跟随渲染自动对齐
 		shiftModelY(model, BODY_Y_OFFSET);
+		// 整体向前偏移（烘进骨骼坐标，渲染结束后还原）
+		shiftModelZ(model, BODY_Z_OFFSET);
 		// 蹲下/潜行时额外上移（原由 FeralPlayerRendererMixin -> applyBodyRenderTransform 提供，该 Mixin 已移除）
 		if (entity.isCrouching() || entity.isShiftKeyDown()) {
 			shiftModelY(model, CROUCH_Y_OFFSET);
@@ -208,7 +226,9 @@ public class FeralFormRenderer {
 			}
 		}
 		event.getRenderer().setupRotations(entity, poseStack, ageInTicks, interpolatedBodyYaw, partialTick, 0);
-		poseStack.scale(-0.938f, -0.938f, 0.938f);
+		// SCALE 属性（如春花形态 0.75x）影响碰撞箱与原版渲染，这里同步应用到自定义模型
+		float bodyScale = entity.getScale();
+		poseStack.scale(-0.938f * bodyScale, -0.938f * bodyScale, 0.938f * bodyScale);
 		poseStack.translate(0.0D, -1.50D, 0.0D);
 		Vector3f offset = new Vector3f(0.015f);
 		offsetScale(model, offset);

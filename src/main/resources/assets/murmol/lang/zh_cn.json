@@ -59,7 +59,7 @@
   "item.murmol.the_astral_tome": "幻星秘典",
   "subtitles.astral_affection": "幻星瘟疫",
   "book.murmol.astral_tame.title": "星幻秘典",
-  "book.murmol.astral_tame.landing": "传说，古人们一直蒙受着上古神兽们的恩泽。直至一颗流浪星体坠落，幻星瘟疫开始蚕食大地，荒野成了禁地。$(br2)但信念坚定的人，仍能循着神兽的遗踪前行：集齐信物，置于$(item)唤灵台$(0)上，手持$(item)摩摩尔之魂$(0)右键确认，便可化身$(thing)乘黄$(0)、$(thing)落瓣春花$(0)或$(thing)苔叶兽$(0)。$(br2)神兽的来历记于《峰洋经》，更多的智慧则封存在散落遗迹的$(item)古代知识残页$(0)之中。$(br2)祝你在瘟疫与群星之间，寻得自己的道路。",
+  "book.murmol.astral_tame.landing": "幻星瘟疫蚕食大地，荒野成了禁地。$(br2)但信念坚定的人，仍能循着神兽的遗踪前行。$(br2)神兽的踪迹记于《峰洋经》，更多的智慧则封存在散落遗迹的$(item)古代知识残页$(0)之中。",
   "item.murmol.astral_armor_boots": "星幻靴",
   "item.murmol.astral_armor_leggings": "星幻护腿",
   "item.murmol.astral_armor_helmet": "星幻头盔",
@@ -132,5 +132,5 @@
   "murmol.configuration.modifyTitlePanorama": "替换标题菜单背景",
   "murmol.configuration.modifyTitlePanorama.tooltip": "是否将标题菜单全景背景替换为幻星之地主题",
   "murmol.configuration.showHiddenFeralArm": "显示被隐藏的形态手臂",
-  "murmol.configuration.showHiddenFeralArm.tooltip": "开启后强制渲染形态定义中隐藏的第一人称手臂"
+  "murmol.configuration.showHiddenFeralArm.tooltip": "开启后强制渲染不可见的第一人称手臂"
 }

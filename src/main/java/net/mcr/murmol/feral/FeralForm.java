@@ -39,6 +39,9 @@ public abstract class FeralForm {
 	/** 变形状态下是否渲染第一人称手臂模型（配合全局配置 renderFirstPersonArm 使用，默认关闭） */
 	private boolean showFirstPersonArm = false;
 
+	/** 碰撞箱水平向四周扩展的宽度（每侧格数，默认 1/8 格，野性形态通用），子类可覆盖 */
+	private float hitboxWidthBonus = 1.0F / 16.0F;
+
 	protected FeralForm(String id, ResourceLocation texture, ResourceLocation tailTexture,
 			ResourceLocation bodyLayer, ResourceLocation tailLayer,
 			Supplier<ItemStack> soulItem, ResourceLocation advancement,
@@ -72,6 +75,15 @@ public abstract class FeralForm {
 	/** 开启该形态的第一人称手臂渲染 */
 	protected void enableFirstPersonArm() {
 		this.showFirstPersonArm = false;
+	}
+
+	/** 设置碰撞箱水平四周扩展宽度（每侧格数，覆盖默认的 1/8 格） */
+	protected void setHitboxWidthBonus(float hitboxWidthBonus) {
+		this.hitboxWidthBonus = hitboxWidthBonus;
+	}
+
+	public float getHitboxWidthBonus() {
+		return hitboxWidthBonus;
 	}
 
 	public boolean showFirstPersonArm() {

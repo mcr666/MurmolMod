@@ -96,6 +96,7 @@ public class FeralFormManager {
 		removeModifier(entity, net.minecraft.world.entity.ai.attributes.Attributes.JUMP_STRENGTH);
 		removeModifier(entity, net.minecraft.world.entity.ai.attributes.Attributes.LUCK);
 		removeModifier(entity, net.minecraft.world.entity.ai.attributes.Attributes.MINING_EFFICIENCY);
+		removeModifier(entity, net.minecraft.world.entity.ai.attributes.Attributes.SCALE);
 	}
 
 	private static void removeModifier(LivingEntity entity, net.minecraft.core.Holder<net.minecraft.world.entity.ai.attributes.Attribute> attr) {
@@ -204,6 +205,22 @@ public class FeralFormManager {
 	}
 
 	// ==================== 事件监听 ====================
+
+	/**
+	 * 形态碰撞箱扩展：宽度按 hitboxWidthBonus 向四周各扩展（高度不变）。
+	 * 变形时 SCALE 属性变化会触发 refreshDimensions，从而走到这里；复原后不再扩展。
+	 */
+	@SubscribeEvent
+	public static void onEntitySize(net.neoforged.neoforge.event.entity.EntityEvent.Size event) {
+		if (!(event.getEntity() instanceof Player player))
+			return;
+		FeralForm form = getForm(player);
+		if (!form.isFeral() || form.getHitboxWidthBonus() == 0)
+			return;
+		net.minecraft.world.entity.EntityDimensions size = event.getNewSize();
+		event.setNewSize(net.minecraft.world.entity.EntityDimensions.scalable(
+				size.width() + form.getHitboxWidthBonus() * 2, size.height()));
+	}
 
 	@SubscribeEvent
 	public static void onPlayerTick(PlayerTickEvent.Post event) {

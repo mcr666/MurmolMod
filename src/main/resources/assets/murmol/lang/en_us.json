@@ -59,7 +59,7 @@
   "item.murmol.the_astral_tome": "The Astral Tome",
   "subtitles.astral_affection": "astral_affection",
   "book.murmol.astral_tame.title": "The Astral Codex",
-  "book.murmol.astral_tame.landing": "Legend tells that the ancients lived under the grace of the divine beasts — until a wandering star fell, and the astral plague began to devour the land, turning the wilderness into forbidden ground. $(br2)Yet those of steadfast faith may still follow the beasts' traces: gather the tokens, lay them upon a $(item)Spirit Table$(0), and right-click it holding a $(item)Murmol Soul$(0), and you shall become a $(thing)Chen Huang$(0), a $(thing)Petalfall Vernal$(0) or a $(thing)Moss Beast$(0). $(br2)The beasts' origins are recorded in the Fengyang Classic, while more of their wisdom lies sealed within $(item)Ancient Knowledge Scraps$(0) scattered among the ruins. $(br2)May you find your own path between the plague and the stars.",
+  "book.murmol.astral_tame.landing": "The astral plague devours the land, and the wilderness has become forbidden. $(br2)Yet those of steadfast faith may still follow the beasts' traces: gather the tokens, lay them upon a $(item)Spirit Table$(0), and right-click it holding a $(item)Murmol Soul$(0). $(br2)The beasts' origins are recorded in the Fengyang Classic, while more of their wisdom lies sealed within $(item)Ancient Knowledge Scraps$(0) scattered among the ruins.",
   "item.murmol.astral_armor_boots": "Astral Boots",
   "item.murmol.astral_armor_leggings": "Astral leggings",
   "item.murmol.astral_armor_helmet": "Astral Helmet",
