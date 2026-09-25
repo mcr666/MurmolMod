@@ -1,15 +1,30 @@
 package net.mcr.murmol.item;
 
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.core.BlockPos;
 
+import net.mcr.murmol.init.MurmolModBlocks;
 import net.mcr.murmol.procedures.MangoDiaoLuoWuXiaoShiShiProcedure;
 
-public class MangoItem extends Item {
+/**
+ * 芒果：可直接食用，也可像甜浆果一样右键泥土种植为芒果丛。
+ */
+public class MangoItem extends BlockItem {
 	public MangoItem() {
-		super(new Item.Properties().food((new FoodProperties.Builder()).nutrition(3).saturationModifier(0.3f).build()));
+		super(MurmolModBlocks.MANGO_BUSH.get(), new Item.Properties().food((new FoodProperties.Builder()).nutrition(3).saturationModifier(0.3f).build()));
+	}
+
+	@Override
+	protected boolean placeBlock(BlockPlaceContext context, BlockState state) {
+		return context.getLevel().setBlock(context.getClickedPos(), state, 26);
 	}
 
 	@Override

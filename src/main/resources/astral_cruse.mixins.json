@@ -3,9 +3,11 @@
   "package": "net.mcr.astralcruse.mixin",
   "compatibilityLevel": "JAVA_21",
   "mixins": [
-    "FeralPlayerDimensionsMixin"
+    "FeralPlayerDimensionsMixin",
+    "TargetingConditionsMixin"
   ],
   "client": [
+    "AstralBiomeParticleMixin",
     "AstralMainMenuMusicMixin",
     "AstralMenuPanoramaMixin",
     "AstralTitleButtonMixin",

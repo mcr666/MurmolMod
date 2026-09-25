@@ -23,7 +23,7 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 public class LuohongModel<T extends Entity> extends EntityModel<T> {
 
 	public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(
-			ResourceLocation.fromNamespaceAndPath("murmol", "modelfurplayermodel"), "main");
+			ResourceLocation.fromNamespaceAndPath("murmol", "luohong"), "main");
 
 	private final ModelPart body;
 	private final ModelPart torso;

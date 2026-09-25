@@ -88,6 +88,8 @@ public class FeralPlayerDimensions {
 	}
 
 	public static boolean isFeral(Player player) {
-		return FeralFormManager.getForm(player).isFeral();
+		// 月蛾等保持原版碰撞箱的形态不算野性尺寸
+		return FeralFormManager.getForm(player).isFeral()
+				&& FeralFormManager.getForm(player).modifiesHitbox();
 	}
 }

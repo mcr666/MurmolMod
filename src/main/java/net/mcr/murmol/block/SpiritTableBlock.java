@@ -140,7 +140,9 @@ public class SpiritTableBlock extends BaseEntityBlock {
 								soul = new ItemStack(MurmolModItems.MURMOL_SOUL.get());
 							if (!player.getInventory().add(soul))
 								player.drop(soul, false);
-							level.playSound(null, pos, SoundType.STONE.getBreakSound(), SoundSource.BLOCKS, 0.8f, 1.4f);
+							// 收取音效：装瓶声 + 灵魂入体的经验音
+							level.playSound(null, pos, net.minecraft.sounds.SoundEvents.BOTTLE_FILL, SoundSource.BLOCKS, 0.8f, 1.0f);
+							level.playSound(null, pos, net.minecraft.sounds.SoundEvents.EXPERIENCE_ORB_PICKUP, SoundSource.PLAYERS, 0.7f, 0.8f);
 						} else {
 							// 配方错误：小型爆炸（不破坏方块），内容物在爆炸结束后掉落
 							java.util.List<ItemStack> drops = new java.util.ArrayList<>();

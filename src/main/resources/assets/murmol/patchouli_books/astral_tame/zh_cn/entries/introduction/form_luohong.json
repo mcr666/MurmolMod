@@ -1,24 +1,30 @@
 ﻿{
   "name": "落瓣春花",
-  "icon": "murmol:petalfall_vernal_soul",
+  "icon": "murmol:luohong_soul",
   "category": "murmol:fengyang_classic",
   "advancement": "murmol:unlock/luohong",
   "pages": [
     {
       "type": "patchouli:spotlight",
-      "item": "murmol:petalfall_vernal_soul",
+      "item": "murmol:luohong_soul",
       "title": "落瓣春花",
       "text": "春去春又回，花落花再开。传说落瓣春花是荒野对春天最后的执念所化：每当第一朵春花凋零，它的身形便会随之绽放。花瓣纷纷扬扬，绕着它盘旋不去，如一场永不停歇的花雨。"
     },
     {
-      "type": "patchouli:text",
-      "title": "特性",
-      "text": "化身为落瓣春花后，你将得到春之生命的$(thing)滋养与复苏$(0)之力。枯萎的会重新盛开，受伤的会缓慢愈合——正如被寒冬摧折的草木，总会在春风里重新苏醒。"
+      "type": "patchouli:crafting",
+      "title": "传颂之物",
+      "recipe": "murmol:scrap_luohong_soul",
+      "text": "结缘之祭物。"
     },
     {
       "type": "patchouli:text",
-      "title": "配方",
-      "text": "在$(item)唤灵台$(0)上摆好以下四种祭品，手持$(item)摩摩尔之魂$(0)右键确认：$(li)花瓣$(li)甜浆果$(li)闪烁的西瓜片$(li)苹果$(br)每次变形消耗$(thing)5 级经验$(0)。$(br)也可将$(item)古代知识残页（落瓣春花）$(0)、$(item)摩摩尔之魂$(0)与上述四种材料在工作台合成$(item)落瓣春花之魂$(0)。"
+      "title": "属性",
+      "text": "$(li)最大生命值 -4$(li)移动速度 +25%$(li)攻击速度 +0.3$(li)跳跃力 +0.2$(li)体型 -25%"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "正文",
+      "text": "传说荒野在漫长的严冬里攒下了一整个春天的心事。当第一朵春花无可挽回地凋零时，那执念终于落地生根：枯萎的花茎重新立起，散落的花瓣逆着风飞回枝头，绕着一团温柔的光久久盘旋，久久不肯散去。$(br)自那以后，每逢春花凋落之处，总有花瓣纷纷扬扬，如一场不肯停歇的花雨。草木受了这场花雨的沾润，便得了春之生命的滋养与复苏——枯萎的重新盛开，受伤的缓缓愈合，正如被寒冬摧折的草木，总会在春风里重新苏醒。"
     }
   ]
 }

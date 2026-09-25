@@ -6,6 +6,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
+import net.mcr.murmol.feral.FeralForm;
 import net.mcr.murmol.feral.FeralFormManager;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.PlayerModel;
@@ -49,7 +50,18 @@ public final class FeralBedrockPlayerAnimator {
 	private static final Map<LivingEntity, AnimationPlaybackClock> PLAYBACK_CLOCKS = new WeakHashMap<>();
 	private static final Map<LivingEntity, FeralActivation> ACTIVATIONS = new WeakHashMap<>();
 	private static final Map<LivingEntity, AnimationTickSelection> TICK_SELECTIONS = new WeakHashMap<>();
+	/** 石像状态（狛犬）下的冻结时钟：进入石像时记录当时的 age，之后最多再推进 TRANSITION_TICKS tick（让潜行过渡播完） */
+	private static final Map<LivingEntity, Float> STATUE_FROZEN_AGES = new WeakHashMap<>();
+	private static final Map<ResourceLocation, Map<String, BedrockAnimation>> ANIMATION_FILES = new HashMap<>();
 	private static Map<String, BedrockAnimation> animations;
+
+	private static Map<String, BedrockAnimation> animationsFor(LivingEntity entity) {
+		ResourceLocation file = FeralFormManager.getForm(entity).getAnimationFile();
+		if (file == null) {
+			return animations();
+		}
+		return animationsForFile(file);
+	}
 
 	private FeralBedrockPlayerAnimator() {
 	}
@@ -58,7 +70,15 @@ public final class FeralBedrockPlayerAnimator {
 		if (!isFeral(entity)) {
 			return;
 		}
-		Map<String, BedrockAnimation> loadedAnimations = animations();
+		// 石像状态冻结关键帧推进
+		ageInTicks = effectiveAge(entity, ageInTicks);
+		Map<String, BedrockAnimation> loadedAnimations = animationsFor(entity);
+		// 姿态烘焙定稿的形态（如月蛾）：还原烘焙姿态后仅叠加附加动画（翅膀/腿），尾部由 applyTailAnimation 处理
+		if (!FeralFormManager.getForm(entity).animateCoreBones()) {
+			applyBakedPoseExtras(entity, model, limbSwing, limbSwingAmount, ageInTicks);
+			copyOuterParts(model);
+			return;
+		}
 		SelectedAnimation selectedAnimation = selectAnimation(loadedAnimations, entity, limbSwing, limbSwingAmount, ageInTicks);
 		if (selectedAnimation == null) {
 			return;
@@ -67,36 +87,148 @@ public final class FeralBedrockPlayerAnimator {
 		PlayerPose vanillaPose = PlayerPose.capture(model);
 		resetPlayerParts(model);
 		float time = selectedAnimation.animation.time(selectedAnimation.seconds);
+		boolean animatedHeadRotation = false;
 		for (String boneName : PLAYER_BONES) {
 			ModelPart part = partFor(model, boneName);
 			float[] rotation = blendedRotation(transition, boneName, time, headPitch, netHeadYaw, ageInTicks);
 			if (rotation != null) {
 				if ("head".equals(boneName)) {
-					// Temporarily leave head rotation disabled while testing axis issues.
-				} else {
-					part.xRot = degreesToRadians(rotation[0]);
-					part.yRot = degreesToRadians(rotation[1]);
-					part.zRot = degreesToRadians(rotation[2]);
+					// 动画自身已含 head 旋转通道（如月蛾 -90+query.head_x_rotation，视角跟随已在表达式内），
+					// 直接采用，跳过 applyHeadLook 以免视角叠加；无 head 通道的形态维持原版视角跟随
+					animatedHeadRotation = true;
 				}
+				part.xRot = degreesToRadians(rotation[0]);
+				part.yRot = degreesToRadians(rotation[1]);
+				part.zRot = degreesToRadians(rotation[2]);
 			}
 			float[] position = blendedPosition(transition, boneName, time, headPitch, netHeadYaw, ageInTicks);
 			if (position != null) {
 				applyPosition(part, position);
 			}
 		}
-		applyHeadLook(model, headPitch, netHeadYaw);
+		if (!animatedHeadRotation) {
+			applyHeadLook(model, headPitch, netHeadYaw);
+		}
+		// 采样动画中六大骨骼之外的附加骨骼（如蚕蛾翅膀），仅自定义模型有这些子骨骼
+		applyExtraBones(model, transition.animation, time, headPitch, netHeadYaw);
 		float entryAlpha = feralEntryAlpha(entity, ageInTicks);
 		if (entryAlpha < 1.0F) {
 			vanillaPose.blendInto(model, entryAlpha);
 		}
 		copyOuterParts(model);
+		debugPose(entity, selectedAnimation, model);
+	}
+
+	/**
+	 * 姿态烘焙形态（animateCoreBones=false，如月蛾）：
+	 * 全部部件还原到 Blockbench 烘焙姿态（resetPose），再按状态叠加附加动画——
+	 * 飞行用 wings_flying、其余用 wings_idle；行走时 moth_walk 的腿部摆动按 limbSwingAmount 叠加。
+	 * 尾部（tail_idle/tail_walk）由 FeralFormRenderer.applyTailAnimation 在 setupAnim 之后另行处理。
+	 */
+	private static void applyBakedPoseExtras(LivingEntity entity, PlayerModel<?> model, float limbSwing, float limbSwingAmount, float ageInTicks) {
+		// 动画文件有关键帧的骨骼（腿/翅膀/尾）用自定义动画，无关关键帧的骨骼（手臂/头）保留原版动画：
+		// 先抓取原版 setupAnim 刚算出的手臂挥动与头部旋转，还原烘焙姿态后再写回
+		float headXRot = model.head.xRot, headYRot = model.head.yRot, headZRot = model.head.zRot;
+		float rArmX = model.rightArm.xRot, rArmY = model.rightArm.yRot, rArmZ = model.rightArm.zRot;
+		float lArmX = model.leftArm.xRot, lArmY = model.leftArm.yRot, lArmZ = model.leftArm.zRot;
+		resetAllPartsToBaked(model);
+		model.head.xRot = headXRot;
+		model.head.yRot = headYRot;
+		model.head.zRot = headZRot;
+		model.rightArm.xRot = rArmX;
+		model.rightArm.yRot = rArmY;
+		model.rightArm.zRot = rArmZ;
+		model.leftArm.xRot = lArmX;
+		model.leftArm.yRot = lArmY;
+		model.leftArm.zRot = lArmZ;
+		Map<String, BedrockAnimation> anims = animationsFor(entity);
+		AnimationState state = animationStateForTick(entity, limbSwingAmount);
+		boolean flying = state == AnimationState.FLY || state == AnimationState.ELYTRA_FLY;
+		if (!flying && FeralFormManager.getForm(entity).canHoverFlight()
+				&& entity == net.minecraft.client.Minecraft.getInstance().player
+				&& net.minecraft.client.Minecraft.getInstance().options.keyJump.isDown()) {
+			// 悬停飞行形态（如月蛾）：按住空格即视为飞行（含贴地起飞瞬间，onGround 仍为 true 的阶段）
+			flying = true;
+		}
+		BedrockAnimation wings = firstPresent(anims, flying ? "wings_flying" : "wings_idle");
+		if (wings != null) {
+			// 须经 animationTime 循环取模，否则超过动画长度后采样恒为末帧（翅膀不动）
+			float time = animationTime(wings, ageInTicks / LOOP_TIME_DIVISOR);
+			for (String boneName : wings.bones.keySet()) {
+				if (isCoreBone(boneName)) {
+					continue;
+				}
+				ModelPart part = findChild(model.body, boneName);
+				if (part == null) {
+					part = findChild(model.head, boneName);
+				}
+				if (part == null) {
+					continue;
+				}
+				float[] rotation = sampleBone(wings, boneName, time, 0.0F, 0.0F, ChannelKind.ROTATION);
+				addRotation(part, rotation, 1.0F);
+			}
+		}
+		BedrockAnimation legWalk = firstPresent(anims, "moth_walk");
+		if (legWalk != null && limbSwingAmount > 0.01F) {
+			// 原版 animateWalk 相位换算：limbSwing * 0.03331 秒，须经 animationTime 循环取模，
+			// 否则 limbSwing 超过动画长度后关键帧采样恒为末帧（腿不动）
+			float time = animationTime(legWalk, limbSwing * 0.03331F);
+			for (String boneName : new String[] {"right_leg", "left_leg"}) {
+				float[] rotation = sampleBone(legWalk, boneName, time, 0.0F, 0.0F, ChannelKind.ROTATION);
+				if (rotation != null) {
+					addRotation(partFor(model, boneName), rotation, limbSwingAmount);
+				}
+			}
+		}
+	}
+
+	/** 全部核心部件（含子树）还原到初始烘焙姿态 */
+	private static void resetAllPartsToBaked(PlayerModel<?> model) {
+		model.head.getAllParts().forEach(ModelPart::resetPose);
+		model.body.getAllParts().forEach(ModelPart::resetPose);
+		model.rightArm.getAllParts().forEach(ModelPart::resetPose);
+		model.leftArm.getAllParts().forEach(ModelPart::resetPose);
+		model.rightLeg.getAllParts().forEach(ModelPart::resetPose);
+		model.leftLeg.getAllParts().forEach(ModelPart::resetPose);
+	}
+
+	/** 附加旋转叠加（度 → 弧度，amplitude 用于按摆幅缩放） */
+	private static void addRotation(ModelPart part, float[] degrees, float amplitude) {
+		if (degrees == null) {
+			return;
+		}
+		part.xRot += degreesToRadians(degrees[0] * amplitude);
+		part.yRot += degreesToRadians(degrees[1] * amplitude);
+		part.zRot += degreesToRadians(degrees[2] * amplitude);
+	}
+
+	/** 临时诊断：打印最终生效的骨骼数值（定位动画未生效问题，定位完成后删除） */
+	private static void debugPose(LivingEntity entity, SelectedAnimation selectedAnimation, PlayerModel<?> model) {
+		int mod = selectedAnimation.state == AnimationState.FLY ? 5 : 20;
+		if (entity.tickCount % mod != 0) {
+			return;
+		}
+		ModelPart wingR = findChild(model.body, "wingR");
+		ModelPart wingL = findChild(model.body, "wingL");
+		net.mcr.murmol.MurmolMod.LOGGER.info(
+				"[feral-debug2] model={}@{} state={} anim={} time={} headDeg=[{},{},{}] headPos=[{},{},{}] wingR={}deg[{},{},{}] wingL={}deg[{},{},{}]",
+				model.getClass().getSimpleName(), System.identityHashCode(model),
+				selectedAnimation.state, selectedAnimation.animation.name(),
+				selectedAnimation.animation.time(selectedAnimation.seconds),
+				Math.toDegrees(model.head.xRot), Math.toDegrees(model.head.yRot), Math.toDegrees(model.head.zRot),
+				model.head.x, model.head.y, model.head.z,
+				wingR != null, wingR == null ? 0 : Math.toDegrees(wingR.xRot), wingR == null ? 0 : Math.toDegrees(wingR.yRot), wingR == null ? 0 : Math.toDegrees(wingR.zRot),
+				wingL != null, wingL == null ? 0 : Math.toDegrees(wingL.xRot), wingL == null ? 0 : Math.toDegrees(wingL.yRot), wingL == null ? 0 : Math.toDegrees(wingL.zRot));
 	}
 
 	public static void applyBodyRenderTransform(LivingEntity entity, PoseStack poseStack, float ageInTicks) {
 		if (!isFeral(entity)) {
 			return;
 		}
-		Map<String, BedrockAnimation> loadedAnimations = animations();
+		// 石像状态冻结关键帧推进
+		ageInTicks = effectiveAge(entity, ageInTicks);
+		Map<String, BedrockAnimation> loadedAnimations = animationsFor(entity);
 		SelectedAnimation selectedAnimation = selectAnimation(loadedAnimations, entity, entity.walkAnimation.position(), entity.walkAnimation.speed(), ageInTicks);
 		if (selectedAnimation == null) {
 			return;
@@ -129,7 +261,9 @@ public final class FeralBedrockPlayerAnimator {
 		if (!isFeral(entity)) {
 			return;
 		}
-		Map<String, BedrockAnimation> loadedAnimations = animations();
+		// 石像状态冻结关键帧推进
+		ageInTicks = effectiveAge(entity, ageInTicks);
+		Map<String, BedrockAnimation> loadedAnimations = animationsFor(entity);
 		SelectedAnimation selectedAnimation = selectAnimation(loadedAnimations, entity, entity.walkAnimation.position(), entity.walkAnimation.speed(), ageInTicks);
 		if (selectedAnimation == null) {
 			return;
@@ -155,17 +289,19 @@ public final class FeralBedrockPlayerAnimator {
 		if (!isFeral(entity)) {
 			return;
 		}
-		Map<String, BedrockAnimation> loadedAnimations = animations();
-		SelectedAnimation selectedAnimation = selectAnimation(loadedAnimations, entity, entity.walkAnimation.position(), entity.walkAnimation.speed(), entity.tickCount);
+		Map<String, BedrockAnimation> loadedAnimations = animationsFor(entity);
+		// 石像状态冻结：物品动画时间与身体共用冻结时钟
+		float frozenAge = effectiveAge(entity, entity.tickCount);
+		SelectedAnimation selectedAnimation = selectAnimation(loadedAnimations, entity, entity.walkAnimation.position(), entity.walkAnimation.speed(), frozenAge);
 		if (selectedAnimation == null) {
 			return;
 		}
-		AnimationTransition transition = transitionFor(entity, selectedAnimation, entity.tickCount);
+		AnimationTransition transition = transitionFor(entity, selectedAnimation, frozenAge);
 		String boneName = arm == HumanoidArm.LEFT ? "left_item" : "right_item";
 		float time = selectedAnimation.animation.time(selectedAnimation.seconds);
-		float[] scale = blendedScale(transition, boneName, time, entity.getXRot(), entity.getYRot(), entity.tickCount);
-		float[] position = blendedPosition(transition, boneName, time, entity.getXRot(), entity.getYRot(), entity.tickCount);
-		float[] rotation = blendedRotation(transition, boneName, time, entity.getXRot(), entity.getYRot(), entity.tickCount);
+		float[] scale = blendedScale(transition, boneName, time, entity.getXRot(), entity.getYRot(), frozenAge);
+		float[] position = blendedPosition(transition, boneName, time, entity.getXRot(), entity.getYRot(), frozenAge);
+		float[] rotation = blendedRotation(transition, boneName, time, entity.getXRot(), entity.getYRot(), frozenAge);
 		if (scale == null && position == null && rotation == null) {
 			return;
 		}
@@ -186,12 +322,13 @@ public final class FeralBedrockPlayerAnimator {
 		if (!isFeral(entity)) {
 			return;
 		}
-		Map<String, BedrockAnimation> loadedAnimations = animations();
+		Map<String, BedrockAnimation> loadedAnimations = animationsFor(entity);
 		BedrockAnimation animation = firstPresent(loadedAnimations, "mouth_item", "feral_mouth_item");
 		if (animation == null) {
 			return;
 		}
-		float time = animation.time(entity.tickCount / LOOP_TIME_DIVISOR);
+		// 石像状态冻结：嘴部物品动画与身体共用冻结时钟
+		float time = animation.time(effectiveAge(entity, entity.tickCount) / LOOP_TIME_DIVISOR);
 		float[] scale = sampleBone(animation, "mouth_item", time, entity.getXRot(), entity.getYRot(), ChannelKind.SCALE);
 		float[] position = sampleBone(animation, "mouth_item", time, entity.getXRot(), entity.getYRot(), ChannelKind.POSITION);
 		float[] rotation = sampleBone(animation, "mouth_item", time, entity.getXRot(), entity.getYRot(), ChannelKind.ROTATION);
@@ -208,7 +345,42 @@ public final class FeralBedrockPlayerAnimator {
 		}
 	}
 
+	/** 取形态动画文件中指定名字的第一个动画（供尾部等附加动画使用） */
+	public static BedrockAnimation animationOf(FeralForm form, String... names) {
+		ResourceLocation file = form.getAnimationFile();
+		Map<String, BedrockAnimation> loaded = file == null ? animations() : animationsForFile(file);
+		return firstPresent(loaded, names);
+	}
+
+	/** 动画在 seconds 处的（循环折算）时间 */
+	public static float animationTime(BedrockAnimation animation, float seconds) {
+		return animation.time(seconds);
+	}
+
+	/** 动画包含的全部骨骼名 */
+	public static java.util.Set<String> boneNames(BedrockAnimation animation) {
+		return animation.bones().keySet();
+	}
+
+	/** 采样附加动画某骨骼的旋转（度），无该骨骼或旋转通道返回 null */
+	public static float[] sampleExtraRotation(BedrockAnimation animation, String boneName, float time) {
+		return sampleBone(animation, boneName, time, 0.0F, 0.0F, ChannelKind.ROTATION);
+	}
+
+	/** 在部件子树中按名查找骨骼（供尾部等附加动画使用） */
+	public static ModelPart findBone(ModelPart part, String name) {
+		return findChild(part, name);
+	}
+
 	public static boolean shouldRenderItemInMouth(LivingEntity entity, HumanoidArm arm, ItemStack itemStack) {
+		// 石像状态：直接隐藏手持/叼着的物品
+		if (FeralFormManager.isInStatue(entity)) {
+			return false;
+		}
+		// 月蛾形态不叼嘴：手臂保留原版动画，物品按原版方式拿在手里
+		if (FeralFormManager.getForm(entity) == net.mcr.murmol.feral.FeralForms.SILKMOTH) {
+			return false;
+		}
 		return isFeral(entity) && arm == HumanoidArm.RIGHT && !itemStack.isEmpty() && !isToolLikeItem(itemStack.getItem());
 	}
 
@@ -221,6 +393,23 @@ public final class FeralBedrockPlayerAnimator {
 				|| item instanceof CrossbowItem
 				|| item instanceof TridentItem
 				|| item instanceof ShieldItem;
+	}
+
+	/**
+	 * 石像状态下的冻结时钟：狛犬石化后关键帧不再推进（最多再播 TRANSITION_TICKS tick 让过渡完成），
+	 * 退出石像自动恢复推进。所有动画采样路径（本体/身体变换/躯干层/尾部）都应改用本方法返回的 age。
+	 */
+	public static float effectiveAge(LivingEntity entity, float ageInTicks) {
+		if (!FeralFormManager.isInStatue(entity)) {
+			STATUE_FROZEN_AGES.remove(entity);
+			return ageInTicks;
+		}
+		Float frozen = STATUE_FROZEN_AGES.get(entity);
+		if (frozen == null || ageInTicks < frozen) {
+			STATUE_FROZEN_AGES.put(entity, ageInTicks);
+			return ageInTicks;
+		}
+		return frozen + Math.min(ageInTicks - frozen, TRANSITION_TICKS);
 	}
 
 	private static boolean isFeral(LivingEntity entity) {
@@ -244,16 +433,16 @@ public final class FeralBedrockPlayerAnimator {
 	private static float feralEntryAlpha(LivingEntity entity, float ageInTicks) {
 		FeralActivation activation = ACTIVATIONS.computeIfAbsent(entity, ignored -> new FeralActivation());
 		if (!activation.wasFeral) {
-			activation.entryStartAge = ageInTicks;
-		} else if (activation.entryStartAge == Float.NEGATIVE_INFINITY) {
-			activation.entryStartAge = ageInTicks - FERAL_ENTRY_TRANSITION_TICKS;
+			// 仅在人类→形态的瞬间播放入场过渡；实体初次被渲染时已是形态（进服、切回第三人称）则跳过
+			activation.entryStartAge = activation.everFeral ? ageInTicks : ageInTicks - FERAL_ENTRY_TRANSITION_TICKS;
+			activation.everFeral = true;
 		}
 		activation.wasFeral = true;
 		return Math.clamp((ageInTicks - activation.entryStartAge) / FERAL_ENTRY_TRANSITION_TICKS, 0.0F, 1.0F);
 	}
 
 	private static SelectedAnimation selectAnimation(Map<String, BedrockAnimation> loadedAnimations, LivingEntity entity, float limbSwing, float limbSwingAmount, float ageInTicks) {
-		AnimationState state = animationStateForTick(entity);
+		AnimationState state = animationStateForTick(entity, limbSwingAmount);
 		BedrockAnimation animation = animationForState(loadedAnimations, state);
 		if (animation == null && state == AnimationState.RUN) {
 			animation = animationForState(loadedAnimations, AnimationState.WALK);
@@ -264,11 +453,12 @@ public final class FeralBedrockPlayerAnimator {
 		return animation == null ? null : new SelectedAnimation(state, animation, secondsForState(entity, state, ageInTicks));
 	}
 
-	private static AnimationState animationStateForTick(LivingEntity entity) {
+	private static AnimationState animationStateForTick(LivingEntity entity, float limbSwingAmount) {
 		AnimationTickSelection selection = TICK_SELECTIONS.computeIfAbsent(entity, ignored -> new AnimationTickSelection());
 		if (selection.tick != entity.tickCount) {
 			selection.tick = entity.tickCount;
-			selection.state = animationState(entity);
+			// 传入上一 tick 状态用于迟滞判定，避免 limbSwingAmount 在阈值附近徘徊导致动画来回抖动
+			selection.state = animationState(entity, limbSwingAmount, selection.state);
 		}
 		return selection.state;
 	}
@@ -351,7 +541,11 @@ public final class FeralBedrockPlayerAnimator {
 		return new float[]{lerp(start[0], end[0], progress), lerp(start[1], end[1], progress), lerp(start[2], end[2], progress)};
 	}
 
-	private static AnimationState animationState(LivingEntity entity) {
+	private static AnimationState animationState(LivingEntity entity, float limbSwingAmount, AnimationState previous) {
+		// 狛犬石像状态：固定使用潜行待机动画（雕塑姿态）
+		if (FeralFormManager.isInStatue(entity)) {
+			return AnimationState.SNEAK_IDLE;
+		}
 		if (entity.getPose() == Pose.SLEEPING) {
 			return AnimationState.SLEEP;
 		}
@@ -371,15 +565,24 @@ public final class FeralBedrockPlayerAnimator {
 			return AnimationState.SWIM;
 		}
 		if (!entity.onGround()) {
+			// 悬停飞行形态（如蚕蛾）滞空时视作飞行姿态
+			if (FeralFormManager.getForm(entity).canHoverFlight()) {
+				return AnimationState.FLY;
+			}
 			return entity.getDeltaMovement().y < -0.08D ? AnimationState.FALL : AnimationState.JUMP;
 		}
+		// 行走判定带迟滞：起走阈值高（0.02）、停走阈值低（0.004），防止边界抖动；
+		// 水平速度判定（骤停场景）保持不变
+		boolean wasWalking = previous == AnimationState.WALK || previous == AnimationState.RUN
+				|| previous == AnimationState.SNEAK_WALK;
+		boolean moving = isMovingHorizontally(entity) || limbSwingAmount > (wasWalking ? 0.004F : 0.02F);
 		if (entity.isCrouching()) {
-			return isMovingHorizontally(entity) ? AnimationState.SNEAK_WALK : AnimationState.SNEAK_IDLE;
+			return moving ? AnimationState.SNEAK_WALK : AnimationState.SNEAK_IDLE;
 		}
-		if (!isMovingHorizontally(entity)) {
-			return AnimationState.IDLE;
+		if (moving) {
+			return entity.isSprinting() ? AnimationState.RUN : AnimationState.WALK;
 		}
-		return entity.isSprinting() ? AnimationState.RUN : AnimationState.WALK;
+		return AnimationState.IDLE;
 	}
 
 	private static boolean isMovingHorizontally(LivingEntity entity) {
@@ -399,7 +602,7 @@ public final class FeralBedrockPlayerAnimator {
 			case FLY -> firstPresent(loadedAnimations, "feral_fly", "fly");
 			case SLEEP -> firstPresent(loadedAnimations, "feral_sleep", "sleep");
 			case ATTACK -> firstPresent(loadedAnimations, "feral_attack", "attack");
-			case DIG -> firstPresent(loadedAnimations, "feral_dig", "dig");
+			case DIG -> firstPresent(loadedAnimations, "feral_dig", "dig", "attack");
 			case SNEAK_IDLE -> firstPresent(loadedAnimations, "feral_sneak_idle", "sneak_idle");
 			case SNEAK_WALK -> firstPresent(loadedAnimations, "feral_sneak_walk", "sneak_walk");
 		};
@@ -432,33 +635,41 @@ public final class FeralBedrockPlayerAnimator {
 		if (animations != null) {
 			return animations;
 		}
-		Map<String, BedrockAnimation> loaded = new HashMap<>();
-		try {
-			Optional<Resource> resource = Minecraft.getInstance().getResourceManager().getResource(ANIMATION_FILE);
-			if (resource.isPresent()) {
-				try (InputStreamReader reader = new InputStreamReader(resource.get().open(), StandardCharsets.UTF_8)) {
-					JsonObject root = JsonParser.parseReader(reader).getAsJsonObject();
-					JsonObject animationRoot = root.getAsJsonObject("animations");
-					for (Map.Entry<String, JsonElement> entry : animationRoot.entrySet()) {
-						loaded.put(entry.getKey(), BedrockAnimation.read(entry.getKey(), entry.getValue().getAsJsonObject()));
-					}
-				}
-			}
-		} catch (Exception exception) {
-			net.mcr.murmol.MurmolMod.LOGGER.error("Failed to load feral player animation {}", ANIMATION_FILE, exception);
-		}
-		animations = loaded;
+		animations = animationsForFile(ANIMATION_FILE);
 		return animations;
 	}
 
+	private static Map<String, BedrockAnimation> animationsForFile(ResourceLocation file) {
+		return ANIMATION_FILES.computeIfAbsent(file, location -> {
+			Map<String, BedrockAnimation> loaded = new HashMap<>();
+			try {
+				Optional<Resource> resource = Minecraft.getInstance().getResourceManager().getResource(location);
+				if (resource.isPresent()) {
+					try (InputStreamReader reader = new InputStreamReader(resource.get().open(), StandardCharsets.UTF_8)) {
+						JsonObject root = JsonParser.parseReader(reader).getAsJsonObject();
+						JsonObject animationRoot = root.getAsJsonObject("animations");
+						for (Map.Entry<String, JsonElement> entry : animationRoot.entrySet()) {
+							loaded.put(entry.getKey(), BedrockAnimation.read(entry.getKey(), entry.getValue().getAsJsonObject()));
+						}
+					}
+				}
+			} catch (Exception exception) {
+				net.mcr.murmol.MurmolMod.LOGGER.error("Failed to load feral player animation {}", location, exception);
+			}
+			net.mcr.murmol.MurmolMod.LOGGER.info("[feral-debug] loaded animation file {} -> {} animations {}", location, loaded.size(), loaded.keySet());
+			return loaded;
+		});
+	}
+
 	private static void resetPlayerParts(PlayerModel<?> model) {
-		model.leftLeg.setPos(1.9F, 12.0F, 0.0F);
 		model.rightLeg.setPos(-1.9F, 12.0F, 0.0F);
-		model.head.setPos(0.0F, 0.0F, 0.0F);
-		model.rightArm.z = 0.0F;
+		model.leftLeg.setPos(1.9F, 12.0F, 0.0F);
 		model.rightArm.x = -5.0F;
-		model.leftArm.z = 0.0F;
 		model.leftArm.x = 5.0F;
+		model.rightArm.z = 0.0F;
+		model.leftArm.z = 0.0F;
+		model.head.setPos(0.0F, 0.0F, 0.0F);
+		model.body.setPos(0.0F, 0.0F, 0.0F);
 		model.head.xRot = 0.0F;
 		model.head.yRot = 0.0F;
 		model.head.zRot = 0.0F;
@@ -479,13 +690,7 @@ public final class FeralBedrockPlayerAnimator {
 		model.leftLeg.zRot = 0.0F;
 		model.rightLeg.z = 0.1F;
 		model.leftLeg.z = 0.1F;
-		model.rightLeg.y = 12.0F;
-		model.leftLeg.y = 12.0F;
 		model.head.y = 0.0F;
-		model.head.zRot = 0.0F;
-		model.body.y = 0.0F;
-		model.body.x = 0.0F;
-		model.body.z = 0.0F;
 		model.head.xScale = ModelPart.DEFAULT_SCALE;
 		model.head.yScale = ModelPart.DEFAULT_SCALE;
 		model.head.zScale = ModelPart.DEFAULT_SCALE;
@@ -515,6 +720,64 @@ public final class FeralBedrockPlayerAnimator {
 	private static void applyHeadLook(PlayerModel<?> model, float headPitch, float netHeadYaw) {
 		model.head.xRot += degreesToRadians(headPitch);
 		model.head.yRot += degreesToRadians(netHeadYaw);
+	}
+
+	/** 采样动画中六大骨骼与持物骨骼之外的附加骨骼（如蚕蛾翅膀），在模型子树中按名查找后应用旋转 */
+	private static void applyExtraBones(PlayerModel<?> model, BedrockAnimation animation, float time, float headPitch, float netHeadYaw) {
+		for (Map.Entry<String, BoneAnimation> entry : animation.bones.entrySet()) {
+			String boneName = entry.getKey();
+			if (isCoreBone(boneName)) {
+				continue;
+			}
+			ModelPart part = findChild(model.body, boneName);
+			if (part == null) {
+				part = findChild(model.head, boneName);
+			}
+			if (part == null) {
+				continue;
+			}
+			float[] rotation = sampleBone(animation, boneName, time, headPitch, netHeadYaw, ChannelKind.ROTATION);
+			if (rotation != null) {
+				part.xRot = degreesToRadians(rotation[0]);
+				part.yRot = degreesToRadians(rotation[1]);
+				part.zRot = degreesToRadians(rotation[2]);
+			}
+		}
+	}
+
+	private static boolean isCoreBone(String name) {
+		for (String core : PLAYER_BONES) {
+			if (core.equals(name)) {
+				return true;
+			}
+		}
+		return "mouth_item".equals(name) || "right_item".equals(name) || "left_item".equals(name);
+	}
+
+	/** ModelPart.children 为 private，按项目惯例用反射读取（缓存 Field） */
+	private static java.lang.reflect.Field childrenField;
+
+	/** 在部件子树中按名称递归查找子骨骼，找不到返回 null（原版模型无附加骨骼，自然跳过） */
+	private static ModelPart findChild(ModelPart part, String name) {
+		if (part.hasChild(name)) {
+			return part.getChild(name);
+		}
+		try {
+			if (childrenField == null) {
+				childrenField = ModelPart.class.getDeclaredField("children");
+				childrenField.setAccessible(true);
+			}
+			@SuppressWarnings("unchecked")
+			Map<String, ModelPart> children = (Map<String, ModelPart>) childrenField.get(part);
+			for (ModelPart child : children.values()) {
+				ModelPart found = findChild(child, name);
+				if (found != null) {
+					return found;
+				}
+			}
+		} catch (ReflectiveOperationException ignored) {
+		}
+		return null;
 	}
 
 	private static ModelPart partFor(PlayerModel<?> model, String bedrockBone) {
@@ -586,6 +849,8 @@ public final class FeralBedrockPlayerAnimator {
 
 	private static final class FeralActivation {
 		private boolean wasFeral;
+		/** 该实体是否曾经历人类→形态的转变（用于区分真变形与初次渲染即处于形态） */
+		private boolean everFeral;
 		private float entryStartAge = Float.NEGATIVE_INFINITY;
 	}
 
@@ -631,7 +896,7 @@ public final class FeralBedrockPlayerAnimator {
 	private record SelectedAnimation(AnimationState state, BedrockAnimation animation, float seconds) {
 	}
 
-	private record BedrockAnimation(String name, boolean loop, float length, Map<String, BoneAnimation> bones) {
+	public record BedrockAnimation(String name, boolean loop, float length, Map<String, BoneAnimation> bones) {
 		static BedrockAnimation read(String name, JsonObject json) {
 			boolean loop = json.has("loop") ? json.get("loop").getAsBoolean() : shouldLoopByDefault(name);
 			float length = json.has("animation_length") ? json.get("animation_length").getAsFloat() : 1.0F;
@@ -688,11 +953,11 @@ public final class FeralBedrockPlayerAnimator {
 			}
 			Map<Float, FrameValue> frames = new HashMap<>();
 			if (element.isJsonArray()) {
-				frames.put(0.0F, FrameValue.read(element.getAsJsonArray()));
+				frames.put(0.0F, FrameValue.read(element));
 			} else {
 				JsonObject object = element.getAsJsonObject();
 				for (Map.Entry<String, JsonElement> entry : object.entrySet()) {
-					frames.put(Float.parseFloat(entry.getKey()), FrameValue.read(entry.getValue().getAsJsonArray()));
+					frames.put(Float.parseFloat(entry.getKey()), FrameValue.read(entry.getValue()));
 				}
 			}
 			return new Channel(frames);
@@ -726,8 +991,15 @@ public final class FeralBedrockPlayerAnimator {
 	}
 
 	private record FrameValue(JsonArray raw) {
-		static FrameValue read(JsonArray raw) {
-			return new FrameValue(raw);
+		static FrameValue read(JsonElement raw) {
+			// 兼容 Blockbench 导出的 {"post": [...], "lerp_mode": "..."} 帧格式（lerp_mode 忽略，按线性插值处理）
+			if (raw != null && raw.isJsonObject()) {
+				JsonObject object = raw.getAsJsonObject();
+				if (object.has("post")) {
+					return new FrameValue(object.getAsJsonArray("post"));
+				}
+			}
+			return new FrameValue(raw.getAsJsonArray());
 		}
 
 		float[] resolve(float headPitch, float netHeadYaw) {

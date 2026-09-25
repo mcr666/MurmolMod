@@ -1,0 +1,23 @@
+{
+  "name": "Komainu",
+  "icon": "murmol:komainu_soul",
+  "category": "murmol:fengyang_classic",
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "murmol:komainu_soul",
+      "title": "Komainu",
+      "text": "The incarnation of a guardian stone beast, possessing a $(thing)steadfast will as solid as bedrock$(0). It always watches over one place without moving — just like the komainu before a shrine, facing the same direction for centuries through wind, frost, rain and snow."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Attributes",
+      "text": "$(li)After standing still for five seconds, turn into a stone statue:$(li)    Texture turns to stone$(li)    Gain Resistance$(li)    Undetectable by mobs beyond 2 blocks$(li)    Any movement breaks the state$(br)On a $(thing)Banza pedestal$(0):$(li)Right-click to become a statue instantly$(li)    Texture turns to mossy cobblestone$(li)    Slowly regenerate health while statue"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Tale",
+      "text": "Legend says a pair of stone beasts always stood before the ancient shrines — the left one with its mouth open, the right with its mouth closed. One day, no one knows which, the closed-mouth one gained light in its eyes. $(br)It crouched like the stone lions, day after day, watching incense rise and temple gates weather. Boys threw pebbles at it; it did not flinch. Night rain soaked its back; it did not stir. It thought: in guardianship, the essence is not in protecting — it is in staying. $(br)The years slowly crawled over its body, moss growing between its claws. On the night the shrine finally collapsed into the flood, the stone beast stood up at last. Unable to speak, it simply walked, step by step, down toward the world of mortals."
+    }
+  ]
+}

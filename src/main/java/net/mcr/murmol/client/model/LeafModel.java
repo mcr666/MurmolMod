@@ -21,7 +21,7 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 public class LeafModel<T extends Entity> extends EntityModel<T> {
 
 	public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(
-			ResourceLocation.fromNamespaceAndPath("murmol", "modelleaf"), "main");
+			ResourceLocation.fromNamespaceAndPath("murmol", "moss_beast"), "main");
 
 	private final ModelPart body;
 	private final ModelPart torso;

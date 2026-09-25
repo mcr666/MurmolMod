@@ -1,34 +1,30 @@
 {
   "name": "Moss Beast",
-  "icon": "murmol:moss_soul",
+  "icon": "murmol:moss_beast_soul",
   "category": "murmol:fengyang_classic",
   "advancement": "murmol:unlock/moss_beast",
   "pages": [
     {
       "type": "patchouli:spotlight",
-      "item": "murmol:moss_soul",
+      "item": "murmol:moss_beast_soul",
       "title": "Moss Beast",
       "text": "It was a damp and gentle age. No large predators stalked the land, and the spore plants grew and spread, day by day, between the silt, the pools and the clay — until one day, the earth itself grew restless."
     },
     {
-      "type": "patchouli:text",
-      "title": "Sealed in Darkness",
-      "text": "The earthquake troubled the plants themselves but little; yet when the violent shaking subsided, the ground had caved in and the hills had crumbled, sealing the plants within a dim cavern. $(br2)At first, with the help of the fungi and the insects, the spore blossoms still flourished in the cave. But soon, as the accumulated organic matter was steadily consumed, one drip-leaf after another, one glowing berry bush after another, began to wilt."
+      "type": "patchouli:crafting",
+      "title": "Keepsakes of Bond",
+      "recipe": "murmol:scrap_moss_beast_soul",
+      "text": "Offerings of the bond."
     },
     {
       "type": "patchouli:text",
-      "title": "Breaking Through",
-      "text": "At the cavern's end, a faint sliver of sunlight slanted down upon the rock of the wall. The distance was not far — yet to the plants, it brought nothing but deep despair. $(br2)At last, before the final spore blossom could fall, they all joined together. Roots drove outward, stems wound about one another, and spending the last of their strength, beneath the last of the twilight, a green, four-legged figure broke through the earth."
+      "title": "Attributes",
+      "text": "$(li)Max Health +4$(li)Attack Knockback +0.5$(br)In caves:$(li)Movement Speed +10%$(li)Jump Strength +0.2$(li)Mining Efficiency +1$(br)On the surface:$(li)Movement Speed -50%"
     },
     {
       "type": "patchouli:text",
-      "title": "Traits",
-      "text": "In the form of the Moss Beast, you gain a $(thing)tough, moss-grown shell$(0). Wind, rain and the assault of beasts can hardly shake it — just as moss endures a thousand years upon the rock, keeping its green through frost and snow."
-    },
-    {
-      "type": "patchouli:text",
-      "title": "Transformation Recipe",
-      "text": "Arrange these four offerings on the $(item)Spirit Table$(0), then right-click it holding a $(item)Murmol Soul$(0): $(li)big dripleaf$(li)moss block$(li)vine$(li)spore blossom$(br)Each transformation consumes $(thing)5 XP levels$(0). $(br)Alternatively, craft the $(item)Moss Beast Soul$(0) at a crafting table from an $(item)Ancient Knowledge Scrap (Moss Beast)$(0), a $(item)Murmol Soul$(0) and the four materials above."
+      "title": "Tale",
+      "text": "The earthquake troubled the plants themselves but little; yet when the violent shaking subsided, the ground had caved in and the hills had crumbled, sealing the plants within a dim cavern. $(br)At first, with the help of the fungi and the insects, the spore blossoms still flourished in the cave. But soon, as the accumulated organic matter was steadily consumed, one drip-leaf after another, one glowing berry bush after another, began to wilt. At the cavern's end, a faint sliver of sunlight slanted down upon the rock of the wall. The distance was not far — yet to the plants, it brought nothing but deep despair. $(br)At last, before the final spore blossom could fall, they all joined together. Roots drove outward, stems wound about one another, and spending the last of their strength, beneath the last of the twilight, a green, four-legged figure broke through the earth."
     }
   ]
 }

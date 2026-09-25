@@ -1,0 +1,18 @@
+{
+  "name": "Mango Bush",
+  "icon": "murmol:mango",
+  "category": "murmol:materials",
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "murmol:mango",
+      "title": "Mango Bush",
+      "text": "$(item)A super genetically-modified variety$(0) — once a towering fruit tree, now reduced to a waist-high shrub. Plant a $(item)mango$(0) on dirt and it will take root, growing through four stages before bearing ripe fruit. $(br)Right-click to harvest mangoes once mature; the bush then returns to its young stage to grow again. $(br)Beware passing through: the dense foliage snags travelers and slows them to a crawl."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Mutation Notes",
+      "text": "Mango trees once rose into the clouds, their fruit hanging far out of reach. Then the wave of genetic modification swept the fields, and everything changed: trunks shortened into stems, canopies shrank into bushes, and fruit now dangles at waist height. $(br)Some sneer that this is degeneration, but the bushes ripen faster and yield more — anyone can simply reach out and pick. Who still cares whether it is truly a tree?"
+    }
+  ]
+}

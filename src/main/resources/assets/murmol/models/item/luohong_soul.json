@@ -1,6 +1,6 @@
-{
+﻿{
   "parent": "item/generated",
   "textures": {
-    "layer0": "murmol:item/mossbeast"
+    "layer0": "murmol:item/luohong_soul"
   }
 }

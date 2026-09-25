@@ -37,6 +37,7 @@ public class MurmolModItems {
 	public static final DeferredItem<Item> FROST_SWORD;
 	public static final DeferredItem<Item> FROST_PICKAXE;
 	public static final DeferredItem<Item> SPIRIT_TABLE;
+	public static final DeferredItem<Item> BANZA;
 	public static final DeferredItem<Item> ASTRAL_DIRT;
 	public static final DeferredItem<Item> ASTRAL_STONE;
 	public static final DeferredItem<Item> COBBLED_ASTRAL_STONE;
@@ -59,12 +60,16 @@ public class MurmolModItems {
 	public static final DeferredItem<Item> PETAL;
 	public static final DeferredItem<Item> BLOOMING_BLADE_FULL;
 	public static final DeferredItem<Item> FIRE_BLADE_CLAW;
-	public static final DeferredItem<Item> CH_SOUL;
-	public static final DeferredItem<Item> PETALFALL_VERNAL_SOUL;
+	public static final DeferredItem<Item> CHEN_HUANG_SOUL;
+	public static final DeferredItem<Item> LUOHONG_SOUL;
 	public static final DeferredItem<Item> MAGIC_SHARD;
 	public static final DeferredItem<Item> ICE_FISH;
 	public static final DeferredItem<Item> TOTEMOF_FALLEN;
 	public static final DeferredItem<Item> MANGO;
+	public static final DeferredItem<Item> MANGO_BUSH_STAGE0;
+	public static final DeferredItem<Item> MANGO_BUSH_STAGE1;
+	public static final DeferredItem<Item> MANGO_BUSH_STAGE2;
+	public static final DeferredItem<Item> MANGO_BUSH_STAGE3;
 	public static final DeferredItem<Item> MANGO_ASTRAL;
 	public static final DeferredItem<Item> MANGO_GOLDEN;
 	public static final DeferredItem<Item> ALFAR_SPAWN_EGG;
@@ -77,7 +82,9 @@ public class MurmolModItems {
 	public static final DeferredItem<Item> TREE_HEART;
 	public static final DeferredItem<Item> FRAGRANT_CORSAGE;
 	public static final DeferredItem<Item> MURMOL;
-	public static final DeferredItem<Item> MOSS_SOUL;
+	public static final DeferredItem<Item> MOSS_BEAST_SOUL;
+	public static final DeferredItem<Item> SILKMOTH_SOUL;
+	public static final DeferredItem<Item> KOMAINU_SOUL;
 	public static final DeferredItem<Item> MANGO_GOLDEN_ENCHANT;
 	static {
 		MAOCRY_BLESSING = REGISTRY.register("maocry_blessing", MaocryBlessingItem::new);
@@ -99,6 +106,7 @@ public class MurmolModItems {
 		FROST_SWORD = REGISTRY.register("frost_sword", FrostSwordItem::new);
 		FROST_PICKAXE = REGISTRY.register("frost_pickaxe", FrostPickaxeItem::new);
 		SPIRIT_TABLE = block(MurmolModBlocks.SPIRIT_TABLE);
+		BANZA = block(MurmolModBlocks.BANZA);
 		ASTRAL_DIRT = block(MurmolModBlocks.ASTRAL_DIRT);
 		ASTRAL_STONE = block(MurmolModBlocks.ASTRAL_STONE);
 		COBBLED_ASTRAL_STONE = block(MurmolModBlocks.COBBLED_ASTRAL_STONE);
@@ -121,12 +129,16 @@ public class MurmolModItems {
 		PETAL = REGISTRY.register("petal", PetalItem::new);
 		BLOOMING_BLADE_FULL = REGISTRY.register("blooming_blade_full", BloomingBladeFullItem::new);
 		FIRE_BLADE_CLAW = REGISTRY.register("fire_blade_claw", FireBladeClawItem::new);
-		CH_SOUL = REGISTRY.register("ch_soul", ChSoulItem::new);
-		PETALFALL_VERNAL_SOUL = REGISTRY.register("petalfall_vernal_soul", PetalfallVernalSoulItem::new);
+		CHEN_HUANG_SOUL = REGISTRY.register("chen_huang_soul", ChSoulItem::new);
+		LUOHONG_SOUL = REGISTRY.register("luohong_soul", PetalfallVernalSoulItem::new);
 		MAGIC_SHARD = REGISTRY.register("magic_shard", MagicShardItem::new);
 		ICE_FISH = REGISTRY.register("ice_fish", IceFishItem::new);
 		TOTEMOF_FALLEN = REGISTRY.register("totemof_fallen", TotemofFallenItem::new);
 		MANGO = REGISTRY.register("mango", MangoItem::new);
+		MANGO_BUSH_STAGE0 = REGISTRY.register("mango_bush_stage0", () -> new MangoBushStageItem(0));
+		MANGO_BUSH_STAGE1 = REGISTRY.register("mango_bush_stage1", () -> new MangoBushStageItem(1));
+		MANGO_BUSH_STAGE2 = REGISTRY.register("mango_bush_stage2", () -> new MangoBushStageItem(2));
+		MANGO_BUSH_STAGE3 = REGISTRY.register("mango_bush_stage3", () -> new MangoBushStageItem(3));
 		MANGO_ASTRAL = REGISTRY.register("mango_astral", MangoAstralItem::new);
 		MANGO_GOLDEN = REGISTRY.register("mango_golden", MangoGoldenItem::new);
 		ALFAR_SPAWN_EGG = REGISTRY.register("alfar_spawn_egg", () -> new DeferredSpawnEggItem(MurmolModEntities.ALFAR, -6737152, -13421824, new Item.Properties()));
@@ -139,7 +151,9 @@ public class MurmolModItems {
 		TREE_HEART = REGISTRY.register("tree_heart", TreeHeartItem::new);
 		FRAGRANT_CORSAGE = REGISTRY.register("fragrant_corsage", FragrantCorsageItem::new);
 		MURMOL = REGISTRY.register("murmol", MurmolItem::new);
-		MOSS_SOUL = REGISTRY.register("moss_soul", LeafSoulItem::new);
+		MOSS_BEAST_SOUL = REGISTRY.register("moss_beast_soul", LeafSoulItem::new);
+		SILKMOTH_SOUL = REGISTRY.register("silkmoth_soul", SilkmothSoulItem::new);
+		KOMAINU_SOUL = REGISTRY.register("komainu_soul", KomainuSoulItem::new);
 		MANGO_GOLDEN_ENCHANT = REGISTRY.register("mango_golden_enchant", MangoGoldenEnchantItem::new);
 	}
 

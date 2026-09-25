@@ -38,6 +38,9 @@ public final class FeralFormRecipes {
 		for (FeralForm form : FeralForms.all()) {
 			if (!form.isFeral())
 				continue;
+			// 未配置灵魂物品或祭品的形态（如资源未接入的占位形态）跳过
+			if (form.getSoulItem().isEmpty() || form.getTransformMaterials().isEmpty())
+				continue;
 			NonNullList<Ingredient> ingredients = NonNullList.create();
 			// 残页：按 CUSTOM_DATA 中的 FormId 匹配对应形态（非严格，允许附带其他组件）
 			ingredients.add(DataComponentIngredient.of(false, AncientKnowledgeScrapItem.forForm(form.getId())));

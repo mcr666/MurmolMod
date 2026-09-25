@@ -37,12 +37,6 @@ public class TheAstralTomeItem extends Item {
 	}
 
 	@Override
-	@OnlyIn(Dist.CLIENT)
-	public boolean isFoil(ItemStack itemstack) {
-		return true;
-	}
-
-	@Override
 	public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
 		ItemStack stack = player.getItemInHand(hand);
 		// Patchouli 为必要前置（mods.toml type=required），无需再检查 ModList

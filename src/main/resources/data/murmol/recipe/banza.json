@@ -1,0 +1,14 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "XX"
+  ],
+  "key": {
+    "X": { "item": "minecraft:mossy_cobblestone" }
+  },
+  "result": {
+    "id": "murmol:banza",
+    "count": 1
+  }
+}

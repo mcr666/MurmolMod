@@ -355,6 +355,30 @@
           ]
         }
       ]
+    },
+    {
+      "rolls": 1,
+      "conditions": [
+        {
+          "condition": "minecraft:random_chance",
+          "chance": 0.05
+        }
+      ],
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:enchanted_book",
+          "weight": 1,
+          "functions": [
+            {
+              "function": "minecraft:set_enchantments",
+              "enchantments": {
+                "murmol:quantum_state": 1
+              }
+            }
+          ]
+        }
+      ]
     }
   ],
   "random_sequence": "murmol:chests/astruinszlp"

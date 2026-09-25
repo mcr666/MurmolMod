@@ -18,7 +18,7 @@ public abstract class AstralMenuPanoramaMixin {
     )
     private static ResourceLocation astralCruse$useCustomMenuPanorama(ResourceLocation original) {
         // Screen 类初始化时机晚于客户端配置加载，可安全读取
-        if (!net.mcr.murmol.MurmolModConfig.MODIFY_TITLE_PANORAMA.get()) {
+        if (!net.mcr.murmol.MurmolModConfig.MODIFY_TITLE_SCREEN.get()) {
             return original;
         }
         return ResourceLocation.fromNamespaceAndPath(

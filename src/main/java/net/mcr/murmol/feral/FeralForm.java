@@ -42,6 +42,19 @@ public abstract class FeralForm {
 	/** 碰撞箱水平向四周扩展的宽度（每侧格数，默认 1/8 格，野性形态通用），子类可覆盖 */
 	private float hitboxWidthBonus = 1.0F / 16.0F;
 
+	/** 悬停飞行：长按跳跃键（空格）缓慢上升，松手自然下落（如蚕蛾形态） */
+	private boolean hoverFlight = false;
+
+	/** 形态专属的垂直偏移增量（模型单位，1 = 1/16 格），叠加在通用 BODY_Y_OFFSET 上 */
+	private float bodyYOffset = 0.0F;
+
+	/** 形态专属 Bedrock 动画文件（null 使用全局 feral_anim.json） */
+	private ResourceLocation animationFile;
+	private boolean animateCoreBones = true;
+	private boolean modifiesHitbox = true;
+	/** 是否允许穿戴胸甲（变形掉落护甲逻辑豁免胸部槽位，如月蛾），默认不允许 */
+	private boolean canWearChestArmor = false;
+
 	protected FeralForm(String id, ResourceLocation texture, ResourceLocation tailTexture,
 			ResourceLocation bodyLayer, ResourceLocation tailLayer,
 			Supplier<ItemStack> soulItem, ResourceLocation advancement,
@@ -72,9 +85,23 @@ public abstract class FeralForm {
 		return net.minecraft.network.chat.Component.translatable(nameKey);
 	}
 
+	/** 隐藏该形态的第一人称手臂（默认行为） */
+	protected void disableFirstPersonArm() {
+		this.showFirstPersonArm = false;
+	}
+
 	/** 开启该形态的第一人称手臂渲染 */
 	protected void enableFirstPersonArm() {
-		this.showFirstPersonArm = false;
+		this.showFirstPersonArm = true;
+	}
+
+	/** 设置该形态是否允许穿戴胸甲（豁免变形掉落护甲的胸部槽位判定） */
+	protected void setCanWearChestArmor(boolean canWearChestArmor) {
+		this.canWearChestArmor = canWearChestArmor;
+	}
+
+	public boolean canWearChestArmor() {
+		return canWearChestArmor;
 	}
 
 	/** 设置碰撞箱水平四周扩展宽度（每侧格数，覆盖默认的 1/8 格） */
@@ -84,6 +111,57 @@ public abstract class FeralForm {
 
 	public float getHitboxWidthBonus() {
 		return hitboxWidthBonus;
+	}
+
+	/** 开启悬停飞行：长按跳跃键缓慢上升，松手缓慢下落 */
+	protected void enableHoverFlight() {
+		this.hoverFlight = true;
+	}
+
+	public boolean canHoverFlight() {
+		return hoverFlight;
+	}
+
+	/** 是否具备石像状态（狛犬：静止 5 秒石化） */
+	public boolean hasStatueState() {
+		return false;
+	}
+
+	/** 设置形态专属的垂直偏移增量（叠加在通用 BODY_Y_OFFSET 上） */
+	protected void setBodyYOffset(float bodyYOffset) {
+		this.bodyYOffset = bodyYOffset;
+	}
+
+	public float getBodyYOffset() {
+		return bodyYOffset;
+	}
+
+	/** 设置形态专属 Bedrock 动画文件（assets 下路径，如 murmol:player_animations/silkmoth_anim.json） */
+	protected void setAnimationFile(ResourceLocation animationFile) {
+		this.animationFile = animationFile;
+	}
+
+	public ResourceLocation getAnimationFile() {
+		return animationFile;
+	}
+
+	/** 设置是否由 Bedrock 动画驱动核心骨骼（torso/head/arms/legs）。
+	 * 模型姿态已在 Blockbench 烘焙定稿的形态（如月蛾）应设为 false，动画只驱动翅膀等附加骨骼。 */
+	protected void setAnimateCoreBones(boolean animateCoreBones) {
+		this.animateCoreBones = animateCoreBones;
+	}
+
+	public boolean animateCoreBones() {
+		return animateCoreBones;
+	}
+
+	/** 设置是否修改玩家碰撞箱/眼高（默认 true）。月蛾等保持原版尺寸的形态应设为 false。 */
+	protected void setModifiesHitbox(boolean modifiesHitbox) {
+		this.modifiesHitbox = modifiesHitbox;
+	}
+
+	public boolean modifiesHitbox() {
+		return modifiesHitbox;
 	}
 
 	public boolean showFirstPersonArm() {
@@ -135,17 +213,5 @@ public abstract class FeralForm {
 	@OnlyIn(Dist.CLIENT)
 	public net.minecraft.client.model.EntityModel<?> getTailModel() {
 		return tailLayer == null ? null : FeralFormModels.getTailModel(tailLayer);
-	}
-
-	/** 尾巴待机动画（循环摆动），为 null 表示无尾巴动画 */
-	@OnlyIn(Dist.CLIENT)
-	public net.minecraft.client.animation.AnimationDefinition getTailIdleAnimation() {
-		return null;
-	}
-
-	/** 尾巴行走/跑动动画，为 null 表示无尾巴动画 */
-	@OnlyIn(Dist.CLIENT)
-	public net.minecraft.client.animation.AnimationDefinition getTailWalkAnimation() {
-		return null;
 	}
 }

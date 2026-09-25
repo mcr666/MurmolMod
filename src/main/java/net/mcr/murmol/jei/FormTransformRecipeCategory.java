@@ -30,10 +30,17 @@ public class FormTransformRecipeCategory implements IRecipeCategory<FormTransfor
 	public static final RecipeType<FormTransformRecipe> RECIPE_TYPE =
 			RecipeType.create("murmol", "feral_transform", FormTransformRecipe.class);
 
+	private final IDrawable background;
 	private final IDrawable icon;
 
 	public FormTransformRecipeCategory(IGuiHelper guiHelper) {
+		this.background = guiHelper.createBlankDrawable(getWidth(), getHeight());
 		this.icon = guiHelper.createDrawableItemStack(new ItemStack(MurmolModBlocks.SPIRIT_TABLE.get()));
+	}
+
+	@Override
+	public IDrawable getBackground() {
+		return background;
 	}
 
 	@Override

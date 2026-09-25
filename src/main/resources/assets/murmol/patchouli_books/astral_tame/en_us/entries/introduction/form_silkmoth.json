@@ -1,0 +1,30 @@
+{
+  "name": "Silkmoth",
+  "icon": "murmol:silkmoth_soul",
+  "category": "murmol:fengyang_classic",
+  "advancement": "murmol:unlock/silkmoth",
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "murmol:silkmoth_soul",
+      "title": "Silkmoth",
+      "text": "In the years when the astral plague raged, even moonlight became dangerous. Predators circled the night sky, hunting any creature that dared cast a shadow in the dark."
+    },
+    {
+      "type": "patchouli:crafting",
+      "title": "Keepsakes of Bond",
+      "recipe": "murmol:scrap_silkmoth_soul",
+      "text": "Offerings of the bond."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Attributes",
+      "text": "$(li)Hold the jump key to ascend slowly$(li)Release to drift gently down on the wind$(li)Immune to fall damage$(br)Under the open daytime sky:$(li)Movement speed -0.05$(li)Max health -4$(br)Under the open night sky:$(li)Movement speed +0.05$(li)Max health +4$(br)Neither applies while in darkness."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Tale",
+      "text": "Legend tells of a brood of silkmoths that fed on moon-dew and mulberry leaves, their silk glowing faintly in the night. As the predators circled above day and night, they learned to ride the wind — rising in silence, drifting down without a sound, never a wingbeat seen in their ascent, never a rustle heard in their fall. $(br)To the predators, the night sky was dead silence; and within that silence, they hid."
+    }
+  ]
+}

@@ -16,7 +16,7 @@
       ],
       "vmArgs": [
         "@D:\\Code\\MurmolMod\\build\\moddev\\clientRunVmArgs.txt",
-        "-Dfml.modFolders\u003dmcreator%%D:\\Code\\MurmolMod\\bin\\main"
+        "-Dfml.modFolders\u003dmurmol%%D:\\Code\\MurmolMod\\bin\\main"
       ],
       "cwd": "${workspaceFolder}\\run",
       "env": {},
@@ -38,7 +38,7 @@
       ],
       "vmArgs": [
         "@D:\\Code\\MurmolMod\\build\\moddev\\serverRunVmArgs.txt",
-        "-Dfml.modFolders\u003dmcreator%%D:\\Code\\MurmolMod\\bin\\main"
+        "-Dfml.modFolders\u003dmurmol%%D:\\Code\\MurmolMod\\bin\\main"
       ],
       "cwd": "${workspaceFolder}\\run",
       "env": {},

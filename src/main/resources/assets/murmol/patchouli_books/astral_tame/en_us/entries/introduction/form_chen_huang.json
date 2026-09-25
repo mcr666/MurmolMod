@@ -1,24 +1,30 @@
-﻿{
+{
   "name": "Chen Huang",
-  "icon": "murmol:ch_soul",
+  "icon": "murmol:chen_huang_soul",
   "category": "murmol:fengyang_classic",
   "advancement": "murmol:unlock/chen_huang",
   "pages": [
     {
       "type": "patchouli:spotlight",
-      "item": "murmol:ch_soul",
+      "item": "murmol:chen_huang_soul",
       "title": "Chen Huang",
       "text": "He who rides it shall live two thousand years. The Chen Huang of the ancient texts resembles a four-horned deer clad in starlit scales, the swiftest of all divine beasts. Lost travelers borne by a Chen Huang could cross an entire wilderness in a single day."
     },
     {
-      "type": "patchouli:text",
-      "title": "Traits",
-      "text": "In the form of Chen Huang, you gain $(thing)speed and endurance$(0) far beyond mortal limits — the very reason it was revered as an auspicious beast. Distances mortals chase for a lifetime are but a morning stroll to the Chen Huang."
+      "type": "patchouli:crafting",
+      "title": "Keepsakes of Bond",
+      "recipe": "murmol:scrap_chen_huang_soul",
+      "text": "Offerings of the bond."
     },
     {
       "type": "patchouli:text",
-      "title": "Transformation Recipe",
-      "text": "Arrange these four offerings on the $(item)Spirit Table$(0), then right-click it holding a $(item)Murmol Soul$(0): $(li)golden apple$(li)mango$(li)sugar$(li)honey bottle$(br)Each transformation consumes $(thing)5 XP levels$(0). $(br)Alternatively, craft the $(item)Chen Huang Soul$(0) at a crafting table from an $(item)Ancient Knowledge Scrap (Chen Huang)$(0), a $(item)Murmol Soul$(0) and the four materials above."
+      "title": "Attributes",
+      "text": "$(li)Max Health +4$(li)Attack Knockback +0.5"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Tale",
+      "text": "In the earliest age, when heaven and earth had just settled, starlight fell into the wilderness and congealed into a four-horned deer. Its hooves never touched the dust; where it passed, mountains and rivers shrank into distant shadows within a single day — distances mortals chase for a lifetime are but a morning stroll to it. $(br)The ancient texts record: he who rides it shall live two thousand years. To a lost traveler borne by a Chen Huang, a way home was granted; and so the ancients revered it as an auspicious beast. Later the starlight faded, and the Chen Huang withdrew into legendary mountains, leaving behind only a few scattered words — swift as a shooting star — and a speed and endurance far beyond mortal limits."
     }
   ]
 }

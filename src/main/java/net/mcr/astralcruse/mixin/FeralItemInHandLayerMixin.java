@@ -57,6 +57,11 @@ public abstract class FeralItemInHandLayerMixin<T extends LivingEntity, M extend
 	 */
 	@Inject(method = "renderArmWithItem", at = @At("HEAD"), cancellable = true)
 	private void astralCruse$bindItemToFeralBone(LivingEntity entity, ItemStack itemStack, ItemDisplayContext displayContext, HumanoidArm arm, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight, CallbackInfo ci) {
+		// 石像状态：直接隐藏手持物品
+		if (net.mcr.murmol.feral.FeralFormManager.isInStatue(entity)) {
+			ci.cancel();
+			return;
+		}
 		// 嘴部物品由上面的注入处理
 		if (FeralBedrockPlayerAnimator.shouldRenderItemInMouth(entity, arm, itemStack)) {
 			return;

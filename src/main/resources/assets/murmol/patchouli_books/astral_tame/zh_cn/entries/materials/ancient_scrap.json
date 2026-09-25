@@ -1,0 +1,21 @@
+{
+  "name": "古代知识残页",
+  "icon": "murmol:ancient_knowledge_scrap",
+  "category": "murmol:materials",
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "一页泛黄的古卷残片，出自先民之手的$(item)《峰洋经》$(0)。记载着失落的野性知识——关于那些与大地共生的神兽形态的秘密。$(br)残页多藏于$(thing)幻星废墟$(0)与$(thing)猫哭冢$(0)的宝箱之中。"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "解读残页",
+      "text": "手持残页$(thing)右键$(0)解读，对应形态的背景传说、特性与变形配方便会记录于本典之中（残页不会消耗）。$(br)若残页文字褪色无法辨认，则说明它未曾记录任何形态。"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "残页的另一半用途",
+      "text": "残页亦可直接参与仪式：与$(l:murmol:materials/spirit_table)唤灵台$(/l)的合成一样，将$(item)残页$(0)、$(item)摩摩尔之魂$(0)与该形态的祭品置于工作台，即可炼成对应的$(item)形态之魂$(0)（一次性）。"
+    }
+  ]
+}

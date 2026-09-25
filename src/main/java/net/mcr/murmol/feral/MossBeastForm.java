@@ -10,15 +10,10 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.resources.ResourceLocation;
 
 import net.mcr.murmol.init.MurmolModItems;
-import net.mcr.murmol.client.model.animations.leaftailAnimation;
-
-import net.minecraft.client.animation.AnimationDefinition;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 
 /**
  * 苔叶兽形态。
- * 身体模型 modelleaf，尾巴 modelleaftail，身体纹理 furleaf.png，尾巴纹理 leaftail.png。
+ * 身体模型 moss_beast，尾巴 moss_beast_tail，身体纹理 moss_beast.png，尾巴纹理 moss_beast_tail.png。
  */
 public class MossBeastForm extends FeralForm {
 
@@ -26,36 +21,23 @@ public class MossBeastForm extends FeralForm {
 
 	public MossBeastForm() {
 		super(ID,
-				ResourceLocation.fromNamespaceAndPath("murmol", "textures/entities/furleaf.png"),
-				ResourceLocation.fromNamespaceAndPath("murmol", "textures/entities/leaftail.png"),
-				ResourceLocation.fromNamespaceAndPath("murmol", "modelleaf"),
-				ResourceLocation.fromNamespaceAndPath("murmol", "modelleaftail"),
-				() -> new ItemStack(MurmolModItems.MOSS_SOUL.get()),
+				ResourceLocation.fromNamespaceAndPath("murmol", "textures/entities/moss_beast.png"),
+				ResourceLocation.fromNamespaceAndPath("murmol", "textures/entities/moss_beast_tail.png"),
+				ResourceLocation.fromNamespaceAndPath("murmol", "moss_beast"),
+				ResourceLocation.fromNamespaceAndPath("murmol", "moss_beast_tail"),
+				() -> new ItemStack(MurmolModItems.MOSS_BEAST_SOUL.get()),
 				ResourceLocation.fromNamespaceAndPath("murmol", "stands_a_loquat_tree"),
 				Map.of(
-						Attributes.MAX_HEALTH, new AttributeModifier(ResourceLocation.fromNamespaceAndPath("murmol", "tf"), 4, AttributeModifier.Operation.ADD_VALUE),
-						Attributes.ATTACK_KNOCKBACK, new AttributeModifier(ResourceLocation.fromNamespaceAndPath("murmol", "tf"), 0.5, AttributeModifier.Operation.ADD_VALUE),
-						Attributes.JUMP_STRENGTH, new AttributeModifier(ResourceLocation.fromNamespaceAndPath("murmol", "tf"), 0.2, AttributeModifier.Operation.ADD_VALUE),
-						Attributes.MOVEMENT_SPEED, new AttributeModifier(ResourceLocation.fromNamespaceAndPath("murmol", "tf"), 0.01, AttributeModifier.Operation.ADD_VALUE),
-						Attributes.MINING_EFFICIENCY, new AttributeModifier(ResourceLocation.fromNamespaceAndPath("murmol", "tf"), 1, AttributeModifier.Operation.ADD_VALUE)),
+					// 仅保留无条件加成；移速/跳跃/挖掘为洞穴条件加成，由 FeralFormManager 按 tick 环境切换
+					Attributes.MAX_HEALTH, new AttributeModifier(ResourceLocation.fromNamespaceAndPath("murmol", "tf"), 4, AttributeModifier.Operation.ADD_VALUE),
+					Attributes.ATTACK_KNOCKBACK, new AttributeModifier(ResourceLocation.fromNamespaceAndPath("murmol", "tf"), 0.5, AttributeModifier.Operation.ADD_VALUE)),
 				List.of(
 							new ItemStack(Blocks.BIG_DRIPLEAF),
 							new ItemStack(Blocks.MOSS_BLOCK),
 							new ItemStack(Blocks.VINE),
 							new ItemStack(Blocks.SPORE_BLOSSOM)));
-		// 该形态显示第一人称手臂（配合全局配置 renderFirstPersonArm）
-		enableFirstPersonArm();
-	}
-
-	@OnlyIn(Dist.CLIENT)
-	@Override
-	public AnimationDefinition getTailIdleAnimation() {
-		return leaftailAnimation.pre_parallel0;
-	}
-
-	@OnlyIn(Dist.CLIENT)
-	@Override
-	public AnimationDefinition getTailWalkAnimation() {
-		return leaftailAnimation.run;
+		// 该形态不显示第一人称手臂
+		disableFirstPersonArm();
+		setAnimationFile(ResourceLocation.fromNamespaceAndPath("murmol", "player_animations/moss_beast_anim.json"));
 	}
 }

@@ -1,0 +1,30 @@
+{
+  "name": "月蛾",
+  "icon": "murmol:silkmoth_soul",
+  "category": "murmol:fengyang_classic",
+  "advancement": "murmol:unlock/silkmoth",
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "murmol:silkmoth_soul",
+      "title": "月蛾",
+      "text": "幻星瘟疫肆虐的年代，连月光都成了危险的东西。夜空中有掠食者盘旋，专猎那些在黑暗里暴露出影子的生灵。"
+    },
+    {
+      "type": "patchouli:crafting",
+      "title": "传颂之物",
+      "recipe": "murmol:scrap_silkmoth_soul",
+      "text": "结缘之祭物。"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "属性",
+      "text": "$(li)长按跳跃键缓缓升空$(li)松开后随风徐徐飘落$(li)无惧摔落伤害$(br)白日天空下：$(li)移动速度 -0.05$(li)最大生命值 -4$(br)夜晚天空下：$(li)移动速度 +0.05$(li)最大生命值 +4$(br)身处黑暗中则无昼夜增减益。"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "正文",
+      "text": "传说曾有一群月蛾，以月露与桑叶为食，吐出的丝在夜里泛着微光。天上的掠影日夜巡弋，它们便学会了借着风，悄无声息地滑升与飘落——升时不见振翅，落时不闻声响。$(br)掠食者眼中的夜空是一片死寂，而它们，就藏在那片死寂里。"
+    }
+  ]
+}

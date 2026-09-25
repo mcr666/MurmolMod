@@ -21,7 +21,7 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 public class ChenhuangModel<T extends Entity> extends EntityModel<T> {
 
 	public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(
-			ResourceLocation.fromNamespaceAndPath("murmol", "model_c_hmodel"), "main");
+			ResourceLocation.fromNamespaceAndPath("murmol", "chen_huang"), "main");
 
 	private final ModelPart body;
 	private final ModelPart torso;

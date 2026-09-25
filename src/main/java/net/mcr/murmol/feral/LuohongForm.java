@@ -10,15 +10,10 @@ import net.minecraft.world.item.Items;
 import net.minecraft.resources.ResourceLocation;
 
 import net.mcr.murmol.init.MurmolModItems;
-import net.mcr.murmol.client.model.animations.furtalsAnimation;
-
-import net.minecraft.client.animation.AnimationDefinition;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 
 /**
  * 落瓣春花形态。
- * 身体模型 modelfurplayermodel，尾巴 modelfurtals，纹理 luohong.png。
+ * 身体模型 luohong，尾巴 luohong_tail，纹理 luohong.png。
  */
 public class LuohongForm extends FeralForm {
 
@@ -28,9 +23,9 @@ public class LuohongForm extends FeralForm {
 		super(ID,
 				ResourceLocation.fromNamespaceAndPath("murmol", "textures/entities/luohong.png"),
 				null,
-				ResourceLocation.fromNamespaceAndPath("murmol", "modelfurplayermodel"),
-				ResourceLocation.fromNamespaceAndPath("murmol", "modelfurtals"),
-				() -> new ItemStack(MurmolModItems.PETALFALL_VERNAL_SOUL.get()),
+				ResourceLocation.fromNamespaceAndPath("murmol", "luohong"),
+				ResourceLocation.fromNamespaceAndPath("murmol", "luohong_tail"),
+				() -> new ItemStack(MurmolModItems.LUOHONG_SOUL.get()),
 				ResourceLocation.fromNamespaceAndPath("murmol", "witnessof_petal_spring"),
 				Map.of(
 							Attributes.MAX_HEALTH, new AttributeModifier(ResourceLocation.fromNamespaceAndPath("murmol", "tf"), -4, AttributeModifier.Operation.ADD_VALUE),
@@ -43,19 +38,8 @@ public class LuohongForm extends FeralForm {
 							new ItemStack(Items.SWEET_BERRIES),
 							new ItemStack(Items.GLISTERING_MELON_SLICE),
 							new ItemStack(Items.APPLE)));
-		// 该形态显示第一人称手臂（配合全局配置 renderFirstPersonArm）
-		enableFirstPersonArm();
-	}
-
-	@OnlyIn(Dist.CLIENT)
-	@Override
-	public AnimationDefinition getTailIdleAnimation() {
-		return furtalsAnimation.waving_tails;
-	}
-
-	@OnlyIn(Dist.CLIENT)
-	@Override
-	public AnimationDefinition getTailWalkAnimation() {
-		return furtalsAnimation.run;
+		// 该形态不显示第一人称手臂
+		disableFirstPersonArm();
+		setAnimationFile(ResourceLocation.fromNamespaceAndPath("murmol", "player_animations/luohong_anim.json"));
 	}
 }

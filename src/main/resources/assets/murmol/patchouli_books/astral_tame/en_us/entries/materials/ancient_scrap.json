@@ -1,0 +1,21 @@
+{
+  "name": "Ancient Knowledge Scrap",
+  "icon": "murmol:ancient_knowledge_scrap",
+  "category": "murmol:materials",
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "A yellowed scrap of an ancient scroll, torn from the $(item)Fengyang Classic$(0) penned by the forebears. It bears lost wild knowledge — secrets of the beast forms that live in symbiosis with the land.$(br)Scraps are mostly found in the chests of $(thing)Astral Ruins$(0) and $(thing)Maocry's Tomb$(0)."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Deciphering",
+      "text": "Hold a scrap and $(thing)right-click$(0) to decipher it: the origin legend, traits and transformation recipe of the corresponding form will be recorded in this tome (the scrap is not consumed).$(br)If the writing has faded beyond recognition, the scrap records no form at all."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Another Use",
+      "text": "Scraps also take part in rituals directly: just like the crafting of the $(l:murmol:materials/spirit_table)Spirit Table$(/l), placing a $(item)scrap$(0), a $(item)Murmol Soul$(0) and the offerings of a form on the table will forge the corresponding $(item)Form Soul$(0)."
+    }
+  ]
+}

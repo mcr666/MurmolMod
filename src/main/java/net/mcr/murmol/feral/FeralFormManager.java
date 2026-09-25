@@ -50,6 +50,10 @@ import net.mcr.murmol.network.MurmolModVariables;
 public class FeralFormManager {
 
 	private static final ResourceLocation MODIFIER_ID = ResourceLocation.fromNamespaceAndPath("murmol", "tf");
+	private static final ResourceLocation CAVE_MODIFIER_ID = ResourceLocation.fromNamespaceAndPath("murmol", "tf_cave");
+	private static final ResourceLocation SURFACE_MODIFIER_ID = ResourceLocation.fromNamespaceAndPath("murmol", "tf_surface");
+	private static final ResourceLocation DAY_MODIFIER_ID = ResourceLocation.fromNamespaceAndPath("murmol", "tf_day");
+	private static final ResourceLocation NIGHT_MODIFIER_ID = ResourceLocation.fromNamespaceAndPath("murmol", "tf_night");
 
 	// ==================== 形态读写 ====================
 
@@ -102,7 +106,12 @@ public class FeralFormManager {
 	private static void removeModifier(LivingEntity entity, net.minecraft.core.Holder<net.minecraft.world.entity.ai.attributes.Attribute> attr) {
 		var instance = entity.getAttribute(attr);
 		if (instance != null) {
+			// 一并清除环境条件修饰符（如苔叶兽洞穴/地面、月蛾昼夜）
 			instance.removeModifier(MODIFIER_ID);
+			instance.removeModifier(CAVE_MODIFIER_ID);
+			instance.removeModifier(SURFACE_MODIFIER_ID);
+			instance.removeModifier(DAY_MODIFIER_ID);
+			instance.removeModifier(NIGHT_MODIFIER_ID);
 		}
 	}
 
@@ -223,10 +232,225 @@ public class FeralFormManager {
 	}
 
 	@SubscribeEvent
+	public static void onCanPlayerSleep(net.neoforged.neoforge.event.entity.player.CanPlayerSleepEvent event) {
+		// 月蛾昼夜均可睡觉：仅清除原版"只能在夜里睡觉"的判定，保留其他阻止原因（怪物等）
+		if (getForm(event.getEntity()) == FeralForms.SILKMOTH
+				&& event.getVanillaProblem() == Player.BedSleepingProblem.NOT_POSSIBLE_NOW)
+			event.setProblem(null);
+	}
+
+	@SubscribeEvent
 	public static void onPlayerTick(PlayerTickEvent.Post event) {
 		LivingEntity entity = event.getEntity();
 		FeralForm form = getForm(entity);
 		applyModifiers(entity, form);
+		updateMossBeastEnvironmentModifiers(entity, form);
+		updateSilkmothEnvironmentModifiers(entity, form);
+		updateKomainuStatueState(entity, form);
+		// 悬停飞行形态免疫摔落伤害（每 tick 清零累计摔落距离）
+		if (form.isFeral() && form.canHoverFlight() && entity.fallDistance > 0) {
+			entity.fallDistance = 0;
+		}
+	}
+
+	/**
+	 * 苔叶兽环境加成：在洞穴中（所处位置天空光为 0）获得移速 +0.01、跳跃力 +0.2、挖掘效率 +1；
+	 * 在地面上则改为移速 -0.05。其余形态无环境修饰符。
+	 */
+
+	// ==================== 狛犬石像状态 ====================
+
+	/** 石像触发所需静止时长（tick） */
+	private static final int STATUE_IDLE_TICKS = 100;
+	/** 判定为“移动”的位移阈值（格，平方距离） */
+	private static final double STATUE_MOVE_THRESHOLD_SQR = 1.0E-4D;
+
+	/** 服务端记录的狛犬静止状态：上帧位置 + 已静止 tick 数 */
+	private static final java.util.WeakHashMap<Player, StatueTrack> STATUE_TRACKS = new java.util.WeakHashMap<>();
+
+	private static final class StatueTrack {
+		double lastX, lastY, lastZ;
+		boolean initialized;
+		int idleTicks;
+	}
+
+	/** 该实体（狛犬形态）当前是否处于石像状态 */
+	public static boolean isInStatue(LivingEntity entity) {
+		if (!(entity instanceof Player player) || !getForm(player).hasStatueState())
+			return false;
+		StatueTrack track = STATUE_TRACKS.get(player);
+		return track != null && track.idleTicks >= STATUE_IDLE_TICKS;
+	}
+
+	/** 该玩家是否站在磐座（banza）上：取脚底略下方（minY - 0.05）所在方块，
+	 * 不能用 getBlockPosBelowThatAffectsMyMovement——磐座高度仅 4/16，该方法会返回磐座下方的方块 */
+	public static boolean isOnBanza(LivingEntity entity) {
+		return entity.level().getBlockState(BlockPos.containing(entity.getX(), entity.getBoundingBox().minY - 0.05D, entity.getZ()))
+				.is(net.mcr.murmol.init.MurmolModBlocks.BANZA.get());
+	}
+
+	/**
+	 * 磐座右键激活：狛犬站在磐座上右键可立即进入石像状态。
+	 * @return 是否成功触发
+	 */
+	public static boolean tryActivateStatue(Player player) {
+		if (!getForm(player).hasStatueState())
+			return false;
+		StatueTrack track = STATUE_TRACKS.computeIfAbsent(player, p -> new StatueTrack());
+		track.initialized = true;
+		track.idleTicks = STATUE_IDLE_TICKS;
+		// 同步记录当前位置，否则下一 tick 判定为"已移动"导致石像状态立即被清除
+		track.lastX = player.getX();
+		track.lastY = player.getY();
+		track.lastZ = player.getZ();
+		// 磐座路径的进入粒子：tick 循环里状态无跳变，必须在此显式触发
+		spawnStatueParticles(player);
+		return true;
+	}
+
+	/**
+	 * 狛犬石像状态：静止 5 秒进入——抗性提升 I、2 格以外怪物无法将其选为目标；
+	 * 移动即退出。进出瞬间在身体周围播放石头破坏粒子。
+	 */
+	private static void updateKomainuStatueState(LivingEntity entity, FeralForm form) {
+		if (!(entity instanceof Player player) || !form.hasStatueState()) {
+			// 形态切换等情况下，非狛犬状态不留残影
+			STATUE_TRACKS.remove(entity);
+			return;
+		}
+		// 双端各自跟踪位置静止状态：服务端用于仇恨豁免与粒子，客户端用于渲染贴图/动画
+		boolean statueBefore = isInStatue(player);
+		StatueTrack track = STATUE_TRACKS.computeIfAbsent(player, p -> new StatueTrack());
+		boolean moved = !track.initialized
+				|| entity.position().distanceToSqr(track.lastX, track.lastY, track.lastZ) > STATUE_MOVE_THRESHOLD_SQR;
+
+		if (moved) {
+			track.idleTicks = 0;
+		} else if (track.idleTicks < STATUE_IDLE_TICKS) {
+			track.idleTicks++;
+		}
+		track.lastX = entity.getX();
+		track.lastY = entity.getY();
+		track.lastZ = entity.getZ();
+		track.initialized = true;
+
+		boolean statueNow = isInStatue(player);
+		// 效果与粒子仅在服务端执行
+		if (statueNow && !entity.level().isClientSide()) {
+			// 抗性提升 I，短时长每 tick 续期，退出即失效
+			entity.addEffect(new MobEffectInstance(MobEffects.DAMAGE_RESISTANCE, 60, 0, true, false));
+			// 磐座上的石像缓慢回血：每 2 秒回复半颗心
+			if (isOnBanza(player) && entity.tickCount % 40 == 0 && entity.getHealth() < entity.getMaxHealth()) {
+				entity.heal(1.0F);
+			}
+		}
+		if (statueNow != statueBefore) {
+			// 状态切换：石头破坏粒子
+			spawnStatueParticles(player);
+		}
+	}
+
+	/** 石头破坏粒子：服务端广播给附近玩家，客户端额外本地补一层（保证发起者自己一定能看到） */
+	private static void spawnStatueParticles(LivingEntity entity) {
+		var state = net.minecraft.world.level.block.Blocks.STONE.defaultBlockState();
+		var option = new net.minecraft.core.particles.BlockParticleOption(
+				net.minecraft.core.particles.ParticleTypes.BLOCK, state);
+		if (entity.level() instanceof net.minecraft.server.level.ServerLevel serverLevel) {
+			serverLevel.sendParticles(option, entity.getX(), entity.getY() + 1.0, entity.getZ(),
+					60, 0.5, 0.9, 0.5, 0.15);
+		} else if (entity.level() instanceof Level level) {
+			// 客户端本地备份
+			var random = level.random;
+			for (int i = 0; i < 40; i++) {
+				double x = entity.getX() + (random.nextDouble() - 0.5) * 1.0;
+				double y = entity.getY() + 0.4 + random.nextDouble() * 1.6;
+				double z = entity.getZ() + (random.nextDouble() - 0.5) * 1.0;
+				level.addParticle(option, x, y, z, 0, 0, 0);
+			}
+		}
+	}
+
+	/**
+	 * 苔叶兽环境加成：在洞穴中（所处位置天空光为 0）获得移速 +0.01、跳跃力 +0.2、挖掘效率 +1；
+	 * 在地面上则改为移速 -0.05。其余形态无环境修饰符。
+	 */
+	private static void updateMossBeastEnvironmentModifiers(LivingEntity entity, FeralForm form) {
+		if (form != FeralForms.MOSS_BEAST)
+			return;
+		boolean inCave = entity.level().getBrightness(net.minecraft.world.level.LightLayer.SKY, entity.blockPosition()) == 0;
+		if (inCave) {
+			setTransientModifier(entity, net.minecraft.world.entity.ai.attributes.Attributes.MOVEMENT_SPEED, CAVE_MODIFIER_ID, 0.01);
+			setTransientModifier(entity, net.minecraft.world.entity.ai.attributes.Attributes.JUMP_STRENGTH, CAVE_MODIFIER_ID, 0.2);
+			setTransientModifier(entity, net.minecraft.world.entity.ai.attributes.Attributes.MINING_EFFICIENCY, CAVE_MODIFIER_ID, 1);
+			removeModifier(entity, net.minecraft.world.entity.ai.attributes.Attributes.MOVEMENT_SPEED, SURFACE_MODIFIER_ID);
+		} else {
+			setTransientModifier(entity, net.minecraft.world.entity.ai.attributes.Attributes.MOVEMENT_SPEED, SURFACE_MODIFIER_ID, -0.05);
+			removeModifier(entity, net.minecraft.world.entity.ai.attributes.Attributes.MOVEMENT_SPEED, CAVE_MODIFIER_ID);
+			removeModifier(entity, net.minecraft.world.entity.ai.attributes.Attributes.JUMP_STRENGTH, CAVE_MODIFIER_ID);
+			removeModifier(entity, net.minecraft.world.entity.ai.attributes.Attributes.MINING_EFFICIENCY, CAVE_MODIFIER_ID);
+		}
+	}
+
+	/**
+	 * 月蛾昼夜减益：白天露天下移速 -0.05、最大生命值 -4；夜晚露天则相反获得 +0.05/+4；
+	 * 白天（或夜晚）黑暗处（天空光为 0）无任何修饰。
+	 */
+	private static void updateSilkmothEnvironmentModifiers(LivingEntity entity, FeralForm form) {
+		if (form != FeralForms.SILKMOTH)
+			return;
+		boolean seeSky = entity.level().getBrightness(net.minecraft.world.level.LightLayer.SKY, entity.blockPosition()) > 0;
+		boolean isDay = entity.level().isDay();
+		boolean dayBuffed = isDay && seeSky;
+		boolean nightBuffed = !isDay && seeSky;
+		if (dayBuffed) {
+			setTransientModifier(entity, net.minecraft.world.entity.ai.attributes.Attributes.MOVEMENT_SPEED, DAY_MODIFIER_ID, -0.05);
+			setTransientModifier(entity, net.minecraft.world.entity.ai.attributes.Attributes.MAX_HEALTH, DAY_MODIFIER_ID, -4);
+		} else {
+			removeModifier(entity, net.minecraft.world.entity.ai.attributes.Attributes.MOVEMENT_SPEED, DAY_MODIFIER_ID);
+			removeModifier(entity, net.minecraft.world.entity.ai.attributes.Attributes.MAX_HEALTH, DAY_MODIFIER_ID);
+		}
+		if (nightBuffed) {
+			setTransientModifier(entity, net.minecraft.world.entity.ai.attributes.Attributes.MOVEMENT_SPEED, NIGHT_MODIFIER_ID, 0.05);
+			setTransientModifier(entity, net.minecraft.world.entity.ai.attributes.Attributes.MAX_HEALTH, NIGHT_MODIFIER_ID, 4);
+		} else {
+			removeModifier(entity, net.minecraft.world.entity.ai.attributes.Attributes.MOVEMENT_SPEED, NIGHT_MODIFIER_ID);
+			removeModifier(entity, net.minecraft.world.entity.ai.attributes.Attributes.MAX_HEALTH, NIGHT_MODIFIER_ID);
+		}
+	}
+
+	private static void setTransientModifier(LivingEntity entity, net.minecraft.core.Holder<net.minecraft.world.entity.ai.attributes.Attribute> attr,
+			ResourceLocation id, double amount) {
+		var instance = entity.getAttribute(attr);
+		if (instance == null)
+			return;
+		if (instance.hasModifier(id)) {
+			return;
+		}
+		instance.addTransientModifier(new net.minecraft.world.entity.ai.attributes.AttributeModifier(id, amount,
+				net.minecraft.world.entity.ai.attributes.AttributeModifier.Operation.ADD_VALUE));
+	}
+
+	private static void removeModifier(LivingEntity entity, net.minecraft.core.Holder<net.minecraft.world.entity.ai.attributes.Attribute> attr,
+			ResourceLocation id) {
+		var instance = entity.getAttribute(attr);
+		if (instance != null) {
+			instance.removeModifier(id);
+		}
+	}
+
+	/**
+		 * 悬停飞行的运动逻辑（仅客户端每 tick 调用；客户端是自身移动的权威端，速度修改会随位置包同步）。
+		 * 长按跳跃键（空格）缓慢上升，松手自然下落。
+		 */
+	public static void hoverFlightClientTick(Player player, FeralForm form) {
+		if (!form.isFeral() || !form.canHoverFlight())
+			return;
+		// 仅在按下跳跃键（空格）时缓慢上升，松手自然下落
+		if (!net.minecraft.client.Minecraft.getInstance().options.keyJump.isDown())
+			return;
+		net.minecraft.world.phys.Vec3 v = player.getDeltaMovement();
+		// 缓慢上升：逐步加速至约 0.36 格/tick（原 0.12 的 3 倍）
+		player.setDeltaMovement(v.x, Math.min(v.y * 0.6 + 0.15, 0.36), v.z);
 	}
 
 	@SubscribeEvent
@@ -239,7 +463,9 @@ public class FeralFormManager {
 		TagKey<net.minecraft.world.item.Item> nodiaoluo = ItemTags.create(ResourceLocation.parse("mod:nodiaoluo"));
 		LevelAccessor world = entity.level();
 		double x = entity.getX(), y = entity.getY(), z = entity.getZ();
-		dropArmorIfNeeded(entity, world, x, y, z, EquipmentSlot.CHEST, nodiaoluo, ItemTags.create(ResourceLocation.parse("minecraft:chest_armor")));
+		// 月蛾等形态允许穿胸甲：跳过胸部槽位判定
+		if (!form.canWearChestArmor())
+			dropArmorIfNeeded(entity, world, x, y, z, EquipmentSlot.CHEST, nodiaoluo, ItemTags.create(ResourceLocation.parse("minecraft:chest_armor")));
 		dropArmorIfNeeded(entity, world, x, y, z, EquipmentSlot.LEGS, nodiaoluo, ItemTags.create(ResourceLocation.parse("minecraft:leg_armor")));
 		dropArmorIfNeeded(entity, world, x, y, z, EquipmentSlot.FEET, nodiaoluo, ItemTags.create(ResourceLocation.parse("minecraft:foot_armor")));
 	}
@@ -250,6 +476,9 @@ public class FeralFormManager {
 		if (stack.is(whitelist))
 			return;
 		if (!stack.is(armorTag))
+			return;
+		// 量子态附魔：装备在变形时不会自动脱落
+		if (hasQuantumState(stack, entity))
 			return;
 		if (world instanceof ServerLevel level) {
 			ItemEntity drop = new ItemEntity(level, x, y, z, stack.copy());
@@ -272,6 +501,29 @@ public class FeralFormManager {
 		} else {
 			entity.setItemSlot(slot, new ItemStack(Blocks.AIR));
 		}
+	}
+
+	/** 量子态附魔检查：该装备是否附有 murmol:quantum_state */
+	private static boolean hasQuantumState(ItemStack stack, LivingEntity entity) {
+		var key = ResourceKey.create(Registries.ENCHANTMENT, ResourceLocation.parse("murmol:quantum_state"));
+		return stack.getEnchantmentLevel(entity.level().registryAccess().lookupOrThrow(Registries.ENCHANTMENT).getOrThrow(key)) > 0;
+	}
+
+	/**
+	 * 量子态附魔获取途径：图书管理员村民 4 级（专家）出售附魔书（12 绿宝石）。
+	 */
+	@SubscribeEvent
+	public static void onVillagerTrades(net.neoforged.neoforge.event.village.VillagerTradesEvent event) {
+		if (event.getType() != net.minecraft.world.entity.npc.VillagerProfession.LIBRARIAN)
+			return;
+		event.getTrades().computeIfAbsent(4, k -> new java.util.ArrayList<>()).add((trader, rand) -> {
+			ItemStack book = new ItemStack(Items.ENCHANTED_BOOK);
+			var key = ResourceKey.create(Registries.ENCHANTMENT, ResourceLocation.parse("murmol:quantum_state"));
+			var holder = trader.level().registryAccess().lookupOrThrow(Registries.ENCHANTMENT).getOrThrow(key);
+			book.enchant(holder, 1);
+			return new net.minecraft.world.item.trading.MerchantOffer(
+					new net.minecraft.world.item.trading.ItemCost(Items.EMERALD, 12), book, 0, 3, 8);
+		});
 	}
 
 	@SubscribeEvent

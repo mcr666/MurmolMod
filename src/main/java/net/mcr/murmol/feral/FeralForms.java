@@ -15,6 +15,8 @@ public final class FeralForms {
 	public static final FeralForm LUOHONG = new LuohongForm();
 	public static final FeralForm CHEN_HUANG = new ChenHuangForm();
 	public static final FeralForm MOSS_BEAST = new MossBeastForm();
+	public static final FeralForm SILKMOTH = new SilkmothForm();
+	public static final FeralForm KOMAINU = new KomainuForm();
 
 	private static final Map<String, FeralForm> BY_ID = new HashMap<>();
 
@@ -23,6 +25,8 @@ public final class FeralForms {
 		register(LUOHONG);
 		register(CHEN_HUANG);
 		register(MOSS_BEAST);
+		register(SILKMOTH);
+		register(KOMAINU);
 	}
 
 	private FeralForms() {
