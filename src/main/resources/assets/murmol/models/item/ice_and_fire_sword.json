@@ -1,6 +1,6 @@
 {
   "parent": "item/handheld",
   "textures": {
-    "layer0": "murmol:item/bing_yu_huo_zhi_ge_"
+    "layer0": "murmol:item/misc/bing_yu_huo_zhi_ge_"
   }
 }

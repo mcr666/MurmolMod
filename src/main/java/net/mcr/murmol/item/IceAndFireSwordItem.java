@@ -10,6 +10,7 @@ import net.minecraft.world.item.Tier;
 import net.minecraft.world.item.SwordItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.Rarity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.tags.TagKey;
 import net.minecraft.tags.BlockTags;
@@ -53,7 +54,8 @@ public class IceAndFireSwordItem extends SwordItem {
 	};
 
 	public IceAndFireSwordItem() {
-		super(TOOL_TIER, new Item.Properties().attributes(SwordItem.createAttributes(TOOL_TIER, 9f, -2.4f)).fireResistant());
+		super(TOOL_TIER, new Item.Properties().attributes(SwordItem.createAttributes(TOOL_TIER, 9f, -2.4f)).fireResistant()
+				.rarity(Rarity.EPIC));
 	}
 
 	@Override

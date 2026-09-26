@@ -1,7 +1,7 @@
 {
   "name": "Seed of the Astral",
   "icon": "murmol:the_astral_tome",
-  "category": "murmol:introduction",
+  "category": "murmol:materials",
   "pages": [
     {
       "type": "patchouli:spotlight",

@@ -37,7 +37,7 @@ public class ChenHuangForm extends FeralForm {
 							new ItemStack(Items.SUGAR),
 							new ItemStack(Items.HONEY_BOTTLE)));
 		// 该形态不显示第一人称手臂
-		disableFirstPersonArm();
+		enableFirstPersonArm();
 		setAnimationFile(ResourceLocation.fromNamespaceAndPath("murmol", "player_animations/chen_huang_anim.json"));
 	}
 }

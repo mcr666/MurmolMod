@@ -26,13 +26,22 @@ public class MurmolModTabs {
 				tabData.accept(MurmolModItems.MOSS_BEAST_SOUL.get());
 				tabData.accept(MurmolModItems.SILKMOTH_SOUL.get());
 				tabData.accept(MurmolModItems.KOMAINU_SOUL.get());
+				tabData.accept(MurmolModItems.WENYAO_SOUL.get());
 				tabData.accept(MurmolModItems.SOUL_BOTTLE.get());
+				// 石化药水（酿造：地狱疣+石头）
+				{
+					net.minecraft.world.item.ItemStack petrifyPotion = new net.minecraft.world.item.ItemStack(net.minecraft.world.item.Items.POTION);
+					petrifyPotion.set(net.minecraft.core.component.DataComponents.POTION_CONTENTS,
+							new net.minecraft.world.item.alchemy.PotionContents(MurmolModPotions.PETRIFY));
+					tabData.accept(petrifyPotion);
+				}
 				// 古代知识残页：每种形态各一份
 				tabData.accept(net.mcr.murmol.item.AncientKnowledgeScrapItem.forForm("luohong"));
 				tabData.accept(net.mcr.murmol.item.AncientKnowledgeScrapItem.forForm("chen_huang"));
 				tabData.accept(net.mcr.murmol.item.AncientKnowledgeScrapItem.forForm("moss_beast"));
 				tabData.accept(net.mcr.murmol.item.AncientKnowledgeScrapItem.forForm("silkmoth"));
 				tabData.accept(net.mcr.murmol.item.AncientKnowledgeScrapItem.forForm("komainu"));
+				tabData.accept(net.mcr.murmol.item.AncientKnowledgeScrapItem.forForm("wenyao"));
 
 				tabData.accept(MurmolModItems.ASTRAL_ARMOR_HELMET.get());
 				tabData.accept(MurmolModItems.ASTRAL_ARMOR_CHESTPLATE.get());
@@ -63,6 +72,7 @@ public class MurmolModTabs {
 				tabData.accept(MurmolModBlocks.ALFAR_SHRINE.get().asItem());
 				tabData.accept(MurmolModItems.SPIRIT_TABLE.get());
 				tabData.accept(MurmolModBlocks.BANZA.get());
+				tabData.accept(MurmolModBlocks.CURSED_STONE.get());
 				tabData.accept(MurmolModBlocks.MAGIC_CRYSTAL_CLUSTER.get().asItem());
 				tabData.accept(MurmolModItems.XIAOHUI.get());
 				tabData.accept(MurmolModItems.ICE_FLOWER.get());

@@ -1,9 +1,9 @@
 {
   "parent": "murmol:custom/cross",
   "textures": {
-    "all": "murmol:block/amethyst_cluster",
-    "particle": "murmol:block/amethyst_cluster",
-    "cross": "murmol:block/amethyst_cluster"
+    "all": "murmol:block/plant/amethyst_cluster",
+    "particle": "murmol:block/plant/amethyst_cluster",
+    "cross": "murmol:block/plant/amethyst_cluster"
   },
   "render_type": "translucent"
 }

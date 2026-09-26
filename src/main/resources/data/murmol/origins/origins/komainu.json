@@ -1,0 +1,8 @@
+{
+	"name": "origins.murmol.komainu.name",
+	"description": "origins.murmol.komainu.description",
+	"icon": "minecraft:stone",
+	"impact": "high",
+	"order": 15,
+	"powers": ["murmol:sync_komainu"]
+}

@@ -1,6 +1,6 @@
 {
   "parent": "item/generated",
   "textures": {
-    "layer0": "murmol:item/maocry"
+    "layer0": "murmol:item/materials/maocry"
   }
 }

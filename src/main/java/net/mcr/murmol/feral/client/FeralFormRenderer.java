@@ -24,6 +24,7 @@ import net.minecraft.client.model.geom.ModelPart;
 
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.math.Axis;
 
 import net.mcr.murmol.feral.FeralForm;
 import net.mcr.murmol.feral.FeralFormManager;
@@ -63,10 +64,34 @@ public class FeralFormRenderer {
 
 	@SubscribeEvent
 	public static void onClientTick(net.neoforged.neoforge.client.event.ClientTickEvent.Post event) {
-		net.minecraft.client.player.LocalPlayer player = net.minecraft.client.Minecraft.getInstance().player;
-		if (player == null)
+		net.minecraft.client.Minecraft mc = net.minecraft.client.Minecraft.getInstance();
+		if (mc.player == null || mc.level == null)
 			return;
-		FeralFormManager.hoverFlightClientTick(player, FeralFormManager.getForm(player));
+		FeralFormManager.hoverFlightClientTick(mc.player, FeralFormManager.getForm(mc.player));
+		// 石化朝向钉死：在全部实体 tick 结束后把身体/头部转角冻结在上一帧值，
+		// 渲染插值两端相等即完全静止，消除与客户端视角更新互相打架的抽搐
+		for (net.minecraft.world.entity.Entity e : mc.level.entitiesForRendering()) {
+			if (e instanceof LivingEntity living
+					&& net.mcr.murmol.potion.PetrifyMobEffect.isPetrified(living)) {
+				living.yBodyRot = living.yBodyRotO;
+				living.yHeadRot = living.yHeadRotO;
+			}
+		}
+	}
+
+	/** 文鳐等禁用第一人称手臂的形态：第一人称手臂由项目原有的 onRenderArm（RenderArmEvent）机制处理 */
+
+	/**
+	 * 月蛾/文鳐：取消移速降低（如月蛾白天 -0.05、文鳐陆地 -0.085）带来的视野（FOV）缩小效果。
+	 * 固定 FOV 修正为 1.0（与原版无移速增减时一致）。
+	 */
+	@SubscribeEvent
+	public static void onComputeFov(net.neoforged.neoforge.client.event.ComputeFovModifierEvent event) {
+		FeralForm form = FeralFormManager.getForm(event.getPlayer());
+		if (form == net.mcr.murmol.feral.FeralForms.SILKMOTH
+				|| form == net.mcr.murmol.feral.FeralForms.WENYAO) {
+			event.setNewFovModifier(1.0F);
+		}
 	}
 
 	@SubscribeEvent
@@ -76,23 +101,15 @@ public class FeralFormRenderer {
 		if (!form.isFeral())
 			return;
 
+		// 整体替换形态（如文鳐）已由 WenyaoPlayerRenderer 渲染器偷换接管，本事件不再触发
+		if (form.getWholeModelLayer() != null)
+			return;
+
+		hideVanillaParts(event.getRenderer().getModel());
+
 		PlayerModel bodyModel = form.getBodyModel();
 		if (bodyModel == null)
 			return;
-
-		PlayerModel originalModel = event.getRenderer().getModel();
-		originalModel.head.visible = false;
-		originalModel.hat.visible = false;
-		originalModel.body.visible = false;
-		originalModel.jacket.visible = false;
-		originalModel.leftArm.visible = false;
-		originalModel.leftLeg.visible = false;
-		originalModel.leftPants.visible = false;
-		originalModel.leftSleeve.visible = false;
-		originalModel.rightArm.visible = false;
-		originalModel.rightLeg.visible = false;
-		originalModel.rightPants.visible = false;
-		originalModel.rightSleeve.visible = false;
 
 		ResourceLocation texture = resolveTexture(form, event.getEntity());
 		if (texture != null) {
@@ -101,15 +118,53 @@ public class FeralFormRenderer {
 		}
 	}
 
+	/** 隐藏原版玩家模型全部部件（整体替换/包装形态共用） */
+	private static void hideVanillaParts(PlayerModel model) {
+		model.head.visible = false;
+		model.hat.visible = false;
+		model.body.visible = false;
+		model.jacket.visible = false;
+		model.leftArm.visible = false;
+		model.leftLeg.visible = false;
+		model.leftPants.visible = false;
+		model.leftSleeve.visible = false;
+		model.rightArm.visible = false;
+		model.rightLeg.visible = false;
+		model.rightPants.visible = false;
+		model.rightSleeve.visible = false;
+	}
+
 	/** 石像状态贴图：石头 / 磐座上为苔石（专用狛犬石像贴图，与模型 UV 布局一致） */
 	private static final ResourceLocation STONE_TEXTURE = ResourceLocation.fromNamespaceAndPath("murmol", "textures/entities/komainu_stone.png");
 	private static final ResourceLocation MOSSY_STONE_TEXTURE = ResourceLocation.fromNamespaceAndPath("murmol", "textures/entities/komainu_mossy_stone.png");
 
-	/** 狛犬石像状态改用石头/苔石贴图，其余形态返回形态贴图 */
-	private static ResourceLocation resolveTexture(FeralForm form, net.minecraft.world.entity.LivingEntity entity) {
+	/** 狛犬石像/石化状态改用石头贴图，其余形态返回形态贴图（WenyaoPlayerRenderer 也复用） */
+	static ResourceLocation resolveTexture(FeralForm form, net.minecraft.world.entity.LivingEntity entity) {
+		if (net.mcr.murmol.potion.PetrifyMobEffect.isPetrified(entity))
+			return STONE_TEXTURE;
 		if (form.hasStatueState() && net.mcr.murmol.feral.FeralFormManager.isInStatue(entity))
 			return net.mcr.murmol.feral.FeralFormManager.isOnBanza(entity) ? MOSSY_STONE_TEXTURE : STONE_TEXTURE;
 		return form.getTexture();
+	}
+
+	/**
+	 * 取消原版 PlayerRenderer.setupRotations 的游泳/爬行前倾旋转。
+	 * 在 setupRotations 之后调用：按原版计算公式施加逆旋转/逆平移，
+	 * 使所有形态在水中游泳或陆上爬行时模型保持直立。
+	 */
+	static void cancelSwimRotation(Player entity, PoseStack poseStack, float partialTick) {
+		if (entity.isFallFlying())
+			return;
+		float swimAmount = entity.getSwimAmount(partialTick);
+		if (swimAmount <= 0.0F)
+			return;
+		float targetRot = entity.isInWater() ? -90.0F - entity.getViewXRot(partialTick) : -90.0F;
+		float applied = Mth.lerp(swimAmount, 0.0F, targetRot);
+		// 先逆平移（原版爬行时的 (0,-1,0.3) 偏移），再逆旋转
+		if (entity.isVisuallySwimming()) {
+			poseStack.translate(0.0F, 1.0F, -0.3F);
+		}
+		poseStack.mulPose(Axis.XP.rotationDegrees(-applied));
 	}
 
 	@SubscribeEvent
@@ -129,7 +184,8 @@ public class FeralFormRenderer {
 		if (bodyModel == null)
 			return;
 
-		ResourceLocation texture = form.getTexture();
+		// 复用 resolveTexture：石化/石像状态时第一人称手臂同步换石头贴图
+		ResourceLocation texture = resolveTexture(form, player);
 		if (texture == null)
 			return;
 
@@ -310,6 +366,8 @@ public class FeralFormRenderer {
 			}
 		}
 		event.getRenderer().setupRotations(entity, poseStack, ageInTicks, interpolatedBodyYaw, partialTick, 0);
+		// 取消游泳/爬行时的模型前倾旋转
+		cancelSwimRotation(entity, poseStack, partialTick);
 		// SCALE 属性（如春花形态 0.75x）影响碰撞箱与原版渲染，这里同步应用到自定义模型
 		float bodyScale = entity.getScale();
 		poseStack.scale(-0.938f * bodyScale, -0.938f * bodyScale, 0.938f * bodyScale);
@@ -476,5 +534,172 @@ public class FeralFormRenderer {
 				part.zRot += (float) Math.toRadians(rotation[2] * limbSwingAmount);
 			}
 		}
+	}
+
+	/** 整体替换动画（文鳐）的 idle↔活动 交叉混合时长（tick），与尾巴混合一致 */
+	private static final float FISH_BLEND_TICKS = 4.0F;
+
+	/** 整体替换动画的混合状态（每实体） */
+	private static final java.util.WeakHashMap<Player, FishBlend> FISH_BLENDS = new java.util.WeakHashMap<>();
+
+	/**
+	 * 整体替换模型渲染（如文鳐纯鱼形）：沿用原版 MCreator 的变换管线
+	 * （setupRotations + 缩放 + 平移），渲染独立根骨骼并驱动 Bedrock 动画。
+	 * 动画状态：按住空格/滞空 → fish_flying（叠加 fish_idle 摆尾）；
+	 * 水中游动 → fish_moving_swim；陆上挪动 → fish_moving_land；其余 → fish_idle。
+	 * idle 与活动动画按 4 tick 渐进交叉混合。
+	 */
+	/**
+	 * 文鳐动画：全部骨骼还原烘焙姿态后，以 fish_idle 为基底，
+	 * 活动动画（fish_flying/fish_moving_swim/fish_moving_land）按权重交叉覆盖；
+	 * 全部动画按实体时钟循环采样（地移不用行走相位驱动，避免慢速下动画被拉慢至不可见），
+	 * idle 与活动动画按 4 tick 渐进交叉混合；
+	 * 切换瞬间前一个动画的推进立即冻结，在其冻结帧上淡入新动画。
+	 * 由 WenyaoPlayerRenderer 渲染器偷换后调用。
+	 */
+	static void applyWenyaoAnimation(FeralForm form, Player entity, net.minecraft.client.model.geom.ModelPart root,
+			float limbSwingAmount, float ageInTicks, float partialTick) {
+		root.getAllParts().forEach(ModelPart::resetPose);
+		// 物品挂点骨骼仅作变换挂点，自身不渲染
+		for (String name : new String[] {"left_item", "right_item"}) {
+			ModelPart itemBone = FeralBedrockPlayerAnimator.findBone(root, name);
+			if (itemBone != null) {
+				itemBone.visible = false;
+			}
+		}
+		// 头部跟随视角（动画文件无 head 通道，保持原版视角跟随）
+		ModelPart head = FeralBedrockPlayerAnimator.findBone(root, "head");
+		if (head != null) {
+			float netHeadYaw = Mth.rotLerp(partialTick, entity.yHeadRotO, entity.yHeadRot)
+					- Mth.rotLerp(partialTick, entity.yBodyRotO, entity.yBodyRot);
+			float headPitch = Mth.lerp(partialTick, entity.xRotO, entity.getXRot());
+			// 头部俯仰限制在 ±45°，避免鱼头翻转过度
+			head.xRot += (float) Math.toRadians(Mth.clamp(headPitch, -45.0F, 45.0F));
+			head.yRot += (float) Math.toRadians(Mth.wrapDegrees(netHeadYaw));
+		}
+
+		FeralBedrockPlayerAnimator.BedrockAnimation idle = FeralBedrockPlayerAnimator.animationOf(form, "fish_idle");
+		// 悬停飞行：滞空或按住空格即视为飞行（同月蛾，含贴地起飞瞬间）
+		boolean flying = !entity.onGround()
+				|| (entity == net.minecraft.client.Minecraft.getInstance().player
+						&& net.minecraft.client.Minecraft.getInstance().options.keyJump.isDown());
+		// 移动判定放宽：文鳐陆地移速极慢（属性 -0.085），limbSwingAmount 可能长期低于常规阈值，
+		// 叠加水平速度兜底判定，保证陆上挪动能切到 fish_moving_land
+		boolean moving = limbSwingAmount > 0.004F
+				|| entity.getDeltaMovement().horizontalDistanceSqr() > 1.0E-4D;
+		FeralBedrockPlayerAnimator.BedrockAnimation active = null;
+		if (flying) {
+			active = FeralBedrockPlayerAnimator.animationOf(form, "fish_flying");
+		} else if (moving) {
+			active = FeralBedrockPlayerAnimator.animationOf(form,
+					entity.isInWater() ? "fish_moving_swim" : "fish_moving_land");
+		}
+		if (idle == null && active == null)
+			return;
+
+		FishBlend blend = FISH_BLENDS.computeIfAbsent(entity, ignored -> new FishBlend());
+		float dt = blend.lastAge == Float.NEGATIVE_INFINITY ? 0.0F : Mth.clamp(ageInTicks - blend.lastAge, 0.0F, 4.0F);
+		blend.lastAge = ageInTicks;
+		// 切换条件达成：立即冻结前一个动画的采样时间并开始向新动画过渡
+		if (active != null) {
+			if (active != blend.active) {
+				blend.previous = blend.active;
+				blend.active = active;
+				blend.weight = 0.0F;
+				blend.previousTime = blend.previous == null ? 0.0F
+						: FeralBedrockPlayerAnimator.animationTime(blend.previous, ageInTicks / 20.0F);
+			}
+		} else if (blend.active != null) {
+			// 停止活动：冻结旧活动动画并淡出回 idle
+			blend.previous = blend.active;
+			blend.active = null;
+			blend.previousTime = FeralBedrockPlayerAnimator.animationTime(blend.previous, ageInTicks / 20.0F);
+		}
+		if (blend.active != null) {
+			blend.weight = Math.min(blend.weight + dt / FISH_BLEND_TICKS, 1.0F);
+		} else {
+			blend.weight = Math.max(blend.weight - dt / FISH_BLEND_TICKS, 0.0F);
+		}
+		if (blend.weight >= 1.0F || blend.weight <= 0.0F) {
+			blend.previous = blend.active != null ? blend.previous : null;
+		}
+
+		// 采样时间：全部按实体时钟循环取模。
+		// 注意：地移动画不用 limbSwing 行走相位驱动——文鳐陆地移速仅约正常的 15%，
+		// 相位会被拉慢约 7 倍导致动画近乎静止；按时间播放可保证完整循环，停止后随淡出静止
+		float idleTime = idle == null ? 0.0F : FeralBedrockPlayerAnimator.animationTime(idle, ageInTicks / 20.0F);
+		float activeTime = blend.active == null ? 0.0F
+				: FeralBedrockPlayerAnimator.animationTime(blend.active, ageInTicks / 20.0F);
+		float previousTime = blend.previous == null ? 0.0F : blend.previousTime;
+
+		// 汇总全部动画涉及的骨骼，逐骨骼交叉混合
+		java.util.Set<String> boneNames = new HashSet<>();
+		if (idle != null)
+			boneNames.addAll(FeralBedrockPlayerAnimator.boneNames(idle));
+		if (blend.active != null)
+			boneNames.addAll(FeralBedrockPlayerAnimator.boneNames(blend.active));
+		if (blend.previous != null)
+			boneNames.addAll(FeralBedrockPlayerAnimator.boneNames(blend.previous));
+		for (String boneName : boneNames) {
+			ModelPart part = FeralBedrockPlayerAnimator.findBone(root, boneName);
+			if (part == null)
+				continue;
+			float[] out = rotationOf(idle, boneName, idleTime);
+			float[] in = rotationOf(blend.active, boneName, activeTime);
+			float[] prev = rotationOf(blend.previous, boneName, previousTime);
+			// 基准值：无 previous 时为 idle，有 previous 时从 previous 淡入当前目标
+			float[] base = prev != null ? prev : out;
+			if (base != null) {
+				part.xRot += (float) Math.toRadians(base[0]);
+				part.yRot += (float) Math.toRadians(base[1]);
+				part.zRot += (float) Math.toRadians(base[2]);
+			}
+			float[] target = blend.active != null ? in : out;
+			if (target != null) {
+				float w = blend.weight;
+				// 摆幅恒定：文鳐陆地移速极慢，若按 limbSwingAmount 缩放动画会近乎不可见
+				part.xRot += (float) Math.toRadians((target[0] - (base == null ? 0.0F : base[0])) * w);
+				part.yRot += (float) Math.toRadians((target[1] - (base == null ? 0.0F : base[1])) * w);
+				part.zRot += (float) Math.toRadians((target[2] - (base == null ? 0.0F : base[2])) * w);
+			}
+			// 位移通道（fish_moving_land 身体起伏）
+			float[] outPos = positionOf(idle, boneName, idleTime);
+			float[] inPos = positionOf(blend.active, boneName, activeTime);
+			float[] prevPos = positionOf(blend.previous, boneName, previousTime);
+			float[] basePos = prevPos != null ? prevPos : outPos;
+			float[] targetPos = blend.active != null ? inPos : outPos;
+			if (basePos == null && targetPos == null)
+				continue;
+			float w = blend.weight;
+			float bx = basePos == null ? 0.0F : basePos[0];
+			float by = basePos == null ? 0.0F : basePos[1];
+			float bz = basePos == null ? 0.0F : basePos[2];
+			float tx = targetPos == null ? 0.0F : targetPos[0];
+			float ty = targetPos == null ? 0.0F : targetPos[1];
+			float tz = targetPos == null ? 0.0F : targetPos[2];
+			// Bedrock 位移 Y 轴向上，模型坐标 Y 轴向下
+			part.x += (tx - bx) * w;
+			part.y -= (ty - by) * w;
+			part.z += (tz - bz) * w;
+		}
+	}
+
+	/** 采样动画骨骼旋转（度），动画或骨骼缺失返回 null */
+	private static float[] rotationOf(FeralBedrockPlayerAnimator.BedrockAnimation animation, String boneName, float time) {
+		return animation == null ? null : FeralBedrockPlayerAnimator.sampleExtraRotation(animation, boneName, time);
+	}
+
+	/** 采样动画骨骼位移（模型单位），动画或骨骼缺失返回 null */
+	private static float[] positionOf(FeralBedrockPlayerAnimator.BedrockAnimation animation, String boneName, float time) {
+		return animation == null ? null : FeralBedrockPlayerAnimator.sampleExtraPosition(animation, boneName, time);
+	}
+
+	/** 整体替换动画的混合状态（每实体）；previousTime 为前一个动画被冻结时的采样点 */
+	private static final class FishBlend {
+		FeralBedrockPlayerAnimator.BedrockAnimation active;
+		FeralBedrockPlayerAnimator.BedrockAnimation previous;
+		float weight;
+		float previousTime;
+		float lastAge = Float.NEGATIVE_INFINITY;
 	}
 }

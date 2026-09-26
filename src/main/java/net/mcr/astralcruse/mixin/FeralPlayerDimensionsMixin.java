@@ -19,6 +19,12 @@ public abstract class FeralPlayerDimensionsMixin {
 	@Inject(method = "getDefaultDimensions", at = @At("RETURN"), cancellable = true)
 	private void astralCruse$applyFeralDimensions(Pose pose, CallbackInfoReturnable<EntityDimensions> cir) {
 		Player player = (Player) (Object) this;
+		// 固定碰撞箱高度的形态（如文鳐）：所有 Pose 统一高度，蹲下/趴下不再改变
+		float fixedHeight = net.mcr.murmol.feral.FeralFormManager.getForm(player).getHitboxHeight();
+		if (fixedHeight > 0) {
+			cir.setReturnValue(resizeKeepingAttachments(cir.getReturnValue(), fixedHeight, fixedHeight * 0.85F));
+			return;
+		}
 		if (!FeralPlayerDimensions.isFeral(player)) {
 			return;
 		}

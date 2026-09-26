@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    " S ",
+    "SXS",
+    " S "
+  ],
+  "key": {
+    "S": "minecraft:stone",
+    "X": "minecraft:slime_ball"
+  },
+  "result": {
+    "id": "murmol:cursed_stone",
+    "count": 1
+  }
+}

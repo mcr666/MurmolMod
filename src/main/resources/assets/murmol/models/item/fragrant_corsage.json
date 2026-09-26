@@ -1,6 +1,6 @@
 {
   "parent": "item/generated",
   "textures": {
-    "layer0": "murmol:item/fragrant_corsage"
+    "layer0": "murmol:item/misc/fragrant_corsage"
   }
 }

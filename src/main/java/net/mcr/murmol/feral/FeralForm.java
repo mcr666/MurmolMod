@@ -8,6 +8,8 @@ import java.util.function.Supplier;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Item;
+import net.minecraft.tags.TagKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.core.Holder;
 import net.neoforged.api.distmarker.Dist;
@@ -33,6 +35,8 @@ public abstract class FeralForm {
 	private final ResourceLocation advancement;
 	private final Map<Holder<Attribute>, AttributeModifier> modifiers;
 	private final List<ItemStack> transformMaterials;
+	/** 额外按物品标签匹配的祭品（如文鳐的"任意鱼"），与 transformMaterials 一起参与计数匹配；null 表示无 */
+	private TagKey<Item> tagMaterial;
 	/** 形态显示名的翻译键，默认 form.murmol.<id>，子类可通过 setNameKey 覆盖 */
 	private String nameKey;
 
@@ -48,10 +52,15 @@ public abstract class FeralForm {
 	/** 形态专属的垂直偏移增量（模型单位，1 = 1/16 格），叠加在通用 BODY_Y_OFFSET 上 */
 	private float bodyYOffset = 0.0F;
 
+	/** 形态固定碰撞箱高度（格，含视角高度自动跟随）；0 表示不修改高度 */
+	private float hitboxHeight = 0.0F;
+
 	/** 形态专属 Bedrock 动画文件（null 使用全局 feral_anim.json） */
 	private ResourceLocation animationFile;
 	private boolean animateCoreBones = true;
 	private boolean modifiesHitbox = true;
+	/** 整体替换模型层（如文鳐纯鱼形模型）：非 null 时渲染端取消原版玩家模型，整体渲染该模型 */
+	private ResourceLocation wholeModelLayer;
 	/** 是否允许穿戴胸甲（变形掉落护甲逻辑豁免胸部槽位，如月蛾），默认不允许 */
 	private boolean canWearChestArmor = false;
 
@@ -86,12 +95,12 @@ public abstract class FeralForm {
 	}
 
 	/** 隐藏该形态的第一人称手臂（默认行为） */
-	protected void disableFirstPersonArm() {
+	protected void enableFirstPersonArm() {
 		this.showFirstPersonArm = false;
 	}
 
 	/** 开启该形态的第一人称手臂渲染 */
-	protected void enableFirstPersonArm() {
+	protected void disableFirstPersonArm() {
 		this.showFirstPersonArm = true;
 	}
 
@@ -136,6 +145,15 @@ public abstract class FeralForm {
 		return bodyYOffset;
 	}
 
+	/** 设置形态固定碰撞箱高度（格），视角（眼高）随尺寸自动降低；0 表示保持原版高度 */
+	protected void setHitboxHeight(float hitboxHeight) {
+		this.hitboxHeight = hitboxHeight;
+	}
+
+	public float getHitboxHeight() {
+		return hitboxHeight;
+	}
+
 	/** 设置形态专属 Bedrock 动画文件（assets 下路径，如 murmol:player_animations/silkmoth_anim.json） */
 	protected void setAnimationFile(ResourceLocation animationFile) {
 		this.animationFile = animationFile;
@@ -153,6 +171,15 @@ public abstract class FeralForm {
 
 	public boolean animateCoreBones() {
 		return animateCoreBones;
+	}
+
+	/** 设置整体替换模型层（assets 模型层路径，如 murmol:wenyao）。渲染端将取消原版玩家模型并整体渲染该模型。 */
+	protected void setWholeModelLayer(ResourceLocation wholeModelLayer) {
+		this.wholeModelLayer = wholeModelLayer;
+	}
+
+	public ResourceLocation getWholeModelLayer() {
+		return wholeModelLayer;
 	}
 
 	/** 设置是否修改玩家碰撞箱/眼高（默认 true）。月蛾等保持原版尺寸的形态应设为 false。 */
@@ -201,6 +228,15 @@ public abstract class FeralForm {
 		return transformMaterials;
 	}
 
+	/** 设置额外按物品标签匹配的祭品（如 minecraft:fishes 任意鱼） */
+	protected void setTagMaterial(TagKey<Item> tagMaterial) {
+		this.tagMaterial = tagMaterial;
+	}
+
+	public TagKey<Item> getTagMaterial() {
+		return tagMaterial;
+	}
+
 	public boolean isFeral() {
 		return !HUMAN_ID.equals(id);
 	}
@@ -213,5 +249,11 @@ public abstract class FeralForm {
 	@OnlyIn(Dist.CLIENT)
 	public net.minecraft.client.model.EntityModel<?> getTailModel() {
 		return tailLayer == null ? null : FeralFormModels.getTailModel(tailLayer);
+	}
+
+	/** 整体替换模型的根骨骼（如文鳐鱼模型），非整体替换形态返回 null */
+	@OnlyIn(Dist.CLIENT)
+	public net.minecraft.client.model.geom.ModelPart getWholeModelPart() {
+		return wholeModelLayer == null ? null : FeralFormModels.getWholeModelPart(wholeModelLayer);
 	}
 }

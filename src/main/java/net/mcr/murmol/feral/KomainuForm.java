@@ -26,7 +26,7 @@ public class KomainuForm extends FeralForm {
 				ResourceLocation.fromNamespaceAndPath("murmol", "komainu"),
 				null,
 				() -> new ItemStack(MurmolModItems.KOMAINU_SOUL.get()),
-				null,
+				ResourceLocation.fromNamespaceAndPath("murmol", "get_komainu"),
 				Map.of(),
 				List.of(
 							new ItemStack(Items.STONE),
@@ -34,7 +34,7 @@ public class KomainuForm extends FeralForm {
 							new ItemStack(Items.BONE),
 							new ItemStack(Items.DIAMOND)));
 		// 该形态不显示第一人称手臂
-		disableFirstPersonArm();
+		enableFirstPersonArm();
 		// 与乘黄共用同一套动画文件（通用 idle/walk/sneak + tail_idle/tail_walk）
 		setAnimationFile(ResourceLocation.fromNamespaceAndPath("murmol", "player_animations/chen_huang_anim.json"));
 	}

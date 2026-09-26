@@ -1,6 +1,6 @@
 {
   "parent": "item/generated",
   "textures": {
-    "layer0": "murmol:item/totem_of_fallen"
+    "layer0": "murmol:item/misc/totem_of_fallen"
   }
 }

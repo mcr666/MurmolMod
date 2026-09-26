@@ -1,4 +1,4 @@
-﻿{
+{
   "display": {
     "icon": {
       "id": "murmol:moss_beast_soul"
@@ -19,5 +19,5 @@
       "trigger": "minecraft:impossible"
     }
   },
-  "parent": "murmol:get_book"
+  "parent": "murmol:fengyang_classic"
 }

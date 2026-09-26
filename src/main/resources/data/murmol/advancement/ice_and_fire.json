@@ -1,0 +1,34 @@
+{
+  "display": {
+    "icon": {
+      "id": "murmol:ice_and_fire_sword"
+    },
+    "title": {
+      "translate": "advancements.ice_and_fire.title"
+    },
+    "description": {
+      "translate": "advancements.ice_and_fire.descr"
+    },
+    "frame": "goal",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "ice_and_fire_0": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "murmol:ice_and_fire_sword",
+            "count": {
+              "min": 1,
+              "max": 64
+            }
+          }
+        ]
+      }
+    }
+  },
+  "parent": "murmol:astral_essence"
+}

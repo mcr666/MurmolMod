@@ -44,7 +44,11 @@ public class FeralPlayerDimensions {
 	private static void refreshIfNeeded(Player player, boolean force) {
 		boolean feral = isFeral(player);
 		Boolean previous = LAST_FERAL_STATES.put(player, feral);
-		float expectedHeight = player.getDefaultDimensions(player.getPose()).height();
+		// 固定碰撞箱高度的形态（如文鳐）期望高度为形态自定义值，避免每 tick 误判刷新
+		float customHeight = FeralFormManager.getForm(player).getHitboxHeight();
+		float expectedHeight = customHeight > 0
+				? customHeight
+				: player.getDefaultDimensions(player.getPose()).height();
 		boolean wrongHeight = Math.abs(player.getBbHeight() - expectedHeight) > HEIGHT_EPSILON;
 		if (force || previous == null || previous != feral || wrongHeight) {
 			player.refreshDimensions();

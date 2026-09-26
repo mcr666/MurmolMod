@@ -54,6 +54,8 @@ public class FeralFormManager {
 	private static final ResourceLocation SURFACE_MODIFIER_ID = ResourceLocation.fromNamespaceAndPath("murmol", "tf_surface");
 	private static final ResourceLocation DAY_MODIFIER_ID = ResourceLocation.fromNamespaceAndPath("murmol", "tf_day");
 	private static final ResourceLocation NIGHT_MODIFIER_ID = ResourceLocation.fromNamespaceAndPath("murmol", "tf_night");
+	private static final ResourceLocation WENYAO_WATER_ID = ResourceLocation.fromNamespaceAndPath("murmol", "tf_wenyao_water");
+	private static final ResourceLocation WENYAO_LAND_ID = ResourceLocation.fromNamespaceAndPath("murmol", "tf_wenyao_land");
 
 	// ==================== 形态读写 ====================
 
@@ -112,6 +114,8 @@ public class FeralFormManager {
 			instance.removeModifier(SURFACE_MODIFIER_ID);
 			instance.removeModifier(DAY_MODIFIER_ID);
 			instance.removeModifier(NIGHT_MODIFIER_ID);
+			instance.removeModifier(WENYAO_WATER_ID);
+			instance.removeModifier(WENYAO_LAND_ID);
 		}
 	}
 
@@ -119,14 +123,20 @@ public class FeralFormManager {
 
 	/**
 	 * 物品触发的变形（如堕落者图腾、灵魂物品）。直接变形为指定形态。
+	 * 目标形态与当前形态相同则 no-op（防 NeoOrigins 起源联动循环触发）。
 	 */
 	public static void transformFromItem(LevelAccessor world, double x, double y, double z, Entity entity, FeralForm form, ItemStack itemstack) {
 		if (entity == null)
+			return;
+		if (getForm(entity) == form)
 			return;
 		playTransformSound(world, x, y, z);
 		setForm(entity, form);
 		awardAdvancement(entity, form);
 		addTransformEffects(entity);
+		// NeoOrigins 联动：变形后同步起源（软依赖，未安装时静默跳过）
+		if (entity instanceof ServerPlayer player)
+			net.mcr.murmol.compat.NeoOriginsCompat.syncOrigin(player, form);
 	}
 
 	private static void playTransformSound(LevelAccessor world, double x, double y, double z) {
@@ -174,7 +184,7 @@ public class FeralFormManager {
 		for (FeralForm form : FeralForms.all()) {
 			if (form == FeralForms.HUMAN)
 				continue;
-			if (matchesMaterials(slotItems, form.getTransformMaterials()))
+			if (matchesMaterials(slotItems, form))
 				return form;
 		}
 		return null;
@@ -204,32 +214,32 @@ public class FeralFormManager {
 		return slotItems.stream().anyMatch(s -> !s.isEmpty() && s.is(ItemTags.BOATS));
 	}
 
-	private static boolean matchesMaterials(java.util.List<ItemStack> slotItems, java.util.List<ItemStack> required) {
+	/** 形态祭品匹配：固定材料按物品计数比对，另有 getTagMaterial() 标签材料（如文鳐的任意鱼）匹配任意一个属于该标签的槽位 */
+	private static boolean matchesMaterials(java.util.List<ItemStack> slotItems, FeralForm form) {
+		java.util.List<ItemStack> required = form.getTransformMaterials();
 		if (required.isEmpty())
 			return false;
+		java.util.Map<net.minecraft.world.item.Item, Integer> counts = countItems(slotItems);
+		int total = counts.values().stream().mapToInt(Integer::intValue).sum();
+		TagKey<net.minecraft.world.item.Item> tag = form.getTagMaterial();
+		if (total != required.size() + (tag == null ? 0 : 1))
+			return false;
+		if (tag != null) {
+			// 从计数中移除任意一个属于标签的物品（如任意鱼）
+			net.minecraft.world.item.Item tagged = counts.keySet().stream()
+					.filter(item -> item.builtInRegistryHolder().is(tag))
+					.findFirst().orElse(null);
+			if (tagged == null)
+				return false;
+			counts.compute(tagged, (item, n) -> n == 1 ? null : n - 1);
+		}
 		java.util.Map<net.minecraft.world.item.Item, Integer> need = new java.util.HashMap<>();
 		for (ItemStack req : required)
 			need.merge(req.getItem(), 1, Integer::sum);
-		return countItems(slotItems).equals(need);
+		return counts.equals(need);
 	}
 
 	// ==================== 事件监听 ====================
-
-	/**
-	 * 形态碰撞箱扩展：宽度按 hitboxWidthBonus 向四周各扩展（高度不变）。
-	 * 变形时 SCALE 属性变化会触发 refreshDimensions，从而走到这里；复原后不再扩展。
-	 */
-	@SubscribeEvent
-	public static void onEntitySize(net.neoforged.neoforge.event.entity.EntityEvent.Size event) {
-		if (!(event.getEntity() instanceof Player player))
-			return;
-		FeralForm form = getForm(player);
-		if (!form.isFeral() || form.getHitboxWidthBonus() == 0)
-			return;
-		net.minecraft.world.entity.EntityDimensions size = event.getNewSize();
-		event.setNewSize(net.minecraft.world.entity.EntityDimensions.scalable(
-				size.width() + form.getHitboxWidthBonus() * 2, size.height()));
-	}
 
 	@SubscribeEvent
 	public static void onCanPlayerSleep(net.neoforged.neoforge.event.entity.player.CanPlayerSleepEvent event) {
@@ -247,6 +257,7 @@ public class FeralFormManager {
 		updateMossBeastEnvironmentModifiers(entity, form);
 		updateSilkmothEnvironmentModifiers(entity, form);
 		updateKomainuStatueState(entity, form);
+		updateWenyaoEnvironmentModifiers(entity, form);
 		// 悬停飞行形态免疫摔落伤害（每 tick 清零累计摔落距离）
 		if (form.isFeral() && form.canHoverFlight() && entity.fallDistance > 0) {
 			entity.fallDistance = 0;
@@ -305,6 +316,8 @@ public class FeralFormManager {
 		track.lastZ = player.getZ();
 		// 磐座路径的进入粒子：tick 循环里状态无跳变，必须在此显式触发
 		spawnStatueParticles(player);
+		if (!player.level().isClientSide())
+			playStatueSound(player);
 		return true;
 	}
 
@@ -324,10 +337,21 @@ public class FeralFormManager {
 		boolean moved = !track.initialized
 				|| entity.position().distanceToSqr(track.lastX, track.lastY, track.lastZ) > STATUE_MOVE_THRESHOLD_SQR;
 
-		if (moved) {
-			track.idleTicks = 0;
-		} else if (track.idleTicks < STATUE_IDLE_TICKS) {
-			track.idleTicks++;
+		if (statueBefore) {
+			// 石像维持：磐座上仅按 shift 解除；离开磐座后移动即解除
+			if (isOnBanza(player)) {
+				if (player.isShiftKeyDown())
+					track.idleTicks = 0;
+			} else if (moved) {
+				track.idleTicks = 0;
+			}
+		} else {
+			// 进入条件：静止且不潜行（潜行静止不会进入石像状态）
+			if (player.isShiftKeyDown() || moved) {
+				track.idleTicks = 0;
+			} else if (track.idleTicks < STATUE_IDLE_TICKS) {
+				track.idleTicks++;
+			}
 		}
 		track.lastX = entity.getX();
 		track.lastY = entity.getY();
@@ -339,15 +363,29 @@ public class FeralFormManager {
 		if (statueNow && !entity.level().isClientSide()) {
 			// 抗性提升 I，短时长每 tick 续期，退出即失效
 			entity.addEffect(new MobEffectInstance(MobEffects.DAMAGE_RESISTANCE, 60, 0, true, false));
+			// 磐座上的石像物理定身：清零速度（含击退），防止被推离磐座导致状态被移动解除
+			if (isOnBanza(player)) {
+				entity.setDeltaMovement(net.minecraft.world.phys.Vec3.ZERO);
+				player.hurtMarked = true;
+			}
 			// 磐座上的石像缓慢回血：每 2 秒回复半颗心
 			if (isOnBanza(player) && entity.tickCount % 40 == 0 && entity.getHealth() < entity.getMaxHealth()) {
 				entity.heal(1.0F);
 			}
 		}
 		if (statueNow != statueBefore) {
-			// 状态切换：石头破坏粒子
+			// 状态切换：石头破坏粒子 + 破坏音效
 			spawnStatueParticles(player);
+			if (!entity.level().isClientSide())
+				playStatueSound(player);
 		}
+	}
+
+	/** 石头破坏音效：进出石像均播放，服务端广播给附近玩家 */
+	private static void playStatueSound(LivingEntity entity) {
+		entity.level().playSound(null, entity.getX(), entity.getY() + 0.5D, entity.getZ(),
+				net.minecraft.sounds.SoundEvents.STONE_BREAK, net.minecraft.sounds.SoundSource.PLAYERS,
+				1.0F, 0.8F + entity.level().getRandom().nextFloat() * 0.4F);
 	}
 
 	/** 石头破坏粒子：服务端广播给附近玩家，客户端额外本地补一层（保证发起者自己一定能看到） */
@@ -418,6 +456,43 @@ public class FeralFormManager {
 		}
 	}
 
+	/** 文鳐陆上"缺氧量"持久计数器（服务端，每 tick +1，入水清零） */
+	private static final java.util.WeakHashMap<LivingEntity, Integer> WENYAO_AIR_DEFICIT = new java.util.WeakHashMap<>();
+
+	/**
+	 * 文鳐水陆差异：水中呼吸正常（每 tick 回满氧气）且游速快（移速 +0.06、水动效率 +1.0，海豚式畅游）；
+	 * 陆地上移动极慢（移速 -0.085）且无法呼吸——氧气逐 tick 消耗，耗尽后每 20 tick 受到 2 点溺水伤害。
+	 */
+	private static void updateWenyaoEnvironmentModifiers(LivingEntity entity, FeralForm form) {
+		if (form != FeralForms.WENYAO)
+			return;
+		boolean inWater = entity.isEyeInFluid(net.minecraft.tags.FluidTags.WATER);
+		if (inWater) {
+			// 只能在水里呼吸：入水即回满氧气并清零陆上缺氧计数
+			WENYAO_AIR_DEFICIT.remove(entity);
+			entity.setAirSupply(entity.getMaxAirSupply());
+			setTransientModifier(entity, net.minecraft.world.entity.ai.attributes.Attributes.MOVEMENT_SPEED, WENYAO_WATER_ID, 0.06);
+			setTransientModifier(entity, net.minecraft.world.entity.ai.attributes.Attributes.WATER_MOVEMENT_EFFICIENCY, WENYAO_WATER_ID, 1.0);
+			removeModifier(entity, net.minecraft.world.entity.ai.attributes.Attributes.MOVEMENT_SPEED, WENYAO_LAND_ID);
+		} else {
+			setTransientModifier(entity, net.minecraft.world.entity.ai.attributes.Attributes.MOVEMENT_SPEED, WENYAO_LAND_ID, -0.085);
+			removeModifier(entity, net.minecraft.world.entity.ai.attributes.Attributes.MOVEMENT_SPEED, WENYAO_WATER_ID);
+			removeModifier(entity, net.minecraft.world.entity.ai.attributes.Attributes.WATER_MOVEMENT_EFFICIENCY, WENYAO_WATER_ID);
+			// 陆上窒息：原版 baseTick 在陆上每 tick 回满氧气（先于本事件），无法从当前氧气反推累计值，
+			// 改用持久"缺氧量"计数器逐 tick 加深并压制回充，气泡耗尽后再过 20 tick 受到 2 点溺水伤害并重置（创造模式豁免）
+			if (!entity.level().isClientSide() && entity.isAlive()
+					&& !(entity instanceof Player player && player.getAbilities().invulnerable)) {
+				int max = entity.getMaxAirSupply();
+				int deficit = WENYAO_AIR_DEFICIT.merge(entity, 1, Integer::sum);
+				if (deficit > max + 20) {
+					WENYAO_AIR_DEFICIT.put(entity, max);
+					entity.hurt(entity.damageSources().drown(), 2.0F);
+				}
+				entity.setAirSupply(max - Math.min(deficit, max));
+			}
+		}
+	}
+
 	private static void setTransientModifier(LivingEntity entity, net.minecraft.core.Holder<net.minecraft.world.entity.ai.attributes.Attribute> attr,
 			ResourceLocation id, double amount) {
 		var instance = entity.getAttribute(attr);
@@ -461,17 +536,15 @@ public class FeralFormManager {
 			return;
 		// 野性形态下，非白名单护甲会掉落
 		TagKey<net.minecraft.world.item.Item> nodiaoluo = ItemTags.create(ResourceLocation.parse("mod:nodiaoluo"));
-		LevelAccessor world = entity.level();
-		double x = entity.getX(), y = entity.getY(), z = entity.getZ();
 		// 月蛾等形态允许穿胸甲：跳过胸部槽位判定
 		if (!form.canWearChestArmor())
-			dropArmorIfNeeded(entity, world, x, y, z, EquipmentSlot.CHEST, nodiaoluo, ItemTags.create(ResourceLocation.parse("minecraft:chest_armor")));
-		dropArmorIfNeeded(entity, world, x, y, z, EquipmentSlot.LEGS, nodiaoluo, ItemTags.create(ResourceLocation.parse("minecraft:leg_armor")));
-		dropArmorIfNeeded(entity, world, x, y, z, EquipmentSlot.FEET, nodiaoluo, ItemTags.create(ResourceLocation.parse("minecraft:foot_armor")));
+			dropArmorIfNeeded(entity, EquipmentSlot.CHEST, nodiaoluo, ItemTags.create(ResourceLocation.parse("minecraft:chest_armor")));
+		dropArmorIfNeeded(entity, EquipmentSlot.LEGS, nodiaoluo, ItemTags.create(ResourceLocation.parse("minecraft:leg_armor")));
+		dropArmorIfNeeded(entity, EquipmentSlot.FEET, nodiaoluo, ItemTags.create(ResourceLocation.parse("minecraft:foot_armor")));
 	}
 
-	private static void dropArmorIfNeeded(LivingEntity entity, LevelAccessor world, double x, double y, double z,
-			EquipmentSlot slot, TagKey<net.minecraft.world.item.Item> whitelist, TagKey<net.minecraft.world.item.Item> armorTag) {
+	private static void dropArmorIfNeeded(LivingEntity entity, EquipmentSlot slot,
+			TagKey<net.minecraft.world.item.Item> whitelist, TagKey<net.minecraft.world.item.Item> armorTag) {
 		ItemStack stack = entity.getItemBySlot(slot);
 		if (stack.is(whitelist))
 			return;
@@ -480,12 +553,13 @@ public class FeralFormManager {
 		// 量子态附魔：装备在变形时不会自动脱落
 		if (hasQuantumState(stack, entity))
 			return;
-		if (world instanceof ServerLevel level) {
-			ItemEntity drop = new ItemEntity(level, x, y, z, stack.copy());
-			drop.setPickUpDelay(40);
-			drop.setUnlimitedLifetime();
-			level.addFreshEntity(drop);
+		// 原版丢弃机制：直接从实体身上掉落（保留 NBT、随机散布），而非销毁后再造掉落物
+		if (entity instanceof Player player) {
+			player.drop(stack, true);
+		} else {
+			entity.spawnAtLocation(stack);
 		}
+		// 丢弃后清空对应盔甲槽位
 		if (entity instanceof Player player) {
 			int idx = switch (slot) {
 				case FEET -> 0;
@@ -495,11 +569,11 @@ public class FeralFormManager {
 				default -> -1;
 			};
 			if (idx >= 0) {
-				player.getInventory().armor.set(idx, new ItemStack(Blocks.AIR));
+				player.getInventory().armor.set(idx, ItemStack.EMPTY);
 				player.getInventory().setChanged();
 			}
 		} else {
-			entity.setItemSlot(slot, new ItemStack(Blocks.AIR));
+			entity.setItemSlot(slot, ItemStack.EMPTY);
 		}
 	}
 

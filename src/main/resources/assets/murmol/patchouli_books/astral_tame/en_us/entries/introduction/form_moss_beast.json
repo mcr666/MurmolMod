@@ -1,6 +1,6 @@
 {
   "name": "Moss Beast",
-  "icon": "murmol:moss_beast_soul",
+  "icon": "minecraft:spore_blossom",
   "category": "murmol:fengyang_classic",
   "advancement": "murmol:unlock/moss_beast",
   "pages": [

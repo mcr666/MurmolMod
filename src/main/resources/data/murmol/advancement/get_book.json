@@ -1,4 +1,4 @@
-﻿{
+{
   "display": {
     "icon": {
       "id": "murmol:the_astral_tome"
@@ -33,5 +33,5 @@
   "rewards": {
     "experience": 10
   },
-  "parent": "murmol:astral_essence"
+  "parent": "murmol:murmolrrott"
 }

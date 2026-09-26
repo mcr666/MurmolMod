@@ -11,11 +11,14 @@
     "AstralMainMenuMusicMixin",
     "AstralMenuPanoramaMixin",
     "AstralTitleButtonMixin",
+    "EntityRenderDispatcherMixin",
     "FeralArmorLayerMixin",
     "FeralCapeLayerMixin",
     "FeralElytraLayerMixin",
     "FeralItemInHandLayerMixin",
-    "FeralPlayerModelMixin"
+    "PetrifyTextureMixin",
+    "FeralPlayerModelMixin",
+    "FeralWholeModelLayersMixin"
   ],
   "injectors": {
     "defaultRequire": 1

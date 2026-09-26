@@ -1,0 +1,8 @@
+{
+	"type": "neoorigins:action_on_event",
+	"event": "chosen",
+	"entity_action": {
+		"type": "neoorigins:execute_command",
+		"command": "murmol tf @s silkmoth"
+	}
+}

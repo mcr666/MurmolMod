@@ -1,0 +1,30 @@
+{
+  "name": "Wenyao",
+  "icon": "minecraft:tropical_fish",
+  "category": "murmol:fengyang_classic",
+  "advancement": "murmol:unlock/wenyao",
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "murmol:wenyao_soul",
+      "title": "Wenyao",
+      "text": "The Fengyang Classic records: shaped like a carp, with a fish's body and a bird's wings, adorned in azure patterns, white-headed with a crimson beak. It flies by night, swimming from the Western Sea to the Eastern Sea, breathing water as its air."
+    },
+    {
+      "type": "patchouli:crafting",
+      "title": "Tribute",
+      "recipe": "murmol:scrap_wenyao_soul",
+      "text": "The bond offering."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Traits",
+      "text": "$(li)Hold jump to rise slowly$(li)Drift gently down when released$(li)Immune to fall damage$(br)In water:$(li)Breathe freely$(li)Swim swiftly$(br)On land:$(li)Moves with great difficulty$(li)Cannot breathe — return to water quickly."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Lore",
+      "text": "The Wenyao is known for flying by night across the Western Sea to swim the Eastern. Clumsy on land, gasping once out of water — yet once it enters the sea, no net can ever catch it. $(br)Its appearance heralds abundance: where it flies, fish grow fat, rice ripens, and people live in peace."
+    }
+  ]
+}

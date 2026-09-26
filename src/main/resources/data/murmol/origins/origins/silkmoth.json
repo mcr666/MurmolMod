@@ -1,0 +1,8 @@
+{
+	"name": "origins.murmol.silkmoth.name",
+	"description": "origins.murmol.silkmoth.description",
+	"icon": "minecraft:phantom_membrane",
+	"impact": "high",
+	"order": 14,
+	"powers": ["murmol:sync_silkmoth"]
+}

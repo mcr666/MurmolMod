@@ -367,6 +367,11 @@ public final class FeralBedrockPlayerAnimator {
 		return sampleBone(animation, boneName, time, 0.0F, 0.0F, ChannelKind.ROTATION);
 	}
 
+	/** 采样附加动画某骨骼的位移（模型单位），无该骨骼或位移通道返回 null */
+	public static float[] sampleExtraPosition(BedrockAnimation animation, String boneName, float time) {
+		return sampleBone(animation, boneName, time, 0.0F, 0.0F, ChannelKind.POSITION);
+	}
+
 	/** 在部件子树中按名查找骨骼（供尾部等附加动画使用） */
 	public static ModelPart findBone(ModelPart part, String name) {
 		return findChild(part, name);
@@ -375,6 +380,10 @@ public final class FeralBedrockPlayerAnimator {
 	public static boolean shouldRenderItemInMouth(LivingEntity entity, HumanoidArm arm, ItemStack itemStack) {
 		// 石像状态：直接隐藏手持/叼着的物品
 		if (FeralFormManager.isInStatue(entity)) {
+			return false;
+		}
+		// 整体替换模型形态（如文鳐）不叼嘴：物品绑定到模型的 right_item/left_item 骨骼
+		if (FeralFormManager.getForm(entity).getWholeModelLayer() != null) {
 			return false;
 		}
 		// 月蛾形态不叼嘴：手臂保留原版动画，物品按原版方式拿在手里

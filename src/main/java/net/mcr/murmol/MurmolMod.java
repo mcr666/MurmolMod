@@ -55,10 +55,13 @@ public class MurmolMod {
 		MurmolModTabs.REGISTRY.register(modEventBus);
 		MurmolModVariables.ATTACHMENT_TYPES.register(modEventBus);
 		MurmolModMobEffects.REGISTRY.register(modEventBus);
+		MurmolModPotions.REGISTRY.register(modEventBus);
 		MurmolModMenus.REGISTRY.register(modEventBus);
 		MurmolModParticleTypes.REGISTRY.register(modEventBus);
 		MurmolModAttributes.REGISTRY.register(modEventBus);
 		// Start of user code block mod init
+		// NeoOrigins 联动：起源 ↔ 形态双向同步（软依赖，未安装时跳过注册）
+		net.mcr.murmol.compat.NeoOriginsCompat.register();
 		// End of user code block mod init
 	}
 

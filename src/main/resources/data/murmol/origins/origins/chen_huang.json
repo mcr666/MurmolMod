@@ -1,0 +1,8 @@
+{
+	"name": "origins.murmol.chen_huang.name",
+	"description": "origins.murmol.chen_huang.description",
+	"icon": "minecraft:golden_apple",
+	"impact": "high",
+	"order": 12,
+	"powers": ["murmol:sync_chen_huang"]
+}

@@ -34,6 +34,30 @@ public class FeralFormModels {
 	private static final Map<ResourceLocation, EntityModel<?>> TAIL_MODELS = new HashMap<>();
 	/** 不进包装模型的附加骨骼（如月蛾 biped_* 腿），由 FeralFormRenderer 额外渲染与驱动动画 */
 	private static final Map<ResourceLocation, Map<String, ModelPart>> EXTRA_PARTS = new HashMap<>();
+	/** 文鳐整体替换渲染器（Changed 式渲染器偷换），按玩家皮肤型号缓存 */
+	private static net.minecraft.client.renderer.entity.EntityRendererProvider.Context RENDER_CONTEXT;
+	private static WenyaoPlayerRenderer WIDE_RENDERER;
+	private static WenyaoPlayerRenderer SLIM_RENDERER;
+
+	/** 玩家皮肤是否为 slim（Alex）型号 */
+	public static boolean isSlim(net.minecraft.client.player.AbstractClientPlayer player) {
+		return player.getSkin().model() == net.minecraft.client.resources.PlayerSkin.Model.SLIM;
+	}
+
+	/** 获取文鳐专属玩家渲染器（渲染器偷换用） */
+	public static WenyaoPlayerRenderer getWenyaoRenderer(boolean slim) {
+		WenyaoPlayerRenderer renderer = slim ? SLIM_RENDERER : WIDE_RENDERER;
+		if (renderer == null && RENDER_CONTEXT != null) {
+			renderer = new WenyaoPlayerRenderer(RENDER_CONTEXT, slim);
+			if (slim)
+				SLIM_RENDERER = renderer;
+			else
+				WIDE_RENDERER = renderer;
+		}
+		return renderer;
+	}
+	/** 整体替换模型（如文鳐纯鱼形）的根骨骼，按层位置存放 */
+	private static final Map<ResourceLocation, ModelPart> WHOLE_PARTS = new HashMap<>();
 
 	@SubscribeEvent
 	public static void registerLayerDefinitions(EntityRenderersEvent.RegisterLayerDefinitions event) {
@@ -45,10 +69,12 @@ public class FeralFormModels {
 		event.registerLayerDefinition(Modelleaftail.LAYER_LOCATION, Modelleaftail::createBodyLayer);
 		event.registerLayerDefinition(SilkmothModel.LAYER_LOCATION, SilkmothModel::createBodyLayer);
 		event.registerLayerDefinition(KomainuModel.LAYER_LOCATION, KomainuModel::createBodyLayer);
+		event.registerLayerDefinition(net.mcr.murmol.client.model.WenYaoModel.LAYER_LOCATION, net.mcr.murmol.client.model.WenYaoModel::createBodyLayer);
 	}
 
 	@SubscribeEvent
 	public static void bakeModels(EntityRenderersEvent.AddLayers event) {
+		RENDER_CONTEXT = event.getContext();
 		bakeBodyModel(event, "luohong", LuohongModel.class);
 		bakeBodyModel(event, "chen_huang", ChenhuangModel.class);
 		bakeBodyModel(event, "moss_beast", LeafModel.class);
@@ -58,6 +84,24 @@ public class FeralFormModels {
 		bakeTailModel(event, "luohong_tail", Modelfurtals.class);
 		bakeTailModel(event, "chen_huang_tail", ModelCHtail.class);
 		bakeTailModel(event, "moss_beast_tail", Modelleaftail.class);
+
+		bakeWholeModel(event, "wenyao");
+	}
+
+	/** 烘焙整体替换模型（如文鳐纯鱼形）的根骨骼，不做 PlayerModel 包装 */
+	private static void bakeWholeModel(EntityRenderersEvent.AddLayers event, String layerName) {
+		try {
+			var layer = new net.minecraft.client.model.geom.ModelLayerLocation(ResourceLocation.fromNamespaceAndPath("murmol", layerName), "main");
+			var root = event.getEntityModels().bakeLayer(layer);
+			WHOLE_PARTS.put(ResourceLocation.fromNamespaceAndPath("murmol", layerName), root);
+		} catch (Exception e) {
+			throw new RuntimeException("Failed to bake whole model: " + layerName, e);
+		}
+	}
+
+	/** 整体替换模型的根骨骼（如文鳐鱼模型）；非整体替换形态返回 null */
+	public static ModelPart getWholeModelPart(ResourceLocation layer) {
+		return WHOLE_PARTS.get(layer);
 	}
 
 	private static ModelPart getModelField(Object instance, String name) throws Exception {

@@ -23,7 +23,7 @@ public class SilkmothForm extends FeralForm {
 				ResourceLocation.fromNamespaceAndPath("murmol", "silkmoth"),
 				null,
 				() -> new ItemStack(MurmolModItems.SILKMOTH_SOUL.get()),
-				null,
+				ResourceLocation.fromNamespaceAndPath("murmol", "get_silkmoth"),
 				null,
 				List.of(
 						new ItemStack(Items.PHANTOM_MEMBRANE),
@@ -31,7 +31,7 @@ public class SilkmothForm extends FeralForm {
 						new ItemStack(Items.GLOWSTONE_DUST),
 						new ItemStack(Items.STRING)));
 		enableHoverFlight();
-		enableFirstPersonArm();
+		disableFirstPersonArm();
 		// 蚕蛾模型整体额外下移 3.25 个模型单位
 		setBodyYOffset(-1.0F);
 		// 专属动画文件：只含附加动画（wings_idle/wings_flying/moth_walk/tail_idle/tail_walk），

@@ -1,6 +1,6 @@
 {
   "parent": "item/generated",
   "textures": {
-    "layer0": "murmol:item/astral_helmet"
+    "layer0": "murmol:item/equipment/astral_helmet"
   }
 }

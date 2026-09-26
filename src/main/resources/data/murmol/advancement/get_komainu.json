@@ -1,0 +1,23 @@
+{
+  "display": {
+    "icon": {
+      "id": "murmol:komainu_soul"
+    },
+    "title": {
+      "translate": "advancements.get_komainu.title"
+    },
+    "description": {
+      "translate": "advancements.get_komainu.descr"
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": true
+  },
+  "criteria": {
+    "get_komainu_0": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "parent": "murmol:fengyang_classic"
+}

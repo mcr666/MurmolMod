@@ -1,0 +1,12 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "murmol:fire_blade_claw",
+      "required": false,
+      "data": {
+        "burn_time": 1600
+      }
+    }
+  ]
+}

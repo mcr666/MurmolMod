@@ -1,0 +1,30 @@
+{
+  "name": "文鳐",
+  "icon": "minecraft:tropical_fish",
+  "category": "murmol:fengyang_classic",
+  "advancement": "murmol:unlock/wenyao",
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "murmol:wenyao_soul",
+      "title": "文鳐",
+      "text": "《山海经》有载：状如鲤鱼，鱼身而鸟翼，苍文而白首赤喙。夜飞而游西海，游于东海，以水为息。"
+    },
+    {
+      "type": "patchouli:crafting",
+      "title": "传颂之物",
+      "recipe": "murmol:scrap_wenyao_soul",
+      "text": "结缘之祭物。"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "属性",
+      "text": "$(li)长按跳跃键缓缓升空$(li)松开后随风徐徐飘落$(li)无惧摔落伤害$(br)水中：$(li)自在呼吸$(li)游动迅捷$(br)陆地：$(li)行走迟缓$(li)无法呼吸，需尽快归水。"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "正文",
+      "text": "文鳐常以夜飞西海而游东海见称。人们说它陆上笨拙，离水便难以喘息，可一旦入水，便再没有鱼网能追上它。$(br)见则天下大穰——它飞过的地方，鱼肥，稻熟，人也安稳。"
+    }
+  ]
+}

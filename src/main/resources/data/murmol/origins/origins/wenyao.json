@@ -1,0 +1,8 @@
+{
+	"name": "origins.murmol.wenyao.name",
+	"description": "origins.murmol.wenyao.description",
+	"icon": "minecraft:tropical_fish",
+	"impact": "high",
+	"order": 16,
+	"powers": ["murmol:sync_wenyao"]
+}

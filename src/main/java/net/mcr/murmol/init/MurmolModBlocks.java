@@ -43,5 +43,6 @@ public class MurmolModBlocks {
 	public static final DeferredBlock<Block> SPIRIT_TABLE = REGISTRY.register("spirit_table", () -> new SpiritTableBlock());
 	public static final DeferredBlock<Block> MANGO_BUSH = REGISTRY.register("mango_bush", () -> new MangoBushBlock(Block.Properties.of().mapColor(net.minecraft.world.level.material.MapColor.PLANT).randomTicks().noCollission().sound(net.minecraft.world.level.block.SoundType.SWEET_BERRY_BUSH).pushReaction(net.minecraft.world.level.material.PushReaction.DESTROY)));
 	public static final DeferredBlock<Block> BANZA = REGISTRY.register("banza", () -> new BanzaBlock(Block.Properties.of().mapColor(net.minecraft.world.level.material.MapColor.STONE).strength(2.0F, 6.0F).sound(net.minecraft.world.level.block.SoundType.DEEPSLATE)));
+	public static final DeferredBlock<Block> CURSED_STONE = REGISTRY.register("cursed_stone", () -> new CursedStoneBlock(Block.Properties.of().mapColor(net.minecraft.world.level.material.MapColor.STONE).strength(0.8F).sound(net.minecraft.world.level.block.SoundType.STONE)));
 	// End of user code block custom blocks
 }

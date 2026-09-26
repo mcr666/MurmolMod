@@ -38,6 +38,7 @@ public class MurmolModItems {
 	public static final DeferredItem<Item> FROST_PICKAXE;
 	public static final DeferredItem<Item> SPIRIT_TABLE;
 	public static final DeferredItem<Item> BANZA;
+	public static final DeferredItem<Item> CURSED_STONE;
 	public static final DeferredItem<Item> ASTRAL_DIRT;
 	public static final DeferredItem<Item> ASTRAL_STONE;
 	public static final DeferredItem<Item> COBBLED_ASTRAL_STONE;
@@ -85,6 +86,7 @@ public class MurmolModItems {
 	public static final DeferredItem<Item> MOSS_BEAST_SOUL;
 	public static final DeferredItem<Item> SILKMOTH_SOUL;
 	public static final DeferredItem<Item> KOMAINU_SOUL;
+	public static final DeferredItem<Item> WENYAO_SOUL;
 	public static final DeferredItem<Item> MANGO_GOLDEN_ENCHANT;
 	static {
 		MAOCRY_BLESSING = REGISTRY.register("maocry_blessing", MaocryBlessingItem::new);
@@ -107,6 +109,7 @@ public class MurmolModItems {
 		FROST_PICKAXE = REGISTRY.register("frost_pickaxe", FrostPickaxeItem::new);
 		SPIRIT_TABLE = block(MurmolModBlocks.SPIRIT_TABLE);
 		BANZA = block(MurmolModBlocks.BANZA);
+		CURSED_STONE = block(MurmolModBlocks.CURSED_STONE);
 		ASTRAL_DIRT = block(MurmolModBlocks.ASTRAL_DIRT);
 		ASTRAL_STONE = block(MurmolModBlocks.ASTRAL_STONE);
 		COBBLED_ASTRAL_STONE = block(MurmolModBlocks.COBBLED_ASTRAL_STONE);
@@ -154,6 +157,7 @@ public class MurmolModItems {
 		MOSS_BEAST_SOUL = REGISTRY.register("moss_beast_soul", LeafSoulItem::new);
 		SILKMOTH_SOUL = REGISTRY.register("silkmoth_soul", SilkmothSoulItem::new);
 		KOMAINU_SOUL = REGISTRY.register("komainu_soul", KomainuSoulItem::new);
+		WENYAO_SOUL = REGISTRY.register("wenyao_soul", WenyaoSoulItem::new);
 		MANGO_GOLDEN_ENCHANT = REGISTRY.register("mango_golden_enchant", MangoGoldenEnchantItem::new);
 	}
 

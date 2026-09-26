@@ -1,6 +1,6 @@
 {
   "parent": "item/generated",
   "textures": {
-    "layer0": "murmol:block/oxeye_daisy"
+    "layer0": "murmol:block/plant/oxeye_daisy"
   }
 }

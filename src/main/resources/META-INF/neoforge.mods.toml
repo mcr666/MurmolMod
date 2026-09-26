@@ -4,7 +4,7 @@ license="Not specified"
 
 [[mods]]
 modId="murmol"
-version="2.1.2"
+version="2.1.3"
 displayName="Murmol"
 displayURL="https://bilibili.com"
 logoFile="logo.png"
@@ -44,4 +44,11 @@ description="Murmol & Maocry"
     side="BOTH"
 
 # Start of user code block dependencies configuration
+# NeoOrigins 联动（软依赖）：未安装时全部联动逻辑静默跳过
+[[dependencies.murmol]]
+    modId="neoorigins"
+    type="optional"
+    versionRange="*"
+    ordering="AFTER"
+    side="BOTH"
 # End of user code block dependencies configuration

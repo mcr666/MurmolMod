@@ -1,6 +1,6 @@
 {
   "parent": "item/generated",
   "textures": {
-    "layer0": "murmol:block/mango_bush_stage3"
+    "layer0": "murmol:block/plant/mango_bush_stage3"
   }
 }

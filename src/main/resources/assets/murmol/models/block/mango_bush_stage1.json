@@ -2,6 +2,6 @@
   "parent": "minecraft:block/cross",
   "render_type": "minecraft:cutout",
   "textures": {
-    "cross": "murmol:block/mango_bush_stage1"
+    "cross": "murmol:block/plant/mango_bush_stage1"
   }
 }

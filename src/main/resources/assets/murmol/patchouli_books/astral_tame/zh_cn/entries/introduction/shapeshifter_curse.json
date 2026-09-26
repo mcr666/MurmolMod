@@ -1,7 +1,7 @@
 {
   "name": "唤星之种",
   "icon": "murmol:the_astral_tome",
-  "category": "murmol:introduction",
+  "category": "murmol:materials",
   "pages": [
     {
       "type": "patchouli:spotlight",

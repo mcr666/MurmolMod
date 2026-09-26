@@ -1,9 +1,9 @@
 {
   "parent": "murmol:custom/shrine",
   "textures": {
-    "all": "murmol:block/natural_shrine",
-    "particle": "murmol:block/natural_shrine",
-    "1": "murmol:block/natural_shrine"
+    "all": "murmol:block/structure/natural_shrine",
+    "particle": "murmol:block/structure/natural_shrine",
+    "1": "murmol:block/structure/natural_shrine"
   },
   "render_type": "solid"
 }

@@ -39,7 +39,7 @@ public class LuohongForm extends FeralForm {
 							new ItemStack(Items.GLISTERING_MELON_SLICE),
 							new ItemStack(Items.APPLE)));
 		// 该形态不显示第一人称手臂
-		disableFirstPersonArm();
+		enableFirstPersonArm();
 		setAnimationFile(ResourceLocation.fromNamespaceAndPath("murmol", "player_animations/luohong_anim.json"));
 	}
 }

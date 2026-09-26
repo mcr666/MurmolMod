@@ -18,6 +18,7 @@ import net.mcr.murmol.procedures.CreativeShockZhuangTaiXiaoGuoJieShuShiProcedure
 import net.mcr.murmol.potion.FrozenedMobEffect;
 import net.mcr.murmol.potion.CreativeShockMobEffect;
 import net.mcr.murmol.potion.AstralInfectionMobEffect;
+import net.mcr.murmol.potion.PetrifyMobEffect;
 import net.mcr.murmol.MurmolMod;
 
 @EventBusSubscriber
@@ -26,6 +27,7 @@ public class MurmolModMobEffects {
 	public static final DeferredHolder<MobEffect, MobEffect> FROZENED = REGISTRY.register("frozened", FrozenedMobEffect::new);
 	public static final DeferredHolder<MobEffect, MobEffect> ASTRAL_INFECTION = REGISTRY.register("astral_infection", AstralInfectionMobEffect::new);
 	public static final DeferredHolder<MobEffect, MobEffect> CREATIVE_SHOCK = REGISTRY.register("creative_shock", CreativeShockMobEffect::new);
+	public static final DeferredHolder<MobEffect, MobEffect> PETRIFY = REGISTRY.register("petrify", PetrifyMobEffect::new);
 
 	@SubscribeEvent
 	public static void onEffectRemoved(MobEffectEvent.Remove event) {

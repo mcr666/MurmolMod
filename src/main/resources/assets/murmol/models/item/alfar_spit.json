@@ -1,7 +1,7 @@
 {
   "parent": "item/generated",
   "textures": {
-    "layer0": "murmol:item/ogre_spit"
+    "layer0": "murmol:item/misc/ogre_spit"
   },
   "display": {
     "thirdperson_righthand": {

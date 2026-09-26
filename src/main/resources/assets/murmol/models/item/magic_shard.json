@@ -1,6 +1,6 @@
 {
   "parent": "item/generated",
   "textures": {
-    "layer0": "murmol:item/magic_shard"
+    "layer0": "murmol:item/materials/magic_shard"
   }
 }

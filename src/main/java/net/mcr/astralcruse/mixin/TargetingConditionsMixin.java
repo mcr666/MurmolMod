@@ -11,9 +11,10 @@ import net.minecraft.world.entity.ai.targeting.TargetingConditions;
 import net.minecraft.world.entity.player.Player;
 
 import net.mcr.murmol.feral.FeralFormManager;
+import net.mcr.murmol.potion.PetrifyMobEffect;
 
 /**
- * 狛犬石像状态隐匿：2 格以外的怪物无法将石像状态的玩家选为目标。
+ * 狛犬石像/石化药水隐匿：2 格以外的怪物无法将目标选中。
  */
 @Mixin(TargetingConditions.class)
 public class TargetingConditionsMixin {
@@ -22,9 +23,10 @@ public class TargetingConditionsMixin {
 			at = @At("HEAD"), cancellable = true)
 	private void murmol$statueHide(LivingEntity attacker, LivingEntity target, CallbackInfoReturnable<Boolean> cir) {
 		if (attacker instanceof Mob
-				&& target instanceof Player
-				&& FeralFormManager.isInStatue(target)
-				&& attacker.distanceToSqr(target) > 4.0D) {
+				&& attacker.distanceToSqr(target) > 4.0D
+				// 石化对所有生物生效；狛犬石像仅玩家形态有
+				&& (PetrifyMobEffect.isPetrified(target)
+						|| (target instanceof Player && FeralFormManager.isInStatue(target)))) {
 			cir.setReturnValue(false);
 		}
 	}

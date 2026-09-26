@@ -37,7 +37,7 @@ public class MossBeastForm extends FeralForm {
 							new ItemStack(Blocks.VINE),
 							new ItemStack(Blocks.SPORE_BLOSSOM)));
 		// 该形态不显示第一人称手臂
-		disableFirstPersonArm();
+		enableFirstPersonArm();
 		setAnimationFile(ResourceLocation.fromNamespaceAndPath("murmol", "player_animations/moss_beast_anim.json"));
 	}
 }

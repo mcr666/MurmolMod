@@ -1,0 +1,8 @@
+{
+	"name": "origins.murmol.luohong.name",
+	"description": "origins.murmol.luohong.description",
+	"icon": "minecraft:pink_petals",
+	"impact": "high",
+	"order": 11,
+	"powers": ["murmol:sync_luohong"]
+}

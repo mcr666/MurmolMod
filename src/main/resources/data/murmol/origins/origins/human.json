@@ -1,0 +1,8 @@
+{
+	"name": "origins.murmol.human.name",
+	"description": "origins.murmol.human.description",
+	"icon": "minecraft:player_head",
+	"impact": "none",
+	"order": 10,
+	"powers": ["murmol:sync_human"]
+}

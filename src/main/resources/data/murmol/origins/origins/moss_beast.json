@@ -1,0 +1,8 @@
+{
+	"name": "origins.murmol.moss_beast.name",
+	"description": "origins.murmol.moss_beast.description",
+	"icon": "minecraft:spore_blossom",
+	"impact": "high",
+	"order": 13,
+	"powers": ["murmol:sync_moss_beast"]
+}

@@ -1,7 +1,7 @@
 {
   "parent": "item/generated",
   "textures": {
-    "layer0": "murmol:item/mcricewand"
+    "layer0": "murmol:item/misc/mcricewand"
   },
   "display": {
     "thirdperson_righthand": {

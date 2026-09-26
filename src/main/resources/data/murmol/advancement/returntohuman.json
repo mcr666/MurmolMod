@@ -1,4 +1,4 @@
-﻿{
+{
   "display": {
     "icon": {
       "id": "minecraft:oak_boat"
@@ -19,5 +19,5 @@
       "trigger": "minecraft:impossible"
     }
   },
-  "parent": "murmol:get_book"
+  "parent": "murmol:fengyang_classic"
 }
