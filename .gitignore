@@ -15,6 +15,9 @@ runs/
 config/
 logs/
 
+# 本地文档（不随仓库上传）
+docs/
+
 # IDE
 .eclipse/
 
