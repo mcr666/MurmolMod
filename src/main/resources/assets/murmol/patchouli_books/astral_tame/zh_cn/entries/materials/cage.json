@@ -1,0 +1,17 @@
+{
+  "name": "囚笼",
+  "icon": "murmol:cage",
+  "category": "murmol:materials",
+  "sortnum": 6,
+  "pages": [
+    {
+      "type": "patchouli:crafting",
+      "recipe": "murmol:cage",
+      "title": "囚笼"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "用红石信号激活后，踩上笼顶的玩家或生物会被缩小并禁锢进笼内，无法移动与使用物品。$(br2)被困者只能徒手（或用镐）挖掘囚笼自救——它有黑曜石级的硬度。切断红石信号或破坏囚笼即可释放，每座囚笼只能关押一个实体。"
+    }
+  ]
+}

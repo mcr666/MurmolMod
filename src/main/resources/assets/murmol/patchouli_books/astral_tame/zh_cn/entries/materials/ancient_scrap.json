@@ -2,6 +2,7 @@
   "name": "古代知识残页",
   "icon": "murmol:ancient_knowledge_scrap",
   "category": "murmol:materials",
+  "sortnum": 4,
   "pages": [
     {
       "type": "patchouli:text",

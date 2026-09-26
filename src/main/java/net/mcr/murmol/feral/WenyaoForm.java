@@ -35,8 +35,9 @@ public class WenyaoForm extends FeralForm {
 		// 祭品中的"任意鱼"按 minecraft:fishes 标签匹配
 		setTagMaterial(ItemTags.FISHES);
 		// 悬停飞行：长按跳跃键缓慢上升，松手自然下落（同月蛾）
-		disableFirstPersonArm();
 		enableHoverFlight();
+		// 整模形态（无人类手臂模型）：第一人称隐藏手臂、保留手持物品；第三人称物品见 FeralItemInHandLayerMixin
+		enableFirstPersonArm();
 		// 碰撞箱高度固定 0.5 格（视角/眼高随尺寸自动降低），宽度保持野性形态默认扩展
 		setHitboxHeight(0.5F);
 		// 整体替换渲染：纯鱼形模型 + 专属 Bedrock 动画（fish_idle/fish_moving_land/fish_moving_swim/fish_flying）

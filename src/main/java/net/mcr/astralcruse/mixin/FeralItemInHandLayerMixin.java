@@ -79,28 +79,7 @@ public abstract class FeralItemInHandLayerMixin<T extends LivingEntity, M extend
 		if (feralModel != null) {
 			bindPart = leftHanded ? feralModel.leftArm : feralModel.rightArm;
 		} else if (form.getWholeModelPart() != null) {
-			// 整体替换模型形态（如文鳐）：物品绑定到模型的 right_item/left_item 挂点骨骼，跟随鱼形动画
-			bindPart = FeralBedrockPlayerAnimator.findBone(form.getWholeModelPart(), leftHanded ? "left_item" : "right_item");
-			if (bindPart == null) {
-				return;
-			}
-			poseStack.pushPose();
-			// 挂点骨骼在尾巴子树（不在头部下），手动叠加头部视角旋转使物品跟随视线
-			float partialTick = net.minecraft.client.Minecraft.getInstance().getTimer().getGameTimeDeltaPartialTick(true);
-			float headYaw = net.minecraft.util.Mth.rotLerp(partialTick, entity.yHeadRotO, entity.yHeadRot);
-			float headPitch = net.minecraft.util.Mth.lerp(partialTick, entity.xRotO, entity.getXRot());
-			float oldYRot = bindPart.yRot, oldXRot = bindPart.xRot;
-			bindPart.yRot += headYaw * net.minecraft.util.Mth.DEG_TO_RAD;
-			bindPart.xRot += headPitch * net.minecraft.util.Mth.DEG_TO_RAD;
-			bindPart.translateAndRotate(poseStack);
-			// 物品显示朝向与原版手臂持握一致
-			poseStack.mulPose(Axis.XP.rotationDegrees(-90.0F));
-			poseStack.mulPose(Axis.YP.rotationDegrees(180.0F));
-			this.itemInHandRenderer.renderItem(entity, itemStack, displayContext, leftHanded, poseStack, bufferSource, packedLight);
-			// 还原骨骼旋转，避免累积到下一帧
-			bindPart.yRot = oldYRot;
-			bindPart.xRot = oldXRot;
-			poseStack.popPose();
+			// 整模形态（如文鳐）：第三人称不渲染手持物品（第一人称仍保留，见 FeralFormRenderer.onRenderArm）
 			ci.cancel();
 			return;
 		} else {

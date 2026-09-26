@@ -18,8 +18,10 @@ public class PetrifyMovementLock {
 	@SubscribeEvent
 	public static void onMovementInput(MovementInputUpdateEvent event) {
 		Player player = event.getEntity();
-		// 石化药水，或磐座上的狛犬石像（石像必须物理定身，否则走动会离开磐座导致状态被移动解除）
+		// 石化药水、被囚笼禁锢，或磐座上的狛犬石像（石像必须物理定身，否则走动会离开磐座导致状态被移动解除）
 		if (PetrifyMobEffect.isPetrified(player)
+				|| player.getData(net.mcr.murmol.network.MurmolModVariables.CAGED_STATE)
+				|| player.getData(net.mcr.murmol.network.MurmolModVariables.PLAYER_VARIABLES).caged
 				|| (net.mcr.murmol.feral.FeralFormManager.isInStatue(player)
 						&& net.mcr.murmol.feral.FeralFormManager.isOnBanza(player))) {
 			Input input = event.getInput();

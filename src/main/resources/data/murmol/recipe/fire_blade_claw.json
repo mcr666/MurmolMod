@@ -6,8 +6,8 @@
     " B "
   ],
   "key": {
-    "B": "minecraft:blaze_powder",
-    "I": "minecraft:iron_ingot"
+    "B": { "item": "minecraft:blaze_powder" },
+    "I": { "item": "minecraft:iron_ingot" }
   },
   "result": {
     "id": "murmol:fire_blade_claw",

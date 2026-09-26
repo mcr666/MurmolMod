@@ -44,5 +44,20 @@ public class MurmolModBlocks {
 	public static final DeferredBlock<Block> MANGO_BUSH = REGISTRY.register("mango_bush", () -> new MangoBushBlock(Block.Properties.of().mapColor(net.minecraft.world.level.material.MapColor.PLANT).randomTicks().noCollission().sound(net.minecraft.world.level.block.SoundType.SWEET_BERRY_BUSH).pushReaction(net.minecraft.world.level.material.PushReaction.DESTROY)));
 	public static final DeferredBlock<Block> BANZA = REGISTRY.register("banza", () -> new BanzaBlock(Block.Properties.of().mapColor(net.minecraft.world.level.material.MapColor.STONE).strength(2.0F, 6.0F).sound(net.minecraft.world.level.block.SoundType.DEEPSLATE)));
 	public static final DeferredBlock<Block> CURSED_STONE = REGISTRY.register("cursed_stone", () -> new CursedStoneBlock(Block.Properties.of().mapColor(net.minecraft.world.level.material.MapColor.STONE).strength(0.8F).sound(net.minecraft.world.level.block.SoundType.STONE)));
+	public static final DeferredBlock<Block> CAGE = REGISTRY.register("cage", () -> new CageBlock(Block.Properties.of().mapColor(net.minecraft.world.level.material.MapColor.METAL).requiresCorrectToolForDrops().strength(8.0F, 9.0F).sound(net.minecraft.world.level.block.SoundType.METAL).noOcclusion().pushReaction(net.minecraft.world.level.material.PushReaction.BLOCK).isSuffocating((state, level, pos) -> false).isViewBlocking((state, level, pos) -> false)));
+	// 幻星树苗：种下后长成幻星巨树（astral_infection_biome_tree）；贴图暂用原版金合欢树苗
+	public static final DeferredBlock<Block> ASTRAL_SAPLING = REGISTRY.register("astral_sapling",
+			MurmolModBlocks::astralSapling);
+
+	private static net.minecraft.world.level.block.SaplingBlock astralSapling() {
+		java.util.Optional<net.minecraft.resources.ResourceKey<net.minecraft.world.level.levelgen.feature.ConfiguredFeature<?, ?>>> tree =
+				java.util.Optional.of(net.minecraft.resources.ResourceKey.create(net.minecraft.core.registries.Registries.CONFIGURED_FEATURE,
+						net.minecraft.resources.ResourceLocation.fromNamespaceAndPath(MurmolMod.MODID, "astral_infection_biome_tree")));
+		return new net.minecraft.world.level.block.SaplingBlock(
+				new net.minecraft.world.level.block.grower.TreeGrower("astral_sapling", java.util.Optional.empty(), tree, java.util.Optional.empty()),
+				Block.Properties.of().mapColor(net.minecraft.world.level.material.MapColor.PLANT).noCollission().randomTicks()
+						.instabreak().sound(net.minecraft.world.level.block.SoundType.GRASS)
+						.pushReaction(net.minecraft.world.level.material.PushReaction.DESTROY));
+	}
 	// End of user code block custom blocks
 }

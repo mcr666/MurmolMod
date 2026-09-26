@@ -1,0 +1,17 @@
+{
+  "name": "Cage",
+  "icon": "murmol:cage",
+  "category": "murmol:materials",
+  "sortnum": 6,
+  "pages": [
+    {
+      "type": "patchouli:crafting",
+      "recipe": "murmol:cage",
+      "title": "Cage"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Forged from iron bars, iron blocks, obsidian and a $(item)Murmol Soul$(0).$(br2)When powered by redstone, any player or mob stepping on top is shrunk and imprisoned inside, unable to move or use items.$(br2)The trapped one can only break the cage barehanded (or with a pickaxe) to escape — it is as hard as obsidian. Cutting the redstone signal or breaking the cage releases the prisoner. Each cage holds a single entity."
+    }
+  ]
+}

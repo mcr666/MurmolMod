@@ -2,6 +2,7 @@
   "name": "芒果丛",
   "icon": "murmol:mango",
   "category": "murmol:materials",
+  "sortnum": 5,
   "pages": [
     {
       "type": "patchouli:spotlight",

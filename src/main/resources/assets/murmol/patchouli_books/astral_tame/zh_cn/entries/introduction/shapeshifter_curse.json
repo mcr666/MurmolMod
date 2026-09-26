@@ -2,6 +2,7 @@
   "name": "唤星之种",
   "icon": "murmol:the_astral_tome",
   "category": "murmol:materials",
+  "sortnum": 0,
   "pages": [
     {
       "type": "patchouli:spotlight",
@@ -23,7 +24,7 @@
       "type": "patchouli:spotlight",
       "item": "murmol:astral_matrix",
       "title": "仪式材料",
-      "text": "$(li)$(item)星辰源质$(0)：$(thing)幻星飞龙$(0)死亡时掉落，是合成$(item)幻星锭$(0)与$(item)幻星秘典$(0)（书 + 星辰源质）的关键材料。$(li)$(item)寒冰碎片$(0)：挖掘$(item)寒冰矿石$(0)获得。寒冰矿石只生成于积雪地表之下，是冰系装备与材料的来源。"
+      "text": "$(li)$(item)星辰源质$(0)：$(thing)幻星飞龙$(0)死亡时掉落，是合成$(item)幻星锭$(0)与$(item)幻星秘典$(0)（书 + 星辰源质）的关键材料。"
     },
     {
       "type": "patchouli:text",

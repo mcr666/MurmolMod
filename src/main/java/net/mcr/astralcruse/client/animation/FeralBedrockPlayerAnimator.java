@@ -116,7 +116,6 @@ public final class FeralBedrockPlayerAnimator {
 			vanillaPose.blendInto(model, entryAlpha);
 		}
 		copyOuterParts(model);
-		debugPose(entity, selectedAnimation, model);
 	}
 
 	/**
@@ -201,25 +200,6 @@ public final class FeralBedrockPlayerAnimator {
 		part.xRot += degreesToRadians(degrees[0] * amplitude);
 		part.yRot += degreesToRadians(degrees[1] * amplitude);
 		part.zRot += degreesToRadians(degrees[2] * amplitude);
-	}
-
-	/** 临时诊断：打印最终生效的骨骼数值（定位动画未生效问题，定位完成后删除） */
-	private static void debugPose(LivingEntity entity, SelectedAnimation selectedAnimation, PlayerModel<?> model) {
-		int mod = selectedAnimation.state == AnimationState.FLY ? 5 : 20;
-		if (entity.tickCount % mod != 0) {
-			return;
-		}
-		ModelPart wingR = findChild(model.body, "wingR");
-		ModelPart wingL = findChild(model.body, "wingL");
-		net.mcr.murmol.MurmolMod.LOGGER.info(
-				"[feral-debug2] model={}@{} state={} anim={} time={} headDeg=[{},{},{}] headPos=[{},{},{}] wingR={}deg[{},{},{}] wingL={}deg[{},{},{}]",
-				model.getClass().getSimpleName(), System.identityHashCode(model),
-				selectedAnimation.state, selectedAnimation.animation.name(),
-				selectedAnimation.animation.time(selectedAnimation.seconds),
-				Math.toDegrees(model.head.xRot), Math.toDegrees(model.head.yRot), Math.toDegrees(model.head.zRot),
-				model.head.x, model.head.y, model.head.z,
-				wingR != null, wingR == null ? 0 : Math.toDegrees(wingR.xRot), wingR == null ? 0 : Math.toDegrees(wingR.yRot), wingR == null ? 0 : Math.toDegrees(wingR.zRot),
-				wingL != null, wingL == null ? 0 : Math.toDegrees(wingL.xRot), wingL == null ? 0 : Math.toDegrees(wingL.yRot), wingL == null ? 0 : Math.toDegrees(wingL.zRot));
 	}
 
 	public static void applyBodyRenderTransform(LivingEntity entity, PoseStack poseStack, float ageInTicks) {
@@ -665,7 +645,6 @@ public final class FeralBedrockPlayerAnimator {
 			} catch (Exception exception) {
 				net.mcr.murmol.MurmolMod.LOGGER.error("Failed to load feral player animation {}", location, exception);
 			}
-			net.mcr.murmol.MurmolMod.LOGGER.info("[feral-debug] loaded animation file {} -> {} animations {}", location, loaded.size(), loaded.keySet());
 			return loaded;
 		});
 	}

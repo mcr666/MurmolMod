@@ -79,6 +79,39 @@ public class FeralFormRenderer {
 		}
 	}
 
+	/**
+	 * 石化玩家的头部俯仰冻结：原版玩家模型的头部俯仰直接取自 xRot，
+	 * 而鼠标移动每帧直接修改 xRot（不经过 tick），无法用 per-tick 钉死。
+	 * 渲染前把 xRot 冻结在石化后首次渲染的值，渲染后还原（不影响鼠标视角累积）。
+	 */
+	private static final java.util.WeakHashMap<Player, Float> PETRIFY_FROZEN_XROT = new java.util.WeakHashMap<>();
+	private static final java.util.WeakHashMap<Player, float[]> PETRIFY_XROT_RENDER_BACKUP = new java.util.WeakHashMap<>();
+
+	/** RenderPlayerEvent.Pre 调用：冻结石化玩家的头部俯仰 */
+	private static void applyPetrifyRenderFreeze(Player player) {
+		if (!net.mcr.murmol.potion.PetrifyMobEffect.isPetrified(player)) {
+			PETRIFY_FROZEN_XROT.remove(player);
+			return;
+		}
+		Float frozen = PETRIFY_FROZEN_XROT.get(player);
+		if (frozen == null) {
+			frozen = player.getXRot();
+			PETRIFY_FROZEN_XROT.put(player, frozen);
+		}
+		PETRIFY_XROT_RENDER_BACKUP.put(player, new float[] {player.getXRot(), player.xRotO});
+		player.setXRot(frozen);
+		player.xRotO = frozen;
+	}
+
+	/** RenderPlayerEvent.Post 调用：还原石化玩家的 xRot（保持鼠标视角累积不受影响） */
+	private static void restorePetrifyRenderFreeze(Player player) {
+		float[] backup = PETRIFY_XROT_RENDER_BACKUP.remove(player);
+		if (backup != null) {
+			player.setXRot(backup[0]);
+			player.xRotO = backup[1];
+		}
+	}
+
 	/** 文鳐等禁用第一人称手臂的形态：第一人称手臂由项目原有的 onRenderArm（RenderArmEvent）机制处理 */
 
 	/**
@@ -97,6 +130,8 @@ public class FeralFormRenderer {
 	@SubscribeEvent
 	public static void onRenderPlayer(RenderPlayerEvent.Pre event) {
 		Player player = event.getEntity();
+		// 石化玩家：先冻结头部俯仰（含人类形态等非野性玩家，须在 isFeral 判定之前）
+		applyPetrifyRenderFreeze(player);
 		FeralForm form = FeralFormManager.getForm(player);
 		if (!form.isFeral())
 			return;
@@ -230,6 +265,8 @@ public class FeralFormRenderer {
 	@SubscribeEvent
 	public static void onRenderPlayerPost(RenderPlayerEvent.Post event) {
 		Player player = event.getEntity();
+		// 石化玩家渲染结束：还原被冻结的头部俯仰字段
+		restorePetrifyRenderFreeze(player);
 		FeralForm form = FeralFormManager.getForm(player);
 		if (!form.isFeral())
 			return;

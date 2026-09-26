@@ -2,6 +2,7 @@
   "name": "Mango Bush",
   "icon": "murmol:mango",
   "category": "murmol:materials",
+  "sortnum": 5,
   "pages": [
     {
       "type": "patchouli:spotlight",

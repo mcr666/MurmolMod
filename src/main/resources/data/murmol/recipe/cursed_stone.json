@@ -7,8 +7,8 @@
     " S "
   ],
   "key": {
-    "S": "minecraft:stone",
-    "X": "minecraft:slime_ball"
+    "S": { "item": "minecraft:stone" },
+    "X": { "item": "minecraft:slime_ball" }
   },
   "result": {
     "id": "murmol:cursed_stone",

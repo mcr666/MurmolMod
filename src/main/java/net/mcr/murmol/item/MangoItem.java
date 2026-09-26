@@ -22,6 +22,12 @@ public class MangoItem extends BlockItem {
 		super(MurmolModBlocks.MANGO_BUSH.get(), new Item.Properties().food((new FoodProperties.Builder()).nutrition(3).saturationModifier(0.3f).build()));
 	}
 
+	/** BlockItem 默认取方块的翻译键（会显示成"芒果丛"），改为使用物品自己的键 */
+	@Override
+	public String getDescriptionId() {
+		return "item.murmol.mango";
+	}
+
 	@Override
 	protected boolean placeBlock(BlockPlaceContext context, BlockState state) {
 		return context.getLevel().setBlock(context.getClickedPos(), state, 26);

@@ -2,6 +2,7 @@
   "name": "重归人类",
   "icon": "murmol:totemof_fallen",
   "category": "murmol:materials",
+  "sortnum": 1,
   "pages": [
     {
       "type": "patchouli:spotlight",

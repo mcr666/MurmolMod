@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "powered=false": {
+      "model": "murmol:block/water_cage"
+    },
+    "powered=true": {
+      "model": "murmol:block/water_cage"
+    }
+  }
+}

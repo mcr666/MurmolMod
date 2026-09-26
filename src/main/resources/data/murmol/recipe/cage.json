@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "XIX",
+    "ODO",
+    "XIX"
+  ],
+  "key": {
+    "X": { "item": "minecraft:iron_bars" },
+    "I": { "item": "minecraft:iron_block" },
+    "O": { "item": "minecraft:obsidian" },
+    "D": { "item": "murmol:murmol_soul" }
+  },
+  "result": {
+    "id": "murmol:cage",
+    "count": 1
+  }
+}

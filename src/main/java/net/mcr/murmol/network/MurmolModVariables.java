@@ -33,6 +33,12 @@ import java.util.function.Supplier;
 public class MurmolModVariables {
 	public static final DeferredRegister<AttachmentType<?>> ATTACHMENT_TYPES = DeferredRegister.create(NeoForgeRegistries.Keys.ATTACHMENT_TYPES, MurmolMod.MODID);
 	public static final Supplier<AttachmentType<PlayerVariables>> PLAYER_VARIABLES = ATTACHMENT_TYPES.register("player_variables", () -> AttachmentType.serializable(() -> new PlayerVariables()).build());
+	/** 石化标记：同步给追踪该实体的客户端（原版不向观察者同步生物身上的药水效果，石化贴图判定需要这个标记） */
+	public static final Supplier<AttachmentType<Boolean>> PETRIFIED_STATE = ATTACHMENT_TYPES.register("petrified_state",
+			() -> AttachmentType.builder(() -> Boolean.FALSE).serialize(com.mojang.serialization.Codec.BOOL).sync(net.minecraft.network.codec.ByteBufCodecs.BOOL).build());
+	/** 禁锢标记（囚笼）：同步给追踪该实体的客户端，客户端据此锁定移动输入 */
+	public static final Supplier<AttachmentType<Boolean>> CAGED_STATE = ATTACHMENT_TYPES.register("caged_state",
+			() -> AttachmentType.builder(() -> Boolean.FALSE).serialize(com.mojang.serialization.Codec.BOOL).sync(net.minecraft.network.codec.ByteBufCodecs.BOOL).build());
 
 	@SubscribeEvent
 	public static void init(FMLCommonSetupEvent event) {
@@ -93,18 +99,22 @@ public class MurmolModVariables {
 		public boolean alfarspatt = true;
 		/** 形态标识（字符串）。旧存档中的数字 id 会在反序列化时自动迁移。 */
 		public String feralFormId = FeralForm.HUMAN_ID;
+		/** 禁锢标记（玩家自身同步用：附件 sync 不会发给玩家本人，客户端输入锁定依赖此字段） */
+		public boolean caged = false;
 
 		@Override
 		public CompoundTag serializeNBT(HolderLookup.Provider lookupProvider) {
 			CompoundTag nbt = new CompoundTag();
 			nbt.putBoolean("alfarspatt", alfarspatt);
-			nbt.putString("feralFormId", feralFormId);
+		nbt.putBoolean("caged", caged);
+		nbt.putString("feralFormId", feralFormId);
 			return nbt;
 		}
 
 		@Override
 		public void deserializeNBT(HolderLookup.Provider lookupProvider, CompoundTag nbt) {
 			alfarspatt = nbt.getBoolean("alfarspatt");
+			caged = nbt.getBoolean("caged");
 			// 读取字符串 id；旧存档为数字 id 时自动迁移
 			if (nbt.contains("feralFormId", net.minecraft.nbt.Tag.TAG_STRING)) {
 				feralFormId = nbt.getString("feralFormId");

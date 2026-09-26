@@ -39,6 +39,9 @@ public class PetrifyMobEffect extends MobEffect {
 		// 生物直接关 AI：寻路/转向/动画全部停止，从源头消除抽搐
 		if (entity instanceof net.minecraft.world.entity.Mob mob)
 			mob.setNoAi(true);
+		// 同步石化标记给追踪的客户端（原版不向观察者同步生物身上的药水效果，渲染端贴图判定依赖此附件）
+		if (!entity.level().isClientSide())
+			entity.setData(net.mcr.murmol.network.MurmolModVariables.PETRIFIED_STATE, true);
 	}
 
 	@Override
@@ -58,8 +61,9 @@ public class PetrifyMobEffect extends MobEffect {
 		return super.applyEffectTick(entity, amplifier);
 	}
 
-	/** 实体当前是否被石化 */
+	/** 实体当前是否被石化：本地效果（自己身上，原版会同步）或同步附件标记（观察其他实体用） */
 	public static boolean isPetrified(LivingEntity entity) {
-		return entity.hasEffect(net.mcr.murmol.init.MurmolModMobEffects.PETRIFY);
+		return entity.hasEffect(net.mcr.murmol.init.MurmolModMobEffects.PETRIFY)
+				|| entity.getData(net.mcr.murmol.network.MurmolModVariables.PETRIFIED_STATE);
 	}
 }

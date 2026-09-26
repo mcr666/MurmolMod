@@ -39,6 +39,8 @@ public class MurmolModItems {
 	public static final DeferredItem<Item> SPIRIT_TABLE;
 	public static final DeferredItem<Item> BANZA;
 	public static final DeferredItem<Item> CURSED_STONE;
+	public static final DeferredItem<Item> CAGE;
+	public static final DeferredItem<Item> ASTRAL_SAPLING;
 	public static final DeferredItem<Item> ASTRAL_DIRT;
 	public static final DeferredItem<Item> ASTRAL_STONE;
 	public static final DeferredItem<Item> COBBLED_ASTRAL_STONE;
@@ -110,6 +112,8 @@ public class MurmolModItems {
 		SPIRIT_TABLE = block(MurmolModBlocks.SPIRIT_TABLE);
 		BANZA = block(MurmolModBlocks.BANZA);
 		CURSED_STONE = block(MurmolModBlocks.CURSED_STONE);
+		CAGE = block(MurmolModBlocks.CAGE);
+		ASTRAL_SAPLING = block(MurmolModBlocks.ASTRAL_SAPLING);
 		ASTRAL_DIRT = block(MurmolModBlocks.ASTRAL_DIRT);
 		ASTRAL_STONE = block(MurmolModBlocks.ASTRAL_STONE);
 		COBBLED_ASTRAL_STONE = block(MurmolModBlocks.COBBLED_ASTRAL_STONE);

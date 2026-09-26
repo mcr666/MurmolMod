@@ -2,6 +2,7 @@
   "name": "唤灵台",
   "icon": "murmol:spirit_table",
   "category": "murmol:materials",
+  "sortnum": 3,
   "pages": [
     {
       "type": "patchouli:crafting",

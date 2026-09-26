@@ -30,6 +30,9 @@ public class PetalProjectileEntity extends AbstractArrow implements ItemSupplier
 	public static final ItemStack PROJECTILE_ITEM = new ItemStack(MurmolModItems.PETAL.get());
 	private int knockback = 0;
 
+	/** 花瓣弹射物：自身施加非常小的重力（原版箭为 0.05；Entity.getGravity 为 final 无法覆写） */
+	public static final double PETAL_GRAVITY = 0.01D;
+
 	public PetalProjectileEntity(EntityType<? extends PetalProjectileEntity> type, Level world) {
 		super(type, world);
 		setNoGravity(true);
@@ -86,6 +89,14 @@ public class PetalProjectileEntity extends AbstractArrow implements ItemSupplier
 	@Override
 	public void tick() {
 		super.tick();
+		// 非常小的重力（落地前）
+		if (!this.inGround && !this.isNoGravity())
+			this.setDeltaMovement(this.getDeltaMovement().add(0.0D, -PETAL_GRAVITY, 0.0D));
+		// 10 秒（200 tick）后自动清除，避免花瓣长时间残留
+		if (this.tickCount >= 200) {
+			this.discard();
+			return;
+		}
 		if (this.inGround)
 			this.discard();
 	}

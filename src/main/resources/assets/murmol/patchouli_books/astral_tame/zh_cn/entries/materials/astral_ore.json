@@ -2,6 +2,7 @@
   "name": "幻星矿",
   "icon": "murmol:astral_ore",
   "category": "murmol:materials",
+  "sortnum": 2,
   "pages": [
     {
       "type": "patchouli:spotlight",
