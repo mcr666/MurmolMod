@@ -30,8 +30,8 @@ public class AstralCoreProjectileEntity extends ThrowableItemProjectile {
 	public static final int FUSE_TICKS = 100; // 5s
 	public static final double RING_RADIUS_MIN = 1.0D;
 	public static final double RING_RADIUS_MAX = 4.0D;
-	public static final int BURST_DURATION = 48;   // 连续产生同心圆的持续 tick
-	public static final int RING_INTERVAL = 4;     // 每隔几 tick 产生一个同心圆
+	public static final int BURST_DURATION = 24;   // 连续产生同心圆的持续 tick（生成速度快一倍）
+	public static final int RING_INTERVAL = 2;     // 每隔几 tick 产生一个同心圆
 	public static final int RING_PARTICLES = 32;   // 每个同心圆的粒子数
 
 	private boolean triggered = false;
