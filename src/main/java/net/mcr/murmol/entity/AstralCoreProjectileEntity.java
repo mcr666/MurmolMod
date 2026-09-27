@@ -78,9 +78,6 @@ public class AstralCoreProjectileEntity extends ThrowableItemProjectile {
 			if (this.tickCount >= FUSE_TICKS) {
 				this.triggered = true;
 				this.burstStartTick = this.tickCount;
-				this.burstX = this.getX();
-				this.burstY = this.getY();
-				this.burstZ = this.getZ();
 				triggerAstralBurst();
 			}
 		} else {
@@ -97,6 +94,10 @@ public class AstralCoreProjectileEntity extends ThrowableItemProjectile {
 		Level level = this.level();
 		if (!(level instanceof ServerLevel server))
 			return;
+		// 记录触发点位置（所有特效以此为基准，之后不再变动）
+		this.burstX = this.getX();
+		this.burstY = this.getY();
+		this.burstZ = this.getZ();
 		double x = this.burstX, y = this.burstY, z = this.burstZ;
 
 		// 停止运动并隐藏弹射物本体，进入特效阶段
