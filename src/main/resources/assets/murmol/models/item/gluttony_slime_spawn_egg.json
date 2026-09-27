@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:item/template_spawn_egg",
+  "textures": {
+    "layer0": "murmol:item/gluttony_slime_spawn_egg"
+  }
+}

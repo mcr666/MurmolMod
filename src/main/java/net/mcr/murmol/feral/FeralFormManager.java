@@ -293,11 +293,11 @@ public class FeralFormManager {
 		return track != null && track.idleTicks >= STATUE_IDLE_TICKS;
 	}
 
-	/** 该玩家是否站在磐座（banza）上：取脚底略下方（minY - 0.05）所在方块，
-	 * 不能用 getBlockPosBelowThatAffectsMyMovement——磐座高度仅 4/16，该方法会返回磐座下方的方块 */
-	public static boolean isOnBanza(LivingEntity entity) {
-		return entity.level().getBlockState(BlockPos.containing(entity.getX(), entity.getBoundingBox().minY - 0.05D, entity.getZ()))
-				.is(net.mcr.murmol.init.MurmolModBlocks.BANZA.get());
+	/** 该玩家是否处于"磐座石像"模式（右键磐座激活的石像，区别于自然静止触发的普通石像）。
+	 * 通过已同步的玩家变量 statueBanza 读取，双端一致。 */
+	public static boolean isInBanzaStatue(LivingEntity entity) {
+		return isInStatue(entity) && entity instanceof Player player
+				&& player.getData(MurmolModVariables.PLAYER_VARIABLES).statueBanza;
 	}
 
 	/**
@@ -310,6 +310,9 @@ public class FeralFormManager {
 		StatueTrack track = STATUE_TRACKS.computeIfAbsent(player, p -> new StatueTrack());
 		track.initialized = true;
 		track.idleTicks = STATUE_IDLE_TICKS;
+		// 磐座石像模式：苔石贴图、物理定身、缓慢回血、仅 shift 解除（同步变量，双端可见）
+		player.getData(MurmolModVariables.PLAYER_VARIABLES).statueBanza = true;
+		player.getData(MurmolModVariables.PLAYER_VARIABLES).markSyncDirty();
 		// 同步记录当前位置，否则下一 tick 判定为"已移动"导致石像状态立即被清除
 		track.lastX = player.getX();
 		track.lastY = player.getY();
@@ -338,15 +341,26 @@ public class FeralFormManager {
 				|| entity.position().distanceToSqr(track.lastX, track.lastY, track.lastZ) > STATUE_MOVE_THRESHOLD_SQR;
 
 		if (statueBefore) {
-			// 石像维持：磐座上仅按 shift 解除；离开磐座后移动即解除
-			if (isOnBanza(player)) {
-				if (player.isShiftKeyDown())
+			if (player.getData(MurmolModVariables.PLAYER_VARIABLES).statueBanza) {
+				// 磐座石像仅按 shift 解除：使用物品、挥动手臂等动作不打断石像状态
+				if (player.isShiftKeyDown()) {
 					track.idleTicks = 0;
+					// 解除磐座石像：清除模式标记并同步
+					player.getData(MurmolModVariables.PLAYER_VARIABLES).statueBanza = false;
+					player.getData(MurmolModVariables.PLAYER_VARIABLES).markSyncDirty();
+				}
+			} else if (player.isUsingItem() || player.swinging) {
+				// 普通石像维持：使用物品/挥动手臂等动作会立即解除石像
+				track.idleTicks = 0;
 			} else if (moved) {
 				track.idleTicks = 0;
 			}
 		} else {
-			// 进入条件：静止且不潜行（潜行静止不会进入石像状态）
+			// 进入条件：静止且不潜行（潜行静止不会进入石像状态）；自然进入为普通石像
+			if (player.getData(MurmolModVariables.PLAYER_VARIABLES).statueBanza) {
+				player.getData(MurmolModVariables.PLAYER_VARIABLES).statueBanza = false;
+				player.getData(MurmolModVariables.PLAYER_VARIABLES).markSyncDirty();
+			}
 			if (player.isShiftKeyDown() || moved) {
 				track.idleTicks = 0;
 			} else if (track.idleTicks < STATUE_IDLE_TICKS) {
@@ -361,15 +375,16 @@ public class FeralFormManager {
 		boolean statueNow = isInStatue(player);
 		// 效果与粒子仅在服务端执行
 		if (statueNow && !entity.level().isClientSide()) {
-			// 抗性提升 I，短时长每 tick 续期，退出即失效
-			entity.addEffect(new MobEffectInstance(MobEffects.DAMAGE_RESISTANCE, 60, 0, true, false));
-			// 磐座上的石像物理定身：清零速度（含击退），防止被推离磐座导致状态被移动解除
-			if (isOnBanza(player)) {
+			// 抗性提升 II，短时长每 tick 续期，退出即失效
+			entity.addEffect(new MobEffectInstance(MobEffects.DAMAGE_RESISTANCE, 20, 1, true, false));
+			// 磐座石像物理定身：清零速度（含击退），防止被推离磐座导致状态被移动解除
+			if (player.getData(MurmolModVariables.PLAYER_VARIABLES).statueBanza) {
 				entity.setDeltaMovement(net.minecraft.world.phys.Vec3.ZERO);
 				player.hurtMarked = true;
 			}
-			// 磐座上的石像缓慢回血：每 2 秒回复半颗心
-			if (isOnBanza(player) && entity.tickCount % 40 == 0 && entity.getHealth() < entity.getMaxHealth()) {
+			// 磐座石像缓慢回血：每 2 秒回复半颗心
+			if (player.getData(MurmolModVariables.PLAYER_VARIABLES).statueBanza
+					&& entity.tickCount % 40 == 0 && entity.getHealth() < entity.getMaxHealth()) {
 				entity.heal(1.0F);
 			}
 		}
@@ -409,20 +424,20 @@ public class FeralFormManager {
 	}
 
 	/**
-	 * 苔叶兽环境加成：在洞穴中（所处位置天空光为 0）获得移速 +0.01、跳跃力 +0.2、挖掘效率 +1；
-	 * 在地面上则改为移速 -0.05。其余形态无环境修饰符。
+	 * 苔叶兽环境加成：在洞穴中（所处位置天空光为 0）获得移速 +0.02（相对基础移速 +20%）、跳跃力 +0.2、挖掘效率 +1；
+	 * 在地面上则改为移速 -0.015（相对基础移速 -15%）。其余形态无环境修饰符。
 	 */
 	private static void updateMossBeastEnvironmentModifiers(LivingEntity entity, FeralForm form) {
 		if (form != FeralForms.MOSS_BEAST)
 			return;
 		boolean inCave = entity.level().getBrightness(net.minecraft.world.level.LightLayer.SKY, entity.blockPosition()) == 0;
 		if (inCave) {
-			setTransientModifier(entity, net.minecraft.world.entity.ai.attributes.Attributes.MOVEMENT_SPEED, CAVE_MODIFIER_ID, 0.01);
+			setTransientModifier(entity, net.minecraft.world.entity.ai.attributes.Attributes.MOVEMENT_SPEED, CAVE_MODIFIER_ID, 0.02);
 			setTransientModifier(entity, net.minecraft.world.entity.ai.attributes.Attributes.JUMP_STRENGTH, CAVE_MODIFIER_ID, 0.2);
 			setTransientModifier(entity, net.minecraft.world.entity.ai.attributes.Attributes.MINING_EFFICIENCY, CAVE_MODIFIER_ID, 1);
 			removeModifier(entity, net.minecraft.world.entity.ai.attributes.Attributes.MOVEMENT_SPEED, SURFACE_MODIFIER_ID);
 		} else {
-			setTransientModifier(entity, net.minecraft.world.entity.ai.attributes.Attributes.MOVEMENT_SPEED, SURFACE_MODIFIER_ID, -0.05);
+			setTransientModifier(entity, net.minecraft.world.entity.ai.attributes.Attributes.MOVEMENT_SPEED, SURFACE_MODIFIER_ID, -0.015);
 			removeModifier(entity, net.minecraft.world.entity.ai.attributes.Attributes.MOVEMENT_SPEED, CAVE_MODIFIER_ID);
 			removeModifier(entity, net.minecraft.world.entity.ai.attributes.Attributes.JUMP_STRENGTH, CAVE_MODIFIER_ID);
 			removeModifier(entity, net.minecraft.world.entity.ai.attributes.Attributes.MINING_EFFICIENCY, CAVE_MODIFIER_ID);

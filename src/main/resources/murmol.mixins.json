@@ -6,7 +6,8 @@
     "NoiseGeneratorSettingsMixin",
     "BiomeSourcePresetMixin",
     "PlayerRespawnLogicMixin",
-    "RecipeManagerMixin"
+    "RecipeManagerMixin",
+    "PetrifyEffectInvisibleMixin"
   ],
   "client": [],
   "injectors": {

@@ -116,5 +116,6 @@ public class MurmolModTabs {
 			tabData.accept(MurmolModItems.ALFAR_SPAWN_EGG.get());
 			tabData.accept(MurmolModItems.PEPPER_CH_SPAWN_EGG.get());
 			tabData.accept(MurmolModItems.ASTRAL_DRAKE_SPAWN_EGG.get());
+			tabData.accept(MurmolModItems.GLUTTONY_SLIME_SPAWN_EGG.get());
 		}).build());
 }

@@ -79,6 +79,7 @@ public class MurmolModItems {
 	public static final DeferredItem<Item> ALFAR_SHRINE;
 	public static final DeferredItem<Item> ALFAR_SPIT;
 	public static final DeferredItem<Item> ASTRAL_DRAKE_SPAWN_EGG;
+	public static final DeferredItem<Item> GLUTTONY_SLIME_SPAWN_EGG;
 	public static final DeferredItem<Item> ASTRAL_BLOCK;
 	public static final DeferredItem<Item> ASTRAL_MATRIX;
 	public static final DeferredItem<Item> ASTRAL_CORE;
@@ -152,6 +153,7 @@ public class MurmolModItems {
 		ALFAR_SHRINE = block(MurmolModBlocks.ALFAR_SHRINE, new Item.Properties().rarity(Rarity.EPIC));
 		ALFAR_SPIT = REGISTRY.register("alfar_spit", AlfarSpitItem::new);
 		ASTRAL_DRAKE_SPAWN_EGG = REGISTRY.register("astral_drake_spawn_egg", () -> new DeferredSpawnEggItem(MurmolModEntities.ASTRAL_DRAKE, -13408513, -16724788, new Item.Properties()));
+		GLUTTONY_SLIME_SPAWN_EGG = REGISTRY.register("gluttony_slime_spawn_egg", () -> new DeferredSpawnEggItem(MurmolModEntities.GLUTTONY_SLIME, 5415492, 2601779, new Item.Properties()));
 		ASTRAL_BLOCK = block(MurmolModBlocks.ASTRAL_BLOCK, new Item.Properties().rarity(Rarity.RARE).fireResistant());
 		ASTRAL_MATRIX = REGISTRY.register("astral_matrix", AstralMatrixItem::new);
 		ASTRAL_CORE = REGISTRY.register("astral_core", AstralCoreItem::new);

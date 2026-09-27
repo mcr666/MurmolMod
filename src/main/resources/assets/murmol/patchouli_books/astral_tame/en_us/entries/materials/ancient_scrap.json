@@ -2,7 +2,7 @@
   "name": "Ancient Knowledge Scrap",
   "icon": "murmol:ancient_knowledge_scrap",
   "category": "murmol:materials",
-  "sortnum": 4,
+  "sortnum": 1,
   "pages": [
     {
       "type": "patchouli:text",

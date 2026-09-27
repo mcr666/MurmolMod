@@ -101,12 +101,15 @@ public class MurmolModVariables {
 		public String feralFormId = FeralForm.HUMAN_ID;
 		/** 禁锢标记（玩家自身同步用：附件 sync 不会发给玩家本人，客户端输入锁定依赖此字段） */
 		public boolean caged = false;
+		/** 磐座石像模式标记（右键磐座激活的狛犬石像，苔石贴图/定身/仅 shift 解除；自然石像为 false） */
+		public boolean statueBanza = false;
 
 		@Override
 		public CompoundTag serializeNBT(HolderLookup.Provider lookupProvider) {
 			CompoundTag nbt = new CompoundTag();
 			nbt.putBoolean("alfarspatt", alfarspatt);
 		nbt.putBoolean("caged", caged);
+		nbt.putBoolean("statueBanza", statueBanza);
 		nbt.putString("feralFormId", feralFormId);
 			return nbt;
 		}
@@ -114,7 +117,8 @@ public class MurmolModVariables {
 		@Override
 		public void deserializeNBT(HolderLookup.Provider lookupProvider, CompoundTag nbt) {
 			alfarspatt = nbt.getBoolean("alfarspatt");
-			caged = nbt.getBoolean("caged");
+		caged = nbt.getBoolean("caged");
+		statueBanza = nbt.getBoolean("statueBanza");
 			// 读取字符串 id；旧存档为数字 id 时自动迁移
 			if (nbt.contains("feralFormId", net.minecraft.nbt.Tag.TAG_STRING)) {
 				feralFormId = nbt.getString("feralFormId");

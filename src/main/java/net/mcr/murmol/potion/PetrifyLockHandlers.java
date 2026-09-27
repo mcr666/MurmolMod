@@ -58,11 +58,18 @@ public class PetrifyLockHandlers {
 				&& !living.hasEffect(net.mcr.murmol.init.MurmolModMobEffects.PETRIFY))
 			clearPetrify(living);
 		if (living.getData(net.mcr.murmol.network.MurmolModVariables.CAGED_STATE)) {
-			// 自愈：标记还在但脚下已不是囚笼（方块被破坏等遗漏路径），立即释放并还原缩放
+			// 吞食关押：被贪食者史莱姆吞食时不受"必须站在囚笼内"约束，由吞噬者存活校验接管
 			if (!(living.level().getBlockState(living.blockPosition())
 					.getBlock() instanceof net.mcr.murmol.block.CageBlock)) {
-				net.mcr.murmol.block.CageBlock.releaseEntity(living);
-				return;
+				if (living.getPersistentData().hasUUID(net.mcr.murmol.entity.GluttonySlimeEntity.SWALLOWED_BY_TAG)) {
+					// 吞噬者仍在 → 保持关押；已消失 → validateSwallowLock 内部释放
+					if (!net.mcr.murmol.entity.GluttonySlimeEntity.validateSwallowLock(living))
+						return;
+				} else {
+					// 自愈：标记还在但脚下已不是囚笼（方块被破坏等遗漏路径），立即释放并还原缩放
+					net.mcr.murmol.block.CageBlock.releaseEntity(living);
+					return;
+				}
 			}
 			living.setDeltaMovement(net.minecraft.world.phys.Vec3.ZERO);
 			if (living instanceof net.minecraft.server.level.ServerPlayer player)

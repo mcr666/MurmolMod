@@ -41,6 +41,11 @@ public class MurmolModEntities {
 			EntityType.Builder.<AstralDrakeEntity>of(AstralDrakeEntity::new, MobCategory.AMBIENT).setShouldReceiveVelocityUpdates(true).setTrackingRange(64).setUpdateInterval(3)
 
 					.sized(0.6f, 1.8f));
+	public static final DeferredHolder<EntityType<?>, EntityType<GluttonySlimeEntity>> GLUTTONY_SLIME = register("gluttony_slime",
+			EntityType.Builder.<GluttonySlimeEntity>of(GluttonySlimeEntity::new, MobCategory.MONSTER).setShouldReceiveVelocityUpdates(true).setTrackingRange(64).setUpdateInterval(3)
+					.sized(0.52f, 0.52f));
+	public static final DeferredHolder<EntityType<?>, EntityType<AstralCoreProjectileEntity>> ASTRAL_CORE_PROJECTILE = register("astral_core_projectile",
+			EntityType.Builder.<AstralCoreProjectileEntity>of(AstralCoreProjectileEntity::new, MobCategory.MISC).setShouldReceiveVelocityUpdates(true).setTrackingRange(64).setUpdateInterval(1).sized(0.25f, 0.25f));
 
 	// Start of user code block custom entities
 	// End of user code block custom entities
@@ -53,6 +58,7 @@ public class MurmolModEntities {
 		PepperCHEntity.init(event);
 		AlfarEntity.init(event);
 		AstralDrakeEntity.init(event);
+		GluttonySlimeEntity.init(event);
 	}
 
 	@SubscribeEvent
@@ -60,5 +66,6 @@ public class MurmolModEntities {
 		event.put(PEPPER_CH.get(), PepperCHEntity.createAttributes().build());
 		event.put(ALFAR.get(), AlfarEntity.createAttributes().build());
 		event.put(ASTRAL_DRAKE.get(), AstralDrakeEntity.createAttributes().build());
+		event.put(GLUTTONY_SLIME.get(), GluttonySlimeEntity.createAttributes().build());
 	}
 }

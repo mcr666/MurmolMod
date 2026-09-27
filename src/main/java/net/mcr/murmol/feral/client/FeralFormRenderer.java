@@ -178,7 +178,7 @@ public class FeralFormRenderer {
 		if (net.mcr.murmol.potion.PetrifyMobEffect.isPetrified(entity))
 			return STONE_TEXTURE;
 		if (form.hasStatueState() && net.mcr.murmol.feral.FeralFormManager.isInStatue(entity))
-			return net.mcr.murmol.feral.FeralFormManager.isOnBanza(entity) ? MOSSY_STONE_TEXTURE : STONE_TEXTURE;
+			return net.mcr.murmol.feral.FeralFormManager.isInBanzaStatue(entity) ? MOSSY_STONE_TEXTURE : STONE_TEXTURE;
 		return form.getTexture();
 	}
 

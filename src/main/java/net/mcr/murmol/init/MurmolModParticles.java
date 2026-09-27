@@ -12,6 +12,7 @@ import net.mcr.murmol.client.particle.SpiteffectParticle;
 import net.mcr.murmol.client.particle.MurIceParticle;
 import net.mcr.murmol.client.particle.EightparticleParticle;
 import net.mcr.murmol.client.particle.AstralEffectParticle;
+import net.mcr.murmol.client.particle.AstralBurstParticle;
 
 @EventBusSubscriber(Dist.CLIENT)
 public class MurmolModParticles {
@@ -21,5 +22,6 @@ public class MurmolModParticles {
 		event.registerSpriteSet(MurmolModParticleTypes.MUR_ICE.get(), MurIceParticle::provider);
 		event.registerSpriteSet(MurmolModParticleTypes.ASTRAL_EFFECT.get(), AstralEffectParticle::provider);
 		event.registerSpriteSet(MurmolModParticleTypes.SPITEFFECT.get(), SpiteffectParticle::provider);
+		event.registerSpriteSet(MurmolModParticleTypes.ASTRAL_BURST.get(), AstralBurstParticle::provider);
 	}
 }

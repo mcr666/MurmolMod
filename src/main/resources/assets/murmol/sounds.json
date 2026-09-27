@@ -43,5 +43,14 @@
         "stream": false
       }
     ]
+  },
+  "astral_burst": {
+    "subtitle": "subtitles.astral_burst",
+    "sounds": [
+      {
+        "name": "murmol:astral_burst",
+        "stream": false
+      }
+    ]
   }
 }

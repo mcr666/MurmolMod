@@ -18,12 +18,13 @@ public class PetrifyMovementLock {
 	@SubscribeEvent
 	public static void onMovementInput(MovementInputUpdateEvent event) {
 		Player player = event.getEntity();
-		// 石化药水、被囚笼禁锢，或磐座上的狛犬石像（石像必须物理定身，否则走动会离开磐座导致状态被移动解除）
-		if (PetrifyMobEffect.isPetrified(player)
+		// 磐座石像（右键激活）：清零移动/跳跃但保留 shift（shift 是磐座石像的解除方式）
+		boolean statueOnBanza = net.mcr.murmol.feral.FeralFormManager.isInBanzaStatue(player);
+		// 石化药水、被囚笼禁锢：输入全禁；吞食骑乘场景禁用潜行（潜行会触发原版下座）
+		boolean fullyLocked = PetrifyMobEffect.isPetrified(player)
 				|| player.getData(net.mcr.murmol.network.MurmolModVariables.CAGED_STATE)
-				|| player.getData(net.mcr.murmol.network.MurmolModVariables.PLAYER_VARIABLES).caged
-				|| (net.mcr.murmol.feral.FeralFormManager.isInStatue(player)
-						&& net.mcr.murmol.feral.FeralFormManager.isOnBanza(player))) {
+				|| player.getData(net.mcr.murmol.network.MurmolModVariables.PLAYER_VARIABLES).caged;
+		if (fullyLocked || statueOnBanza) {
 			Input input = event.getInput();
 			input.leftImpulse = 0.0F;
 			input.forwardImpulse = 0.0F;
@@ -32,6 +33,8 @@ public class PetrifyMovementLock {
 			input.left = false;
 			input.right = false;
 			input.jumping = false;
+			if (fullyLocked)
+				input.shiftKeyDown = false;
 		}
 	}
 }
