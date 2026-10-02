@@ -1,0 +1,49 @@
+{
+  "name": "Astral Mahjong",
+  "icon": "richi:fengpan",
+  "category": "murmol:materials",
+  "sortnum": 6,
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "richi:fengpan",
+      "title": "Wind Table",
+      "text": "A mahjong table you can unfold anywhere. When $(thing)placed$(0), it checks the surrounding 4x4 area: if anything blocks it, the table fails to unfold and you are warned. $(br)Once placed it forms a complete 2x2 table; $(thing)breaking any corner$(0) folds up the whole table and returns just one Wind Table item."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Rules at a Glance",
+      "text": "Riichi mahjong is a race to complete a winning hand: $(thing)four sets (runs or triplets) plus one pair$(0). $(br)$(li)Each turn you draw one tile and discard one; discarded tiles can be claimed for $(thing)chi, pon and kan$(0)$(li)When one tile away from winning, you may declare $(thing)riichi$(0): wager 1,000 points and lock your hand$(li)A winning hand needs at least one $(thing)yaku$(0) (such as riichi, all simples, or value tiles); yaku and dora determine the score$(li)You may win by $(thing)tsumo$(0) (drawing the tile yourself) or $(thing)ron$(0) (claiming a discard); the points come from the discarder or are split among the other three$(li)If no one wins, the hand is a $(thing)draw$(0) and tenpai hands are revealed"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Starting a Game",
+      "text": "$(li)$(thing)Right-click the table$(0) to join the game$(li)The first right-click deals hands to all four seats: $(thing)East, South, West, North$(0)$(li)Each seat starts with $(thing)25,000$(0) points$(li)Seat markers float above each side of the table, showing seat name and points$(br)Display entities of the table can be cleared and reset anytime with $(thing)/murmol mahjong refresh$(0)."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Yaku List · 1 Han",
+      "text": "$(li)$(thing)Riichi$(0): declare ready with a closed tenpai hand, then win$(li)$(thing)Ippatsu$(0): win within one go-around after riichi, with no calls$(li)$(thing)Menzen Tsumo$(0): win by self-draw with a closed hand$(li)$(thing)Pinfu$(0): four runs + a non-yaku pair + a two-sided wait$(li)$(thing)Tanyao$(0): no terminals or honors in the hand$(li)$(thing)Iipeiko$(0): two identical runs (closed only)$(li)$(thing)Yakuhai: Seat Wind$(0): a triplet of your seat wind$(li)$(thing)Yakuhai: Round Wind$(0): a triplet of the round wind$(li)$(thing)Yakuhai: Dragons$(0): a triplet of White, Green or Red$(li)$(thing)Chankan$(0): ron the tile another player adds to a kan$(li)$(thing)Rinshan Kaihou$(0): win with the replacement tile after kan$(li)$(thing)Haitei Raoyue$(0): win by self-draw on the last tile$(li)$(thing)Houtei Raoyui$(0): win by ron on the last discard"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Yaku List · 2 Han",
+      "text": "$(li)$(thing)Double Riichi$(0): riichi on your very first turn (closed only)$(li)$(thing)Sanshoku Doujun$(0): same-number runs in all three suits (-1 han open)$(li)$(thing)Iittsuu$(0): 123+456+789 of one suit (-1 han open)$(li)$(thing)Chanta$(0): every set and the pair contain a terminal or honor (-1 han open)$(li)$(thing)Chiitoitsu$(0): seven distinct pairs (closed only)$(li)$(thing)Toitoi$(0): four triplets or quads$(li)$(thing)Sanankou$(0): three concealed triplets$(li)$(thing)Sankantsu$(0): three kans by one player$(li)$(thing)Sanshoku Doukou$(0): same-number triplets in all three suits$(li)$(thing)Honrou$(0): terminals and honors only$(li)$(thing)Shousangen$(0): two dragon triplets + the third dragon as the pair"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Yaku List · 3/6 Han & Mangan",
+      "text": "$(li)$(thing)Ryanpeikou$(0) (3 han): two iipeikou (closed only)$(li)$(thing)Junchan$(0) (3 han): every set and the pair contain a terminal (-1 han open)$(li)$(thing)Honitsu$(0) (3 han): one suit plus honors (-1 han open)$(li)$(thing)Chinitsu$(0) (6 han): one suit only, no honors (-1 han open)$(li)$(thing)Nagashi Mangan$(0) (mangan): all discarded terminals, no calls, at an exhaustive draw"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Yaku List · Yakuman",
+      "text": "$(li)$(thing)Tenhou$(0): dealer wins on the first draw$(li)$(thing)Chiihou$(0): non-dealer tsumo on the first draw (no calls)$(li)$(thing)Daisangen$(0): triplets of all three dragons$(li)$(thing)Suuankou$(0): four concealed triplets (closed tsumo only)$(li)$(thing)Tsuisou$(0): honors only$(li)$(thing)Ryuuisou$(0): 2/3/4/6/8 sou and Green Dragon only$(li)$(thing)Chinroutou$(0): terminals only$(li)$(thing)Kokushi Musou$(0): one of each of the thirteen terminals/honors plus a pair of one (closed only)$(li)$(thing)Shousuushi$(0): three wind triplets + the fourth wind as the pair$(li)$(thing)Suukantsu$(0): four kans by one player$(li)$(thing)Chuuren Poutou$(0): 1112345678999 of one suit + any extra tile"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Yaku List · Double Yakuman & Draws",
+      "text": "$(li)$(thing)Suuankou Tanki$(0) (double yakuman): four concealed triplets on a single wait$(li)$(thing)Kokushi Musou 13-wait$(0) (double yakuman): thirteen-sided wait on Kokushi$(li)$(thing)Junsei Chuuren Poutou$(0) (double yakuman): nine-sided wait on Chuuren$(li)$(thing)Daisuushi$(0) (double yakuman): triplet of each of the four winds$(li)$(thing)Sufonrende$(0) (draw): all four players discard the same wind on turn one$(li)$(thing)Suukaikusan$(0) (draw): four kans in total abort the hand$(li)$(thing)Kyuushu Kyuuhai$(0) (draw): declare an abort with nine or more terminals/honors on the first draw$(li)$(thing)Suuchi Riichi$(0) (draw): all four players declare riichi$(br)These are the ranked-match yaku; ancient yaku (such as Gangyao/Wumenqi, Ninshou or Daicharin) may only be enabled in custom friendly matches."
+    }
+  ]
+}

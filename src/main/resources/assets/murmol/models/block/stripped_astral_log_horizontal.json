@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:block/cube_column_horizontal",
+  "textures": {
+    "end": "murmol:block/astral/stripped_astral_log_top",
+    "side": "murmol:block/astral/stripped_astral_log"
+  }
+}

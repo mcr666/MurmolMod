@@ -1,0 +1,11 @@
+{
+  "type": "minecraft:block",
+  "random_sequence": "murmol:blocks/astral_torch",
+  "pools": [
+    {
+      "rolls": 1.0,
+      "conditions": [ { "condition": "minecraft:survives_explosion" } ],
+      "entries": [ { "type": "minecraft:item", "name": "murmol:astral_torch" } ]
+    }
+  ]
+}

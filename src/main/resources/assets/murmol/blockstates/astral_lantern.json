@@ -1,0 +1,6 @@
+{
+  "variants": {
+    "hanging=false": { "model": "murmol:block/astral_lantern" },
+    "hanging=true": { "model": "murmol:block/astral_lantern_hanging" }
+  }
+}

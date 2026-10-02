@@ -1,0 +1,30 @@
+{
+  "name": "狰",
+  "icon": "minecraft:nether_wart",
+  "category": "murmol:fengyang_classic",
+  "advancement": "murmol:unlock/ferocious",
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "murmol:ferocious_soul",
+      "title": "狰",
+      "text": "狰出没于赤地与焦土，其声如击石。凡它掠过之处，火花自爪间迸溅，连风都带着灼热的气味。"
+    },
+    {
+      "type": "patchouli:crafting",
+      "title": "传颂之物",
+      "recipe": "murmol:scrap_ferocious_soul",
+      "text": "结缘之祭物。"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "属性",
+      "text": "$(li)可飞行$(br)$(li)体型 +50%$(li)最大生命值 +10$(li)攻击击退 +0.5$(li)护甲 +5"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "狰狰不息",
+      "text": "《山海经》有载：章莪之山，无草木，多瑶碧。有兽焉，其状如赤豹，五尾一角，其音如击石，其名曰狰。$(br)幻星瘟疫降临后，赤地千里，反成了狰的乐土。它们在焦土上疾行如风，五条尾巴拖出燎原的火线——据说那不是破坏，而是烧尽瘟疫的净化之火。"
+    }
+  ]
+}

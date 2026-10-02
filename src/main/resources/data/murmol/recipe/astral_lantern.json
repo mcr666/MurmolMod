@@ -1,0 +1,9 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [ "NNN", "NTN", "NNN" ],
+  "key": {
+    "N": { "item": "minecraft:iron_nugget" },
+    "T": { "item": "murmol:astral_torch" }
+  },
+  "result": { "id": "murmol:astral_lantern", "count": 1 }
+}

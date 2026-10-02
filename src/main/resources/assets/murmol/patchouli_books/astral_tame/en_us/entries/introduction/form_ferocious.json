@@ -1,0 +1,30 @@
+{
+  "name": "Ferocious",
+  "icon": "minecraft:nether_wart",
+  "category": "murmol:fengyang_classic",
+  "advancement": "murmol:unlock/ferocious",
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "murmol:ferocious_soul",
+      "title": "Ferocious",
+      "text": "The Zheng prowls the scorched lands, its voice like striking stone. Where it passes, sparks scatter from its claws, and even the wind carries a burning scent."
+    },
+    {
+      "type": "patchouli:crafting",
+      "title": "Keepsakes of Bond",
+      "recipe": "murmol:scrap_ferocious_soul",
+      "text": "Offerings of the bond."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Attributes",
+      "text": "$(li)Can fly$(br)$(li)Body size +50%$(li)Max health +10$(li)Attack knockback +0.5$(li)Armor +5"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Ferocious",
+      "text": "The Classic of Mountains and Seas records: upon Mount Zhang'e, barren of plants and rich in jade, there lives a beast shaped like a crimson leopard, with five tails and a single horn, whose cry is like striking stone — its name is Zheng. $(br)When the astral plague descended and the land withered for a thousand li, it became the Zheng's paradise. They race across the scorched earth like the wind, five tails trailing lines of prairie fire — said not to be destruction, but cleansing flames that burn the plague away."
+    }
+  ]
+}

@@ -12,18 +12,18 @@
     },
     {
       "type": "patchouli:crafting",
-      "title": "Tribute",
+      "title": "Keepsakes of Bond",
       "recipe": "murmol:scrap_wenyao_soul",
-      "text": "The bond offering."
+      "text": "Offerings of the bond."
     },
     {
       "type": "patchouli:text",
-      "title": "Traits",
-      "text": "$(li)Hold jump to rise slowly$(li)Drift gently down when released$(li)Immune to fall damage$(br)In water:$(li)Breathe freely$(li)Swim swiftly$(br)On land:$(li)Moves with great difficulty$(li)Cannot breathe — return to water quickly."
+      "title": "Attributes",
+      "text": "$(li)Can fly$(br)In water:$(li)Breathe freely$(li)Swim swiftly$(br)On land:$(li)Moves with great difficulty$(li)Cannot breathe — return to water quickly."
     },
     {
       "type": "patchouli:text",
-      "title": "Lore",
+      "title": "Wenyao",
       "text": "The Wenyao is known for flying by night across the Western Sea to swim the Eastern. Clumsy on land, gasping once out of water — yet once it enters the sea, no net can ever catch it. $(br)Its appearance heralds abundance: where it flies, fish grow fat, rice ripens, and people live in peace."
     }
   ]

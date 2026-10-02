@@ -1,0 +1,8 @@
+{
+  "variants": {
+    "facing=east": { "model": "murmol:block/astral_wall_torch", "y": 90 },
+    "facing=north": { "model": "murmol:block/astral_wall_torch" },
+    "facing=south": { "model": "murmol:block/astral_wall_torch", "y": 180 },
+    "facing=west": { "model": "murmol:block/astral_wall_torch", "y": 270 }
+  }
+}

@@ -1,6 +1,6 @@
 {
   "required": true,
-  "package": "net.mcr.astralcruse.mixin",
+  "package": "mcr.astralcruse.mixin",
   "compatibilityLevel": "JAVA_21",
   "mixins": [
     "FeralPlayerDimensionsMixin",

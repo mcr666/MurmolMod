@@ -1,0 +1,9 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [ "X", "Y" ],
+  "key": {
+    "X": { "item": "murmol:astral_matrix" },
+    "Y": { "item": "minecraft:stick" }
+  },
+  "result": { "id": "murmol:astral_torch", "count": 4 }
+}

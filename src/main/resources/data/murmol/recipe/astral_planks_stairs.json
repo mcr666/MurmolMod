@@ -1,0 +1,8 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [ "X  ", "XX ", "XXX" ],
+  "key": {
+    "X": { "item": "murmol:astral_planks" }
+  },
+  "result": { "id": "murmol:astral_planks_stairs", "count": 4 }
+}

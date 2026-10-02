@@ -8,7 +8,7 @@
       "type": "patchouli:spotlight",
       "item": "murmol:moss_beast_soul",
       "title": "Moss Beast",
-      "text": "It was a damp and gentle age. No large predators stalked the land, and the spore plants grew and spread, day by day, between the silt, the pools and the clay — until one day, the earth itself grew restless."
+      "text": "A living mass of flourishing plants, clad in a $(thing)tough, moss-like hide$(0). Neither storms nor beasts can shake it in the slightest — just as moss endures a thousand years upon the rock, its green unchanging through frost and snow."
     },
     {
       "type": "patchouli:crafting",
@@ -23,8 +23,8 @@
     },
     {
       "type": "patchouli:text",
-      "title": "Tale",
-      "text": "The earthquake troubled the plants themselves but little; yet when the violent shaking subsided, the ground had caved in and the hills had crumbled, sealing the plants within a dim cavern. $(br)At first, with the help of the fungi and the insects, the spore blossoms still flourished in the cave. But soon, as the accumulated organic matter was steadily consumed, one drip-leaf after another, one glowing berry bush after another, began to wilt. At the cavern's end, a faint sliver of sunlight slanted down upon the rock of the wall. The distance was not far — yet to the plants, it brought nothing but deep despair. $(br)At last, before the final spore blossom could fall, they all joined together. Roots drove outward, stems wound about one another, and spending the last of their strength, beneath the last of the twilight, a green, four-legged figure broke through the earth."
+      "title": "Stands A Loquat Tree",
+      "text": "It was a damp and gentle age. No large predators stalked the land, and the spore plants grew and spread, day by day, between the silt, the pools and the clay — until one day, the earth itself grew restless. $(br)The earthquake troubled the plants themselves but little; yet when the violent shaking subsided, the ground had caved in and the hills had crumbled, sealing the plants within a dim cavern. $(br)At first, with the help of the fungi and the insects, the spore blossoms still flourished in the cave. But soon, as the accumulated organic matter was steadily consumed, one drip-leaf after another, one glowing berry bush after another, began to wilt. At the cavern's end, a faint sliver of sunlight slanted down upon the rock of the wall. The distance was not far — yet to the plants, it brought nothing but deep despair. $(br)At last, before the final spore blossom could fall, they all joined together. Roots drove outward, stems wound about one another, and spending the last of their strength, beneath the last of the twilight, a green, four-legged figure broke through the earth."
     }
   ]
 }

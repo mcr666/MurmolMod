@@ -1,0 +1,25 @@
+{
+  "name": "两仪",
+  "icon": "murmol:two_principles",
+  "category": "murmol:materials",
+  "sortnum": 5,
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "murmol:two_principles",
+      "title": "两仪",
+      "text": "一块刻着阴阳鱼纹的薄石板，静置时仿佛能听见此消彼长的低语。它执掌着$(thing)形态的启用与禁用$(0)：被两仪禁用的形态，将无法通过信物变形。$(br)两仪只断$(thing)今后$(0)的缘分——早已化形之人不受影响。"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "使用",
+      "text": "$(li)$(thing)右键$(0)两仪方块，可查看本世界所有形态的启用状态$(li)拥有$(thing)管理员权限（等级 3）$(0)者可以修改：点击行目切换单个形态，也可一键$(thing)全部启用$(0)或$(thing)全部禁用$(0)$(li)改动需点击$(thing)确认$(0)后才会生效；$(thing)取消$(0)则放弃所有未确认的修改$(br)被禁用的形态若再以信物尝试变形，会得到提示，且信物$(thing)不会被消耗$(0)。$(br)$(thing)/murmol$(0) 指令变形不受两仪约束。"
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "murmol:two_principles",
+      "title": "合成",
+      "text": "以黑白二色混凝土织成太极之形，中央供奉一枚$(item)摩摩尔之魂$(0)。"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "murmol:astral_log",
+      "required": false,
+      "data": {
+        "stripped_block": "murmol:stripped_astral_log"
+      }
+    }
+  ]
+}

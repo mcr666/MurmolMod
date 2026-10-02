@@ -19,11 +19,11 @@
     {
       "type": "patchouli:text",
       "title": "Attributes",
-      "text": "$(li)Hold the jump key to ascend slowly$(li)Release to drift gently down on the wind$(li)Immune to fall damage$(br)Under the open daytime sky:$(li)Movement speed -0.05$(li)Max health -4$(br)Under the open night sky:$(li)Movement speed +0.05$(li)Max health +4$(br)Neither applies while in darkness."
+      "text": "$(li)Can fly$(br)Under the open daytime sky:$(li)Movement speed -0.05$(li)Max health -4$(br)Under the open night sky:$(li)Movement speed +0.05$(li)Max health +4$(br)Neither applies while in darkness."
     },
     {
       "type": "patchouli:text",
-      "title": "Tale",
+      "title": "Silkmoth",
       "text": "Legend tells of a brood of silkmoths that fed on moon-dew and mulberry leaves, their silk glowing faintly in the night. As the predators circled above day and night, they learned to ride the wind — rising in silence, drifting down without a sound, never a wingbeat seen in their ascent, never a rustle heard in their fall. $(br)To the predators, the night sky was dead silence; and within that silence, they hid."
     }
   ]

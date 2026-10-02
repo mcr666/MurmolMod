@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "type=bottom": { "model": "murmol:block/astral_planks_slab" },
+    "type=double": { "model": "murmol:block/astral_planks" },
+    "type=top": { "model": "murmol:block/astral_planks_slab_top" }
+  }
+}

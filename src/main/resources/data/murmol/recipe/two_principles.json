@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "WWW",
+    "WMB",
+    "BBB"
+  ],
+  "key": {
+    "W": { "item": "minecraft:white_concrete" },
+    "B": { "item": "minecraft:black_concrete" },
+    "M": { "item": "murmol:murmol_soul" }
+  },
+  "result": {
+    "id": "murmol:two_principles",
+    "count": 1
+  }
+}

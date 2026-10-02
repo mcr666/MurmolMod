@@ -1,0 +1,36 @@
+{
+  "type": "minecraft:block",
+  "random_sequence": "murmol:blocks/astral_planks_slab",
+  "pools": [
+    {
+      "rolls": 1.0,
+      "conditions": [
+        { "condition": "minecraft:survives_explosion" },
+        { "condition": "minecraft:block_state_property", "block": "murmol:astral_planks_slab", "properties": { "type": "double" } }
+      ],
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "murmol:astral_planks_slab",
+          "functions": [ { "function": "minecraft:set_count", "count": 2.0 } ]
+        }
+      ]
+    },
+    {
+      "rolls": 1.0,
+      "conditions": [
+        { "condition": "minecraft:survives_explosion" },
+        { "condition": "minecraft:block_state_property", "block": "murmol:astral_planks_slab", "properties": { "type": "bottom" } }
+      ],
+      "entries": [ { "type": "minecraft:item", "name": "murmol:astral_planks_slab" } ]
+    },
+    {
+      "rolls": 1.0,
+      "conditions": [
+        { "condition": "minecraft:survives_explosion" },
+        { "condition": "minecraft:block_state_property", "block": "murmol:astral_planks_slab", "properties": { "type": "top" } }
+      ],
+      "entries": [ { "type": "minecraft:item", "name": "murmol:astral_planks_slab" } ]
+    }
+  ]
+}

@@ -3,7 +3,7 @@ plugins {
     id 'net.neoforged.moddev' version '2.0.141'
 }
 
-version = '2.1.4'
+version = '2.2.1'
 base.archivesName = "murmol"
 
 java.toolchain.languageVersion = JavaLanguageVersion.of(21)
@@ -12,6 +12,10 @@ repositories {
     maven {
         // JEI maven
         url = "https://maven.blamejared.com/"
+    }
+    maven {
+        // Mahjong4j（日麻和牌判定库，源项目同款）
+        url = "https://jitpack.io/"
     }
 }
 
@@ -30,6 +34,9 @@ dependencies {
     // Patchouli：编译用 API（openBookGUI），运行时本地加载完整 Patchouli（不打包进最终 JAR）
     compileOnly "vazkii.patchouli:Patchouli:1.21.1-93-NEOFORGE"
     runtimeOnly "vazkii.patchouli:Patchouli:1.21.1-93-NEOFORGE"
+
+    // Mahjong4j：和牌/役种判定（纯 Java 库，打包时并入 mod JAR）
+    implementation "com.github.mahjong4j:mahjong4j:0.3.2"
 }
 
 neoForge {
@@ -63,4 +70,8 @@ tasks.withType(JavaCompile).configureEach {
 tasks.named('jar', Jar).configure {
     // NeoOrigins stub 不打进 JAR
     exclude 'com/cyberday1/**'
+    // 并入 Mahjong4j（纯库，无类冲突风险，直接展开进 mod JAR）
+    from {
+        configurations.runtimeClasspath.filter { it.name.startsWith('mahjong4j') }.collect { zipTree(it) }
+    }
 }

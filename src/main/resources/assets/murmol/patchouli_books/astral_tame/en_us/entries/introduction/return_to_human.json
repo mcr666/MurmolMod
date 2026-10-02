@@ -1,14 +1,14 @@
 {
   "name": "Return to Human",
-  "icon": "murmol:totemof_fallen",
+  "icon": "murmol:truth_mirror",
   "category": "murmol:materials",
   "sortnum": 4,
   "pages": [
     {
       "type": "patchouli:spotlight",
-      "item": "murmol:totemof_fallen",
-      "title": "Totem of the Fallen",
-      "text": "Eat a Totem of the Fallen to shed your feral shape and become human once more."
+      "item": "murmol:truth_mirror",
+      "title": "Truth Mirror",
+      "text": "Drink from the Truth Mirror to reveal your true self — shed your feral shape and become human once more. $(br)Right-click while transformed to also extract the $(item)soul item$(0) of your current form."
     },
     {
       "type": "patchouli:text",

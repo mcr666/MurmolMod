@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/outer_stairs",
+  "textures": {
+    "bottom": "murmol:block/astral/astral_planks",
+    "top": "murmol:block/astral/astral_planks",
+    "side": "murmol:block/astral/astral_planks"
+  }
+}

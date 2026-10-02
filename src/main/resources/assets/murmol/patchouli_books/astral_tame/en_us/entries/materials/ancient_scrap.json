@@ -16,7 +16,7 @@
     {
       "type": "patchouli:text",
       "title": "Another Use",
-      "text": "Scraps also take part in rituals directly: just like the crafting of the $(l:murmol:materials/spirit_table)Spirit Table$(/l), placing a $(item)scrap$(0), a $(item)Murmol Soul$(0) and the offerings of a form on the table will forge the corresponding $(item)Form Soul$(0)."
+      "text": "Scraps also take part in rituals directly: just like the crafting of the $(l:murmol:materials/spirit_table)Spirit Table$(/l), placing a $(item)scrap$(0), a $(item)Murmol Soul$(0) and that form's offerings on a crafting table will forge the corresponding $(item)Form Soul$(0) (single-use)."
     }
   ]
 }

@@ -1,0 +1,25 @@
+{
+  "name": "Two Principles",
+  "icon": "murmol:two_principles",
+  "category": "murmol:materials",
+  "sortnum": 5,
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "murmol:two_principles",
+      "title": "Two Principles",
+      "text": "A thin stone slab carved with yin-yang fish, whispering of waxing and waning. It governs which $(thing)forms are enabled or disabled$(0): a form disabled by the Two Principles can no longer be taken through soul items. $(br)The Principles only sever $(thing)future$(0) bonds — those who have already transformed are untouched."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Usage",
+      "text": "$(li)$(thing)Right-click$(0) the block to view the enable state of every form in this world$(li)Players with $(thing)operator permission (level 3)$(0) may edit: click a row to toggle that form, or enable/disable all at once$(li)Changes only take effect after pressing $(thing)Apply$(0); $(thing)Cancel$(0) discards them$(br)Attempting to transform into a disabled form shows a warning, and the item is $(thing)not consumed$(0). $(br)Transforming via the $(thing)/murmol$(0) command ignores the Two Principles."
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "murmol:two_principles",
+      "title": "Crafting",
+      "text": "Weave black and white concrete into a taiji pattern, with a $(item)Murmol Soul$(0) at the center."
+    }
+  ]
+}

@@ -1,0 +1,21 @@
+{
+	"parent": "minecraft:block/block",
+	"textures": {
+		"0": "richi:block/transparent",
+		"particle": "murmol:block/two_principles"
+	},
+	"elements": [
+		{
+			"from": [8, 0, 8],
+			"to": [16, 2, 16],
+			"faces": {
+				"north": { "texture": "#0", "uv": [4, 4, 6, 5] },
+				"south": { "texture": "#0", "uv": [4, 4, 6, 5] },
+				"east": { "texture": "#0", "uv": [4, 4, 6, 5] },
+				"west": { "texture": "#0", "uv": [4, 4, 6, 5] },
+				"up": { "texture": "#0", "uv": [4, 2, 6, 4] },
+				"down": { "texture": "#0", "uv": [8, 0, 10, 4] }
+			}
+		}
+	]
+}

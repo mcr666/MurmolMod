@@ -1,0 +1,11 @@
+{
+  "type": "minecraft:block",
+  "random_sequence": "murmol:blocks/stripped_astral_log",
+  "pools": [
+    {
+      "rolls": 1.0,
+      "conditions": [ { "condition": "minecraft:survives_explosion" } ],
+      "entries": [ { "type": "minecraft:item", "name": "murmol:stripped_astral_log" } ]
+    }
+  ]
+}

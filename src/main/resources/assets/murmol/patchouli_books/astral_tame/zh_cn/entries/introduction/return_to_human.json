@@ -1,14 +1,14 @@
 {
   "name": "重归人类",
-  "icon": "murmol:totemof_fallen",
+  "icon": "murmol:truth_mirror",
   "category": "murmol:materials",
   "sortnum": 4,
   "pages": [
     {
       "type": "patchouli:spotlight",
-      "item": "murmol:totemof_fallen",
-      "title": "堕落者图腾",
-      "text": "食用堕落者图腾，便可褪去野性的形态，重归人类。"
+      "item": "murmol:truth_mirror",
+      "title": "照妖镜",
+      "text": "手持照妖镜对准化形之人，一饮而尽，便可照出原形——褪去野性的形态，重归人类。$(br)对变形状态者右键，还能取出其当前形态对应的$(item)灵魂物品$(0)。"
     },
     {
       "type": "patchouli:text",

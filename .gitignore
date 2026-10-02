@@ -6,6 +6,7 @@ bin/
 # IDE
 .idea/
 .vscode/
+.trae/
 *.iml
 
 # Evaluator / run directories

@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "SPS",
+    "NFN",
+    "IPI"
+  ],
+  "key": {
+    "S": { "item": "murmol:astral_stone" },
+    "I": { "item": "murmol:astral_ingot" },
+    "P": { "item": "minecraft:piston" },
+    "N": { "item": "minecraft:note_block" },
+    "F": { "item": "minecraft:item_frame" }
+  },
+  "result": {
+    "id": "richi:fengpan",
+    "count": 1
+  }
+}
