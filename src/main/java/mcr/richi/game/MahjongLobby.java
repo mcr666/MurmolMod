@@ -50,15 +50,16 @@ public final class MahjongLobby {
 					setReservedAI(sp, origin, st, extra, false);
 			}
 			case MahjongLobbyPayloads.ACT_SET_TYPE -> {
-				if (canManage(sp) && st.phase == RichiTableState.PHASE_WAITING && extra >= 0 && extra <= 2) {
+				// 等待/终局阶段均可改（终局改设置 = 为下一局准备）
+				if (canManage(sp) && st.phase != RichiTableState.PHASE_PLAYING && extra >= 0 && extra <= 2) {
 					st.gameType = extra;
 					saveSettings(sp, origin, st);
 					broadcastSync(sp.serverLevel(), origin, st);
 				}
 			}
 			case MahjongLobbyPayloads.ACT_SET_THINK -> {
-				// 思考时间档位切换（等待阶段）：extra = 档位索引
-				if (canManage(sp) && st.phase == RichiTableState.PHASE_WAITING
+				// 思考时间档位切换（等待/终局阶段）：extra = 档位索引
+				if (canManage(sp) && st.phase != RichiTableState.PHASE_PLAYING
 						&& extra >= 0 && extra < RichiTableState.THINK_PRESETS.length) {
 					st.thinkIdx = extra;
 					saveSettings(sp, origin, st);
@@ -66,8 +67,8 @@ public final class MahjongLobby {
 				}
 			}
 			case MahjongLobbyPayloads.ACT_SET_SPEED -> {
-				// AI 打牌速度档（等待阶段）：extra = 0 快 / 1 中 / 2 慢
-				if (canManage(sp) && st.phase == RichiTableState.PHASE_WAITING
+				// AI 打牌速度档（等待/终局阶段）：extra = 0 快 / 1 中 / 2 慢
+				if (canManage(sp) && st.phase != RichiTableState.PHASE_PLAYING
 						&& extra >= 0 && extra < RichiTableState.AI_SPEED_MUL.length) {
 					st.aiSpeedIdx = extra;
 					saveSettings(sp, origin, st);
@@ -131,7 +132,7 @@ public final class MahjongLobby {
 				}
 			}
 			case MahjongLobbyPayloads.ACT_SET_OPEN -> {
-				if (canManage(sp) && st.phase == RichiTableState.PHASE_WAITING) {
+				if (canManage(sp) && st.phase != RichiTableState.PHASE_PLAYING) {
 					st.openHand = extra == 1;
 					saveSettings(sp, origin, st);
 					broadcastSync(sp.serverLevel(), origin, st);
@@ -351,7 +352,7 @@ public final class MahjongLobby {
 		for (int s = 0; s < 4; s++) {
 			ServerPlayer p = st.playerOf(level, s);
 			if (p != null)
-				p.sendSystemMessage(Component.literal("§6[麻将]§r " + msg));
+				p.sendSystemMessage(Component.literal("§6[幻星麻雀]§r " + msg));
 		}
 	}
 

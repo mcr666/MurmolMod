@@ -1532,6 +1532,10 @@ public class RiichiGame {
 	/** 终局：聊天框向全场播报排名 + 风盘处挑战解锁音效 + 推终局结算界面，回到等待重开 */
 	private void endGame() {
 		st.phase = RichiTableState.PHASE_FINISHED;
+		// 上一局人类玩家自动回到等待队列：管理界面（含清桌重置后）保留上一局玩家的队列座位，可直接再开
+		for (int seat = 0; seat < 4; seat++)
+			if (!st.aiSeat[seat] && st.players[seat] != null && !st.queue.contains(st.players[seat]))
+				st.queue.add(st.players[seat]);
 		st.turnSeat = -1;
 		st.turnDeadline = 0;
 		writeBack(); // phase=FINISHED：同步包不再携带形象信息，客户端假玩家随之移除
@@ -2051,7 +2055,7 @@ public class RiichiGame {
 		for (int seat = 0; seat < 4; seat++) {
 			ServerPlayer p = st.playerOf(level, seat);
 			if (p != null)
-				p.sendSystemMessage(Component.literal("§6[麻将]§r " + text));
+				p.sendSystemMessage(Component.literal("§6[幻星麻雀]§r " + text));
 		}
 	}
 

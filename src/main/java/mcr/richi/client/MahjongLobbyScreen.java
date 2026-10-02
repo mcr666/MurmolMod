@@ -92,7 +92,10 @@ public class MahjongLobbyScreen extends Screen {
 			// 对局中：投票结束对局界面（旧操作全部无效）
 			addRenderableWidget(Button.builder(
 					Component.translatable("gui.richi.lobby.btn_vote_end"),
-					b -> send(MahjongLobbyPayloads.ACT_VOTE_END, 0))
+					b -> {
+						send(MahjongLobbyPayloads.ACT_VOTE_END, 0);
+						onClose(); // 投票后关闭界面，避免挡住桌面
+					})
 					.bounds(left, y, 130, 20).build());
 			addRenderableWidget(Button.builder(
 					Component.translatable("gui.richi.lobby.btn_close"), b -> onClose())
@@ -152,7 +155,10 @@ public class MahjongLobbyScreen extends Screen {
 				.bounds(left, y, 90, 20).build());
 		addRenderableWidget(Button.builder(
 				Component.translatable("gui.richi.lobby.btn_start"),
-				b -> send(MahjongLobbyPayloads.ACT_START, 0))
+				b -> {
+					send(MahjongLobbyPayloads.ACT_START, 0);
+					onClose(); // 开局后关闭界面，直接看发牌
+				})
 				.bounds(left + 94, y, 80, 20).build());
 		addRenderableWidget(Button.builder(
 				Component.translatable("gui.richi.lobby.btn_close"), b -> onClose())
