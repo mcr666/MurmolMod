@@ -87,7 +87,7 @@ public class MahjongLobbyScreen extends Screen {
 		if (this.sync == null)
 			return;
 		int left = this.width / 2 - PANEL_W / 2;
-		int y = this.height / 2 + 46;
+		int y = this.height / 2 + 26; // 整体上移，避免小窗口下最后一行超出屏幕
 		if (this.sync.phase() == PHASE_PLAYING) {
 			// 对局中：投票结束对局界面（旧操作全部无效）
 			addRenderableWidget(Button.builder(
@@ -99,27 +99,43 @@ public class MahjongLobbyScreen extends Screen {
 					.bounds(left + 134, y, 60, 20).build());
 			return;
 		}
-		// 第二行（管理员·等待阶段）："游戏设置"——对局类型 + 思考时限（收进主面板，避免左侧超出屏幕）
-		if (this.sync.canManage() && this.sync.phase() == PHASE_WAITING) {
+		// 设置行（管理员·等待/终局阶段均可）：对局类型 + 思考时限，AI 速度 + 明牌
+		boolean adminIdle = this.sync.canManage()
+				&& (this.sync.phase() == PHASE_WAITING || this.sync.phase() == PHASE_FINISHED);
+		if (adminIdle) {
 			String[] typeKeys = { "gui.richi.lobby.type_single", "gui.richi.lobby.type_east", "gui.richi.lobby.type_full" };
 			int type = Math.floorMod(this.sync.gameType(), 3);
 			addRenderableWidget(Button.builder(
 					Component.translatable("gui.richi.lobby.btn_type",
 							Component.translatable(typeKeys[type]).getString()),
 					b -> send(MahjongLobbyPayloads.ACT_SET_TYPE, (type + 1) % 3))
-					.bounds(left, y + 26, 110, 20).build());
+					.bounds(left, y + 24, 110, 20).build());
 			// 思考时间档位循环：5+20 → 10+30 → 60+0 → 3+5
 			int think = Math.floorMod(this.sync.thinkIdx(), 4);
 			String[] thinkPresets = { "5+20", "10+30", "60+0", "3+5" };
 			addRenderableWidget(Button.builder(
 					Component.translatable("gui.richi.lobby.btn_think", thinkPresets[think]),
 					b -> send(MahjongLobbyPayloads.ACT_SET_THINK, (think + 1) % 4))
-					.bounds(left + 114, y + 26, 116, 20).build());
+					.bounds(left + 114, y + 24, 116, 20).build());
+			// AI 打牌速度 + 明牌开关并排
+			int speed = Math.floorMod(this.sync.aiSpeedIdx(), 3);
+			String[] speedKeys = { "gui.richi.lobby.speed_fast", "gui.richi.lobby.speed_mid", "gui.richi.lobby.speed_slow" };
+			addRenderableWidget(Button.builder(
+					Component.translatable("gui.richi.lobby.btn_speed",
+							Component.translatable(speedKeys[speed]).getString()),
+					b -> send(MahjongLobbyPayloads.ACT_SET_SPEED, (speed + 1) % 3))
+					.bounds(left, y + 48, 110, 20).build());
+			boolean open = this.sync.openHand();
+			addRenderableWidget(Button.builder(
+					Component.translatable("gui.richi.lobby.btn_open",
+							Component.translatable(open ? "gui.richi.lobby.open_on" : "gui.richi.lobby.open_off")
+									.getString()),
+					b -> send(MahjongLobbyPayloads.ACT_SET_OPEN, open ? 0 : 1))
+					.bounds(left + 114, y + 48, 112, 20).build());
 		}
-		// 最后一行：查看牌谱（通栏）；终局阶段右侧挤 1/3 宽度放"清理桌子"
+		// 最后一行：查看牌谱；终局阶段右侧挤 1/3 宽度放"清理桌子"
 		boolean finished = this.sync.canManage() && this.sync.phase() == PHASE_FINISHED;
-		int paipuY = this.sync.canManage() && this.sync.phase() == PHASE_WAITING ? y + 78
-				: finished ? y + 26 : y + 26;
+		int paipuY = adminIdle ? y + 72 : y + 24;
 		addRenderableWidget(Button.builder(
 				Component.translatable("gui.richi.lobby.btn_paipu"),
 				b -> PaipuListScreen.open())
@@ -129,23 +145,6 @@ public class MahjongLobbyScreen extends Screen {
 					Component.translatable("gui.richi.lobby.btn_clear"),
 					b -> send(MahjongLobbyPayloads.ACT_CLEAR, 0))
 					.bounds(left + 154, paipuY, 72, 20).build());
-		// AI 打牌速度 + 明牌开关并排（管理员·等待阶段）
-		if (this.sync.canManage() && this.sync.phase() == PHASE_WAITING) {
-			int speed = Math.floorMod(this.sync.aiSpeedIdx(), 3);
-			String[] speedKeys = { "gui.richi.lobby.speed_fast", "gui.richi.lobby.speed_mid", "gui.richi.lobby.speed_slow" };
-			addRenderableWidget(Button.builder(
-					Component.translatable("gui.richi.lobby.btn_speed",
-							Component.translatable(speedKeys[speed]).getString()),
-					b -> send(MahjongLobbyPayloads.ACT_SET_SPEED, (speed + 1) % 3))
-					.bounds(left, y + 52, 110, 20).build());
-			boolean open = this.sync.openHand();
-			addRenderableWidget(Button.builder(
-					Component.translatable("gui.richi.lobby.btn_open",
-							Component.translatable(open ? "gui.richi.lobby.open_on" : "gui.richi.lobby.open_off")
-									.getString()),
-					b -> send(MahjongLobbyPayloads.ACT_SET_OPEN, open ? 0 : 1))
-					.bounds(left + 114, y + 52, 112, 20).build());
-		}
 		// 第一行：加入/退出队列、开始对局、关闭
 		addRenderableWidget(Button.builder(
 				Component.translatable(inQueue() ? "gui.richi.lobby.btn_leave" : "gui.richi.lobby.btn_join"),
