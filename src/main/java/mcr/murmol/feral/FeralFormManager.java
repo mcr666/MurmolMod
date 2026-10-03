@@ -26,6 +26,8 @@ import net.minecraft.tags.ItemTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.server.level.ServerLevel;
+
+import mcr.murmol.init.MurmolModParticleTypes;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.resources.ResourceKey;
@@ -154,6 +156,7 @@ public class FeralFormManager {
 		setForm(entity, form);
 		awardAdvancement(entity, form);
 		addTransformEffects(entity);
+		spawnTransformRings(entity);
 		// NeoOrigins 联动：变形后同步起源（软依赖，未安装时静默跳过）
 		if (entity instanceof ServerPlayer player)
 			mcr.murmol.compat.NeoOriginsCompat.syncOrigin(player, form);
@@ -189,6 +192,26 @@ public class FeralFormManager {
 			le.addEffect(new MobEffectInstance(MobEffects.BLINDNESS, 60, 1));
 			le.addEffect(new MobEffectInstance(MurmolModMobEffects.CREATIVE_SHOCK, 60, 1));
 			le.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 60, 2));
+		}
+	}
+
+	/**
+	 * 变形瞬间在原地生成两圈半径为 1 的 astral_burst 粒子环：
+	 * 一圈在脚部高度、一圈在胸口高度（各 24 颗）。
+	 */
+	private static void spawnTransformRings(Entity entity) {
+		if (!(entity.level() instanceof net.minecraft.server.level.ServerLevel server))
+			return;
+		double x = entity.getX(), y = entity.getY(), z = entity.getZ();
+		double[] ringHeights = { 0.1D, 1.2D };
+		int particles = 24;
+		for (double h : ringHeights) {
+			for (int i = 0; i < particles; i++) {
+				double angle = Math.PI * 2 * i / particles;
+				server.sendParticles(MurmolModParticleTypes.ASTRAL_BURST.get(),
+						x + Math.cos(angle), y + h, z + Math.sin(angle),
+						0, 0.0D, 0.0D, 0.0D, 1.0D);
+			}
 		}
 	}
 
