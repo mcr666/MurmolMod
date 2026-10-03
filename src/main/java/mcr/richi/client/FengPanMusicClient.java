@@ -33,7 +33,7 @@ public class FengPanMusicClient {
 		mc.getMusicManager().stopPlaying();
 		// 唱片内容：RECORDS 声道、线性衰减，定位在风盘中心
 		mc.getSoundManager().play(new SimpleSoundInstance(msg.sound(), SoundSource.RECORDS, 1.0f, 1.0f,
-				net.minecraft.world.level.RandomSource.create(), false, 0, SoundInstance.Attenuation.LINEAR,
+				net.minecraft.util.RandomSource.create(), false, 0, SoundInstance.Attenuation.LINEAR,
 				msg.x(), msg.y(), msg.z(), false));
 		endAtMillis = System.currentTimeMillis() + (long) (msg.durationSec() * 1000.0f);
 		// 周围玩家显示一次"正在播放xxx"（曲名绿色）
