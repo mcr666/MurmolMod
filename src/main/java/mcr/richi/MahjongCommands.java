@@ -85,6 +85,43 @@ public class MahjongCommands {
 													.suggests((c, b) -> SharedSuggestionProvider.suggest(
 															new String[] { "e", "s", "w", "n" }, b))
 													.executes(ctx -> replaceHand(ctx, seatFromArg(ctx))))))
+							.then(Commands.literal("rank")
+									// 段位排行榜（天凤 pt）：无参 = 前 10 位；带玩家名 = 查询该玩家 pt 与总排名（离线可查）
+									.executes(ctx -> {
+										ctx.getSource().sendSuccess(
+												() -> Component.translatable("message.richi.rank_header"), false);
+										var top = mcr.richi.game.MahjongRankStore.top(ctx.getSource().getLevel(), 10);
+										if (top.isEmpty()) {
+											ctx.getSource().sendSuccess(
+													() -> Component.translatable("message.richi.rank_none"), false);
+											return 0;
+										}
+										int rank = 0;
+										for (var e : top) {
+											final int r = ++rank;
+											ctx.getSource().sendSuccess(() -> Component.translatable(
+													"message.richi.rank_line", r, e.name(),
+													String.format("%+.1f", e.pt()), e.games()), false);
+										}
+										return top.size();
+									})
+									.then(Commands.argument("player", StringArgumentType.word())
+											.executes(ctx -> {
+												String name = StringArgumentType.getString(ctx, "player");
+												var e = mcr.richi.game.MahjongRankStore.find(
+														ctx.getSource().getLevel(), name);
+												if (e == null) {
+													ctx.getSource().sendFailure(
+															Component.translatable("message.richi.rank_notfound", name));
+													return 0;
+												}
+												int rank = mcr.richi.game.MahjongRankStore.rankOf(
+														ctx.getSource().getLevel(), e);
+												ctx.getSource().sendSuccess(() -> Component.translatable(
+														"message.richi.rank_query", e.name(),
+														String.format("%+.1f", e.pt()), rank, e.games()), false);
+												return 1;
+											})))
 							.then(Commands.literal("quit")
 								.executes(ctx -> {
 									ServerLevel level = ctx.getSource().getLevel();

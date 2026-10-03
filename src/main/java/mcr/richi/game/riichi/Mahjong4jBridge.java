@@ -192,16 +192,24 @@ public final class Mahjong4jBridge {
 				if (yakumanList.contains(Yakuman.DAISUSHI))
 					count++; // 雀魂：大四喜 = 倍役满
 				if (yakumanList.contains(Yakuman.SUANKO) && hasAnkoExcludingWin(hands, winTile, 4)) {
+					names.remove(Yakuman.SUANKO.name()); // 单骑覆盖四暗刻，不重复显示/计倍
 					names.add("SUANKO_TANKI"); // 和牌张为雀头 → 单骑听，倍役满
 					count++;
 				}
 				if (yakumanList.contains(Yakuman.KOKUSHIMUSO) && isKokushi13(comp, winTile)) {
+					names.remove(Yakuman.KOKUSHIMUSO.name());
 					names.add("KOKUSHIMUSO_13");
 					count++;
 				}
 				if (yakumanList.contains(Yakuman.CHURENPOHTO) && isChurenPure9(comp, winTile)) {
+					names.remove(Yakuman.CHURENPOHTO.name());
 					names.add("CHURENPOHTO_PURE");
 					count++;
+				}
+				// 大四喜覆盖小四喜（理论互斥，防御去重）
+				if (yakumanList.contains(Yakuman.DAISUSHI) && yakumanList.contains(Yakuman.SHOSUSHI)) {
+					names.remove(Yakuman.SHOSUSHI.name());
+					count--;
 				}
 				// 役满点数自行计算：mahjong4j 的 calculateYakumanScore 对 n≥2 返回 SCORE0（复合役满变零点）
 				// han 编码役满倍数（fu=0 标记役满），供结算界面/播报显示"N倍役满"

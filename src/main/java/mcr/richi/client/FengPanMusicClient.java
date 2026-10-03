@@ -18,6 +18,8 @@ import net.minecraft.sounds.SoundSource;
 public class FengPanMusicClient {
 	/** 当前点播的截止时间（System.currentTimeMillis()，早于该时间 = 正在播放） */
 	private static volatile long endAtMillis;
+	/** 当前正在播放的唱片实例：再次点播时先停掉，防叠加 */
+	private static SoundInstance currentRecord;
 
 	/** 播放期间返回 true：MusicManager.tick 被拦截，不再调度原版 BGM */
 	public static boolean isPlaying() {
@@ -31,10 +33,14 @@ public class FengPanMusicClient {
 			return;
 		// 立即截断正在播放的原版 BGM
 		mc.getMusicManager().stopPlaying();
+		// 再次点播：先停掉上一张唱片，避免音乐叠加
+		if (currentRecord != null)
+			mc.getSoundManager().stop(currentRecord);
 		// 唱片内容：RECORDS 声道、线性衰减，定位在风盘中心
-		mc.getSoundManager().play(new SimpleSoundInstance(msg.sound(), SoundSource.RECORDS, 1.0f, 1.0f,
+		currentRecord = new SimpleSoundInstance(msg.sound(), SoundSource.RECORDS, 1.0f, 1.0f,
 				net.minecraft.util.RandomSource.create(), false, 0, SoundInstance.Attenuation.LINEAR,
-				msg.x(), msg.y(), msg.z(), false));
+				msg.x(), msg.y(), msg.z(), false);
+		mc.getSoundManager().play(currentRecord);
 		endAtMillis = System.currentTimeMillis() + (long) (msg.durationSec() * 1000.0f);
 		// 周围玩家显示一次"正在播放xxx"（曲名绿色）
 		LocalPlayer player = mc.player;

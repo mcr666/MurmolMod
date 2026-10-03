@@ -1,5 +1,5 @@
 {
-  "name": "Return to Human",
+  "name": "Truth Mirror",
   "icon": "murmol:truth_mirror",
   "category": "murmol:materials",
   "sortnum": 4,
@@ -19,7 +19,7 @@
     {
       "type": "patchouli:text",
       "title": "The Hanging Mirror",
-      "text": "$(thing)Sneak-right-click$(0) to hang the Truth Mirror on any of the six faces of a block, like a mounted mirror.$(br)$(thing)Right-click$(0) the mirror to shine its light upon yourself — gain $(thing)10 seconds of Reveal$(0): shapeshifters are temporarily reflected back into humans, while humans are randomly shown a feral form. Everything reverts when the effect ends.$(br)Right-click again to refresh the duration. Soul items and the Truth Mirror cannot be used meanwhile.$(br)Care to take a look?"
+      "text": "$(thing)Sneak-right-click$(0) to hang the Truth Mirror on any of the six faces of a block, like a mounted mirror.$(br)$(thing)Right-click$(0) the mirror to shine its light upon yourself — gain $(thing)10 seconds of Reveal$(0): while the effect lasts, shapeshifters take on their human form; humans instead reveal the demon within.$(br)Right-click again to refresh the duration.$(br)Care to take a look?"
     }
   ]
 }

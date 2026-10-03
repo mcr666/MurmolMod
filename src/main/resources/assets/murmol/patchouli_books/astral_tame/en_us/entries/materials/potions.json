@@ -14,7 +14,7 @@
       "type": "patchouli:spotlight",
       "item": "minecraft:potion[minecraft:potion_contents={potion:\"murmol:reveal\"}]",
       "title": "Potion of Reveal",
-      "text": "$(thing)Reveal$(0): while the effect lasts, shapeshifters take on their human form; humans instead reveal the demon within.$(br)$(li)Awkward Potion + $(item)Murmol's Soul$(0) → Potion of Reveal (1 min)$(li)"
+      "text": "$(thing)Reveal$(0): while the effect lasts, shapeshifters take on their human form; humans instead reveal the demon within.$(br)$(li)Awkward Potion + $(item)Murmol's Soul$(0) → Potion of Reveal (1 min)"
     }
   ]
 }

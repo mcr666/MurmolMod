@@ -14,7 +14,7 @@
       "type": "patchouli:spotlight",
       "item": "minecraft:potion[minecraft:potion_contents={potion:\"murmol:reveal\"}]",
       "title": "显形药水",
-      "text": "$(thing)显形$(0)：药效期间，化形者会显现人形；人类则会展现出心中的恶魔。$(br)$(li)粗制药水 + $(item)摩摩尔之魂$(0) → 显形药水（1 分钟）$(li)"
+      "text": "$(thing)显形$(0)：药效期间，化形者会显现人形；人类则会展现出心中的恶魔。$(br)$(li)粗制药水 + $(item)摩摩尔之魂$(0) → 显形药水（1 分钟）"
     }
   ]
 }

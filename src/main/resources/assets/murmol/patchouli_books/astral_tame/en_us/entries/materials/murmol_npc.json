@@ -1,14 +1,14 @@
 {
   "name": "Murmol",
-  "icon": "murmol:murmol_npc_spawn_egg",
+  "icon": "minecraft:heart_of_the_sea",
   "category": "murmol:materials",
   "sortnum": 11,
   "pages": [
     {
-      "type": "patchouli:entity",
-      "entity": "murmol:murmol_npc",
+      "type": "patchouli:spotlight",
+      "item": "minecraft:heart_of_the_sea",
       "title": "Murmol",
-      "text": "A mysterious traveler from the Eastern lands, fond of riichi mahjong. Perhaps you could go and strike up a conversation?"
+      "text": "A mysterious traveler from the Eastern lands, fond of riichi mahjong. Lurks in mahjong parlors found out in the wild — perhaps you could go and strike up a conversation?"
     }
   ]
 }

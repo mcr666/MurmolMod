@@ -1634,14 +1634,22 @@ public class RiichiGame {
 		Integer[] order = { 0, 1, 2, 3 };
 		java.util.Arrays.sort(order, (a, b) -> Integer.compare(st.points[b], st.points[a]));
 		MahjongGameLog.gameEnd(level, origin, st.points);
-		// 聊天框播报（全场玩家）
+		// 天凤算法段位结算：顺位马 + pt（AI 席只播报不入库；pt 增量 一局×0/东风×0.5/半庄×1；
+		// 数据存存档 data/mahjong/ranks.json）
+		String[] rankUuids = new String[4];
+		for (int i = 0; i < 4; i++)
+			rankUuids[i] = st.aiSeat[i] ? null : st.players[i];
+		double[][] uma = mcr.richi.game.MahjongRankStore.recordEnd(level, seatNames(), rankUuids, st.points,
+				st.gameType);
+		// 聊天框播报（全场玩家）：顺位 + 点数 + 马 + pt
 		var header = Component.translatable("message.richi.gameover");
 		for (ServerPlayer p : level.getServer().getPlayerList().getPlayers()) {
 			p.sendSystemMessage(header);
 			for (int rank = 0; rank < 4; rank++) {
 				int s = order[rank];
-				p.sendSystemMessage(Component.translatable("message.richi.standing",
-						rank + 1, ps[s].name, st.points[s]));
+				p.sendSystemMessage(Component.translatable("message.richi.standing_pt",
+						rank + 1, ps[s].name, st.points[s],
+						String.format("%+d", (int) uma[s][1]), String.format("%+.1f", uma[s][2])));
 			}
 		}
 		// 风盘位置挑战进度解锁音效
