@@ -8,12 +8,18 @@
       "type": "patchouli:spotlight",
       "item": "murmol:truth_mirror",
       "title": "Truth Mirror",
-      "text": "Drink from the Truth Mirror to reveal your true self — shed your feral shape and become human once more. $(br)Right-click while transformed to also extract the $(item)soul item$(0) of your current form."
+      "text": "Raise the Truth Mirror for three seconds to reveal your true self — shed your feral shape and become human once more."
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "murmol:maketotemofasju",
+      "title": "Crafting",
+      "text": "Copper corners, glass panes at the sides, an Astral Matrix above, a Totem of Undying below, and a Murmol Soul at the center."
     },
     {
       "type": "patchouli:text",
-      "title": "The Cleansing Ritual",
-      "text": "The Spirit Table also accepts a reversal offering: a $(item)water bucket$(0), a $(item)Totem of Undying$(0), an $(item)emerald$(0) and any $(item)boat$(0). Confirm with a Murmol Soul as usual."
+      "title": "The Hanging Mirror",
+      "text": "$(thing)Sneak-right-click$(0) to hang the Truth Mirror on any of the six faces of a block, like a mounted mirror.$(br)$(thing)Right-click$(0) the mirror to shine its light upon yourself — gain $(thing)10 seconds of Reveal$(0): shapeshifters are temporarily reflected back into humans, while humans are randomly shown a feral form. Everything reverts when the effect ends.$(br)Right-click again to refresh the duration. Soul items and the Truth Mirror cannot be used meanwhile.$(br)Care to take a look?"
     }
   ]
 }

@@ -2,6 +2,8 @@
   "name": "Komainu",
   "icon": "minecraft:stone",
   "category": "murmol:fengyang_classic",
+  "sortnum": 4,
+  "advancement": "murmol:unlock/komainu",
   "pages": [
     {
       "type": "patchouli:spotlight",

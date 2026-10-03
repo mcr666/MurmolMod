@@ -41,12 +41,39 @@ public final class RiichiBot {
 		return NAMES[seat];
 	}
 
+	/** 生成 AI 座位的服务端显示名（用于 Marker 代理实体名字与结算名，与形象/UI 名称同源：
+	 * 取 gui.richi.lobby.av_* 翻译键——即管理界面里玩家看到的形态名） */
+	public static String seatDisplayName(mcr.richi.game.RichiTableState st, int seat) {
+		String form = st.aiAvatarForms[seat];
+		if ("npc".equals(form))
+			return "Murmol";
+		if (form == null || form.isEmpty() || "stand".equals(form))
+			return aiName(seat);
+		String base;
+		if ("human".equals(form) && st.aiAvatarNames[seat] != null && !st.aiAvatarNames[seat].isEmpty())
+			base = st.aiAvatarNames[seat];
+		else
+			base = net.minecraft.network.chat.Component.translatable("gui.richi.lobby.av_" + form).getString();
+		// 同形态编号：对局中按 aiSeat，等待阶段按 reservedAI（都算 AI 座位）
+		int same = 0, idx = 0;
+		for (int i = 0; i < 4; i++) {
+			String f = st.aiAvatarForms[i];
+			boolean isAi = st.aiSeat[i] || st.reservedAI[i];
+			if (isAi && f != null && f.equals(form)) {
+				same++;
+				if (i == seat)
+					idx = same;
+			}
+		}
+		return "AI:" + base + (same > 1 ? idx : "");
+	}
+
 	/**
 	 * 形象/名字 → 流派：乘黄=0 落红=1 苔叶兽=2 文鳐=3 狛犬=4 月蛾(silkmoth)=5；
-	 * 人类/村民 → 随机 0-5（名字 Maocry55 的人类 = 6 鬼神境）。
+	 * 人类/村民 → 随机 0-5（名字 Murmol 的人类 = 6 鬼神境；随机命名不会产生此名字，仅显式指定时触发）。
 	 */
 	public static int flowOfAvatar(String form, String name, DoubleSupplier random) {
-		if ("human".equals(form) && "Maocry55".equals(name))
+		if ("human".equals(form) && "Murmol".equals(name))
 			return 6;
 		int f = switch (form == null ? "" : form) {
 			case "chen_huang" -> 0;
@@ -97,10 +124,11 @@ public final class RiichiBot {
 	 * @param ownDora   手内宝牌数（含赤5：宝牌多时开门提速的打点损失更小）
 	 * @param roundWindIdx 场风 34 索引（役路判定；27=東..30=北）
 	 * @param selfWindIdx  自风 34 索引（役路判定）
+	 * @param flow         流派（副露积极性：野猪流 1 最激进，魂天流 4 略保守，其余标准）
 	 * @return 应执行的方案；不鸣返回 null
 	 */
 	public static TileEfficiency.MeldOption bestMeld(RiichiPlayer p, int[] visible34, int calledCode,
-			boolean allowChi, int turns, int ownDora, int roundWindIdx, int selfWindIdx) {
+			boolean allowChi, int turns, int ownDora, int roundWindIdx, int selfWindIdx, int flow) {
 		List<TileEfficiency.MeldOption> opts = TileEfficiency.evaluateMelds(p.hand, visible34, calledCode,
 				allowChi);
 		if (opts.isEmpty())
@@ -150,18 +178,22 @@ public final class RiichiBot {
 			return best.score >= base.mixedScore - 1e-9 ? best : null;
 		}
 		// 数牌碰/吃：局面感知取舍。开门的隐性代价 = 弃立直（役+打点+供托+威慑）+ 打点低 + 泄露手牌信息。
-		// 场况修正：手内宝牌多（含赤5）时打点损失更小，门槛相应降低。
+		// 场况修正：手内宝牌多（含赤5）时打点损失更小，门槛相应降低；吃比碰代价更高（只利用 1/3 张牌 + 打点更弱）。
 		if (base.shanten <= 0)
 			return null; // 已听牌：默听保立直/保打点，除非役牌碰（上方已处理）
 		int shantenGain = base.shanten - best.shanten;
 		double scoreGain = best.score - base.mixedScore;
-		double threshold = 3.0 - Math.min(2, ownDora) * 0.5; // 3.0 / 2.5 / 2.0
+		// 门槛收紧：4.5 / 3.75 / 3.0（原 3.0 / 2.5 / 2.0），吃另 +1.0；
+		// 流派修正：野猪流 ×0.6（副露率高，几乎见好就鸣），魂天流 ×1.25（副露率略低）
+		double threshold = 4.5 - Math.min(2, ownDora) * 0.75 + (best.pon ? 0.0 : 1.0);
+		threshold *= flow == 1 ? 0.6 : flow == 4 ? 1.25 : 1.0;
 		if (scoreGain >= threshold)
 			return best; // 明显提速（吃碰带来大量进张面/有效牌）
 		if (shantenGain >= 2)
 			return best; // 大幅向听前进
-		if (shantenGain == 1 && best.shanten <= 1 && turns >= (ownDora >= 2 ? 6 : 8))
-			return best; // 中后盘：1 步换一向听/听牌提速（宝牌多则更积极）
+		// 中后盘 1 步换提速：门槛抬高（12 巡起，宝牌多 10 巡），且必须推进到听牌
+		if (shantenGain == 1 && best.shanten <= 1 && turns >= (ownDora >= 2 ? 10 : 12))
+			return best;
 		return null;
 	}
 

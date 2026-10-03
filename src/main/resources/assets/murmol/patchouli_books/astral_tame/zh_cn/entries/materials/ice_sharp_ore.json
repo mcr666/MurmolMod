@@ -1,0 +1,19 @@
+{
+  "name": "寒冰矿石",
+  "icon": "murmol:ice_sharp_ore",
+  "category": "murmol:materials",
+  "sortnum": 10,
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "murmol:ice_sharp_ore",
+      "title": "寒冰矿石",
+      "text": "永冻于石中的碎冰，敲开时寒气扑面。$(thing)寒冰矿石$(0)分布在冰冷的群系地下，采集后掉落 $(item)寒冰碎片$(0)（时运附魔可提高产量），任何镐皆可开采。"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "用途",
+      "text": "寒冰碎片是$(thing)冰霜线$(0)的基础材料：可合成 $(item)冰霜锭$(0)。"
+    }
+  ]
+}

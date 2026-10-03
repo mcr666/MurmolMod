@@ -6,7 +6,7 @@ import java.util.List;
 import mcr.richi.game.MahjongTileNotation;
 
 /**
- * 立直麻将玩家（纯数据）：手牌/副露/立直/点数。座位 0..3 = 東南西北（東家 = 庄家）。
+ * 立直麻雀玩家（纯数据）：手牌/副露/立直/点数。座位 0..3 = 東南西北（東家 = 庄家）。
  * 手牌列表约定：前 13 张（或更少，副露后）保持理牌序，刚摸的牌追加在末尾（渲染为摸牌位）。
  */
 public class RiichiPlayer {

@@ -1,0 +1,19 @@
+{
+  "name": "Ice Sharp Ore",
+  "icon": "murmol:ice_sharp_ore",
+  "category": "murmol:materials",
+  "sortnum": 10,
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "murmol:ice_sharp_ore",
+      "title": "Ice Sharp Ore",
+      "text": "Shards of ice frozen forever within stone, breathing frost when broken. $(thing)Ice Sharp Ore$(0) lies underground in cold biomes; mining it drops $(item)Ice Sharps$(0) (Fortune improves the yield). Any pickaxe works."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Uses",
+      "text": "Ice Sharps are the basic material of the $(thing)frost line$(0): they can be crafted into $(item)Frost Ingots$(0)."
+    }
+  ]
+}

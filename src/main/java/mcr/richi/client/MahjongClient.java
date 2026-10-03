@@ -22,7 +22,7 @@ import mcr.richi.MahjongTileItem;
 import mcr.richi.block.FengPanBlock;
 
 /**
- * 麻将内容客户端注册：为麻将牌物品注册 "code" 物品属性，
+ * 麻雀内容客户端注册：为麻雀牌物品注册 "code" 物品属性，
  * 配合模型 overrides（assets/richi/models/item/mahjong_tile.json）实现按 NBT 牌面切换模型。
  * 注意：无组件时必须返回 -1（不匹配任何 override，显示背面），不能钳到 0（0 是红五万）。
  * 另：手持风盘时用 astral_burst 粒子绕桌心围圈标记桌位（类原版屏障的标记显示）。
@@ -46,6 +46,17 @@ public class MahjongClient {
 					ResourceLocation.withDefaultNamespace("code"),
 					(stack, level, entity, seed) -> MahjongTileItem.getCode(stack));
 		});
+	}
+
+	/** 隐藏非人类 AI 假玩家的头顶名字（feral/村民形态；human 保留） */
+	@SubscribeEvent
+	public static void onRenderNameTag(net.neoforged.neoforge.client.event.RenderNameTagEvent event) {
+		if (!(event.getEntity() instanceof net.minecraft.client.player.RemotePlayer rp)
+				|| !rp.hasData(mcr.murmol.network.MurmolModVariables.PLAYER_VARIABLES))
+			return;
+		String form = rp.getData(mcr.murmol.network.MurmolModVariables.PLAYER_VARIABLES).feralFormId;
+		if (form != null && !form.isEmpty() && !mcr.murmol.feral.FeralForm.HUMAN_ID.equals(form))
+			event.setCanRender(net.neoforged.neoforge.common.util.TriState.FALSE);
 	}
 
 	/** 手持风盘时，扫描附近风盘并在每个桌面中心外围生成 astral_burst 粒子圈 */

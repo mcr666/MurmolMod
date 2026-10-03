@@ -2,7 +2,7 @@
   "name": "Astral Mahjong",
   "icon": "richi:fengpan",
   "category": "murmol:materials",
-  "sortnum": 6,
+  "sortnum": 7,
   "pages": [
     {
       "type": "patchouli:spotlight",

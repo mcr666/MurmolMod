@@ -47,6 +47,10 @@ public class MurmolModEntities {
 	public static final DeferredHolder<EntityType<?>, EntityType<AstralCoreProjectileEntity>> ASTRAL_CORE_PROJECTILE = register("astral_core_projectile",
 			EntityType.Builder.<AstralCoreProjectileEntity>of(AstralCoreProjectileEntity::new, MobCategory.MISC).setShouldReceiveVelocityUpdates(true).setTrackingRange(64).setUpdateInterval(1).sized(0.25f, 0.25f));
 
+	public static final DeferredHolder<EntityType<?>, EntityType<MurmolNpcEntity>> MURMOL_NPC = register("murmol_npc",
+			EntityType.Builder.<MurmolNpcEntity>of(MurmolNpcEntity::new, MobCategory.CREATURE).setShouldReceiveVelocityUpdates(true).setTrackingRange(64).setUpdateInterval(3)
+					.sized(0.6f, 1.8f));
+
 	// Start of user code block custom entities
 	// End of user code block custom entities
 	private static <T extends Entity> DeferredHolder<EntityType<?>, EntityType<T>> register(String registryname, EntityType.Builder<T> entityTypeBuilder) {
@@ -67,5 +71,6 @@ public class MurmolModEntities {
 		event.put(ALFAR.get(), AlfarEntity.createAttributes().build());
 		event.put(ASTRAL_DRAKE.get(), AstralDrakeEntity.createAttributes().build());
 		event.put(GLUTTONY_SLIME.get(), GluttonySlimeEntity.createAttributes().build());
+		event.put(MURMOL_NPC.get(), MurmolNpcEntity.createAttributes().build());
 	}
 }

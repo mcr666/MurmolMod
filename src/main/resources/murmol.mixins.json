@@ -9,7 +9,9 @@
     "RecipeManagerMixin",
     "PetrifyEffectInvisibleMixin"
   ],
-  "client": [],
+  "client": [
+    "MusicManagerMixin"
+  ],
   "injectors": {
     "defaultRequire": 1
   },

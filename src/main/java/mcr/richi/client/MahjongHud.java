@@ -21,7 +21,7 @@ import mcr.richi.network.MahjongCountdownPayload;
 import mcr.richi.network.MahjongGamePayloads;
 
 /**
- * 麻将 HUD：
+ * 麻雀 HUD：
  * <ul>
  * <li>回合倒计时屏幕叠加层（热点栏上方居中文字）：20s 长考 = 黄色，5s 短考 = 白色；
  * 服务端停发（超时摸切/流局/换家）2.5s 后自动隐藏。</li>

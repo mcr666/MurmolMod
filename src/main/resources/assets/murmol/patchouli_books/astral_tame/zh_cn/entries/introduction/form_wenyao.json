@@ -2,6 +2,7 @@
   "name": "文鳐",
   "icon": "minecraft:tropical_fish",
   "category": "murmol:fengyang_classic",
+  "sortnum": 5,
   "advancement": "murmol:unlock/wenyao",
   "pages": [
     {

@@ -43,6 +43,20 @@ public class MurmolModTabs {
 						new net.minecraft.world.item.alchemy.PotionContents(MurmolModPotions.PETRIFY));
 				tabData.accept(petrifyPotion);
 			}
+			// 显形药水全家（酿造：地狱疣+摩摩尔之魂；延长版+红石）：1 分钟 / 5 分钟
+			for (net.minecraft.world.item.Item potionItem : new net.minecraft.world.item.Item[] {
+					net.minecraft.world.item.Items.POTION,
+					net.minecraft.world.item.Items.SPLASH_POTION,
+					net.minecraft.world.item.Items.LINGERING_POTION }) {
+				net.minecraft.world.item.ItemStack revealPotion = new net.minecraft.world.item.ItemStack(potionItem);
+				revealPotion.set(net.minecraft.core.component.DataComponents.POTION_CONTENTS,
+						new net.minecraft.world.item.alchemy.PotionContents(MurmolModPotions.REVEAL));
+				tabData.accept(revealPotion);
+				net.minecraft.world.item.ItemStack revealLongPotion = new net.minecraft.world.item.ItemStack(potionItem);
+				revealLongPotion.set(net.minecraft.core.component.DataComponents.POTION_CONTENTS,
+						new net.minecraft.world.item.alchemy.PotionContents(MurmolModPotions.REVEAL_LONG));
+				tabData.accept(revealLongPotion);
+			}
 			// 古代知识残页：每种形态各一份
 			tabData.accept(mcr.murmol.item.AncientKnowledgeScrapItem.forForm("luohong"));
 			tabData.accept(mcr.murmol.item.AncientKnowledgeScrapItem.forForm("chen_huang"));
@@ -60,6 +74,9 @@ public class MurmolModTabs {
 			tabData.accept(MurmolModItems.FIRE_BLADE_CLAW.get());
 			tabData.accept(MurmolModItems.ICE_WAND.get());
 			tabData.accept(MurmolModItems.FROST_PICKAXE.get());
+			tabData.accept(MurmolModItems.ASTRAL_PICKAXE.get());
+			tabData.accept(MurmolModItems.ASTRAL_SHOVEL.get());
+			tabData.accept(MurmolModItems.ASTRAL_AXE.get());
 			tabData.accept(MurmolModItems.ASTRAL_ARMOR_HELMET.get());
 			tabData.accept(MurmolModItems.ASTRAL_ARMOR_CHESTPLATE.get());
 			tabData.accept(MurmolModItems.ASTRAL_ARMOR_LEGGINGS.get());
@@ -118,6 +135,7 @@ public class MurmolModTabs {
 			tabData.accept(MurmolModItems.ASTRAL_INGOT.get());
 			tabData.accept(MurmolModItems.TREE_HEART.get());
 			tabData.accept(MurmolModItems.ASTRAL_CORE.get());
+			tabData.accept(MurmolModItems.ASTRAL_CODEX.get());
 			tabData.accept(MurmolModItems.ASTRAL_MATRIX.get());
 			tabData.accept(MurmolModItems.PETAL.get());
 			tabData.accept(MurmolModItems.TOTEMOF_FALLEN.get());
@@ -126,5 +144,9 @@ public class MurmolModTabs {
 			tabData.accept(MurmolModItems.PEPPER_CH_SPAWN_EGG.get());
 			tabData.accept(MurmolModItems.ASTRAL_DRAKE_SPAWN_EGG.get());
 			tabData.accept(MurmolModItems.GLUTTONY_SLIME_SPAWN_EGG.get());
+			tabData.accept(MurmolModItems.MURMOL_NPC_SPAWN_EGG.get());
+			// ===== 音乐唱片 =====
+			tabData.accept(MurmolModItems.SNOWY_HILLS.get());
+			tabData.accept(MurmolModItems.GRACEFUL.get());
 		}).build());
 }

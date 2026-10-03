@@ -22,9 +22,10 @@ public class RiichiWall {
 	public RiichiWall() {
 		for (int base : new int[] { 0, 10, 20 }) {
 			for (int d = 1; d <= 9; d++)
-				for (int i = 0; i < 4; i++)
+				// 每种 4 张；5 只放 3 张——第 4 张五由红五（0m/0p/0s）取代，保证总数 136 且每花色五共 4 张
+				for (int i = 0; i < (d == 5 ? 3 : 4); i++)
 					wall.add(base + d);
-			wall.add(base); // 红五（0m/0p/0s）取代一张 5
+			wall.add(base); // 红五
 		}
 		for (int d = 1; d <= 7; d++)
 			for (int i = 0; i < 4; i++)

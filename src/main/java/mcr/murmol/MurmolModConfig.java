@@ -13,6 +13,8 @@ public class MurmolModConfig {
 	public static final ModConfigSpec.BooleanValue SHOW_HIDDEN_FERAL_ARM;
 	/** 是否渲染本 mod 生物群系的环境粒子（星界侵蚀群系的 astral_effect，默认开启） */
 	public static final ModConfigSpec.BooleanValue RENDER_BIOME_PARTICLES;
+	/** 麻雀观战者视角：把四家手牌全部平摊面朝上显示（默认关闭，观战时手牌立放） */
+	public static final ModConfigSpec.BooleanValue SPECTATOR_OPEN_HANDS;
 
 	public static final ModConfigSpec SPEC;
 
@@ -28,6 +30,9 @@ public class MurmolModConfig {
 		RENDER_BIOME_PARTICLES = builder
 				.comment("Whether the mod's biome ambient particles (astral_effect in the astral infection biome) should render. Default: true")
 				.define("renderBiomeParticles", true);
+		SPECTATOR_OPEN_HANDS = builder
+				.comment("Mahjong spectator view: display all four players' hands face-up (flat). Default: false")
+				.define("spectatorOpenHands", false);
 		builder.pop();
 		SPEC = builder.build();
 	}

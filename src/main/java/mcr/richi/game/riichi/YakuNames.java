@@ -58,6 +58,10 @@ public final class YakuNames {
 			Map.entry("RENHO", "人和"),
 			Map.entry("TENHO", "天和"),
 			Map.entry("CHIHO", "地和"),
+			// 倍役满补判（mahjong4j 无对应 resolver，雀魂各 +1 倍）
+			Map.entry("SUANKO_TANKI", "四暗刻单骑"),
+			Map.entry("KOKUSHIMUSO_13", "国士十三面"),
+			Map.entry("CHURENPOHTO_PURE", "纯正九莲宝灯"),
 			Map.entry("RED_DORA", "红宝牌"));
 
 	public static String zh(String name) {

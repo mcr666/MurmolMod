@@ -2,6 +2,7 @@
   "name": "落瓣春花",
   "icon": "minecraft:pink_petals",
   "category": "murmol:fengyang_classic",
+  "sortnum": 1,
   "advancement": "murmol:unlock/luohong",
   "pages": [
     {

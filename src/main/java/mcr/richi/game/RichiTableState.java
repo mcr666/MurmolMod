@@ -36,6 +36,9 @@ public class RichiTableState {
 	public int aiSpeedIdx = 0;
 	/** 本场数（连庄/流局累加，庄家输牌清零；本场费 300/本场） */
 	public int honba = 0;
+
+	/** 本桌已开局次数（用于每局轮转席位，避免固定玩家永远坐东） */
+	public int gamesStarted = 0;
 	/** 各座位独立 AI 形象模式（索引同座位；null/空 = 随机形态） */
 	public final String[] aiAvatarModes = new String[4];
 	/** AI 形象脏标记：预约/形象模式变化后置 true，resolveAvatars 解析一次后清除（避免每次广播重复解析阻塞主线程） */
@@ -67,6 +70,11 @@ public class RichiTableState {
 	public int phase = PHASE_WAITING;
 	/** 等待队列（UUID，先到先坐；开局时按序补入空座位） */
 	public final java.util.List<String> queue = new java.util.ArrayList<>();
+	/** NPC 参战者 UUID（Murmol NPC 经右键确认加入队列/对局）：开局视作 AI 座位，
+	 *  客户端跳过其假玩家（form=npc），真实 NPC 实体钉在座位站位；终局/移出时解除 */
+	public final java.util.Set<String> npcUuids = new java.util.HashSet<>();
+	/** 服务端 Marker 代理实体：每个 AI 座位对应一个 Marker，可被选择器选中/tp；key=座位 0..3，value=实体 UUID */
+	public final java.util.Map<Integer, java.util.UUID> aiMarkerUuids = new java.util.HashMap<>();
 	/** 管理界面预约的 AI 座位（等待阶段设置，开局时该座位固定安排 AI） */
 	public final boolean[] reservedAI = new boolean[4];
 	/** 各座位是否为 AI（对局中有效，虚拟 UUID 见 RiichiBot） */

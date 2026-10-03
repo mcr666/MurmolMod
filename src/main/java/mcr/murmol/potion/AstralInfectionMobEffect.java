@@ -26,7 +26,8 @@ public class AstralInfectionMobEffect extends MobEffect {
 
 	@Override
 	public boolean shouldApplyEffectTickThisTick(int duration, int amplifier) {
-		return true;
+		// 每 20 tick（1 秒）结算一次伤害
+		return duration % 20 == 0;
 	}
 
 	@Override

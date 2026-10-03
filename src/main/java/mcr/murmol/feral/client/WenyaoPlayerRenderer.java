@@ -1,9 +1,7 @@
 package mcr.murmol.feral.client;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.math.Axis;
 
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
@@ -15,9 +13,6 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Pose;
-import net.minecraft.world.entity.HumanoidArm;
-import net.minecraft.world.item.ItemDisplayContext;
-import net.minecraft.world.item.ItemStack;
 
 import mcr.murmol.feral.FeralForm;
 import mcr.murmol.feral.FeralFormManager;
@@ -101,42 +96,12 @@ public class WenyaoPlayerRenderer extends PlayerRenderer {
 		root.render(poseStack, buffers.getBuffer(RenderType.armorCutoutNoCull(texture)),
 				packedLight, LivingEntityRenderer.getOverlayCoords(entity, 0), -1);
 
-		// 手持物品绑定到 right_item/left_item 挂点骨骼（跟随鱼形动画与视角）
-		renderHandItem(entity, poseStack, buffers, packedLight, root, HumanoidArm.RIGHT);
-		renderHandItem(entity, poseStack, buffers, packedLight, root, HumanoidArm.LEFT);
+		// 文鳐形态不展示第三人称手持物品（隐藏挂点手持渲染）
 		poseStack.popPose();
 
 		// 渲染名牌：与原版一致（poseStack 已还原到实体原点，renderNameTag 自行按 nameTagAttachment 定位）
 		if (this.shouldShowName(entity)) {
 			this.renderNameTag(entity, entity.getDisplayName(), poseStack, buffers, packedLight, partialTick);
 		}
-	}
-
-	private void renderHandItem(AbstractClientPlayer entity, PoseStack poseStack, MultiBufferSource buffers,
-			int packedLight, ModelPart root, HumanoidArm arm) {
-		ItemStack stack = arm == HumanoidArm.LEFT ? entity.getOffhandItem() : entity.getMainHandItem();
-		if (stack.isEmpty())
-			return;
-		ModelPart bone = FeralBedrockPlayerAnimator.findBone(root, arm == HumanoidArm.LEFT ? "left_item" : "right_item");
-		if (bone == null)
-			return;
-		float partialTick = Minecraft.getInstance().getTimer().getGameTimeDeltaPartialTick(true);
-		float headYaw = Mth.rotLerp(partialTick, entity.yHeadRotO, entity.yHeadRot);
-		float headPitch = Mth.lerp(partialTick, entity.xRotO, entity.getXRot());
-		float oldYRot = bone.yRot, oldXRot = bone.xRot;
-		bone.yRot += headYaw * Mth.DEG_TO_RAD;
-		bone.xRot += headPitch * Mth.DEG_TO_RAD;
-		poseStack.pushPose();
-		bone.translateAndRotate(poseStack);
-		// 物品显示朝向与原版手臂持握一致
-		poseStack.mulPose(Axis.XP.rotationDegrees(-90.0F));
-		poseStack.mulPose(Axis.YP.rotationDegrees(180.0F));
-		Minecraft.getInstance().getItemRenderer().renderStatic(entity, stack,
-				ItemDisplayContext.THIRD_PERSON_RIGHT_HAND, arm == HumanoidArm.LEFT,
-				poseStack, buffers, entity.level(), packedLight,
-				LivingEntityRenderer.getOverlayCoords(entity, 0), entity.getId() + (arm == HumanoidArm.LEFT ? 1 : 0));
-		poseStack.popPose();
-		bone.yRot = oldYRot;
-		bone.xRot = oldXRot;
 	}
 }

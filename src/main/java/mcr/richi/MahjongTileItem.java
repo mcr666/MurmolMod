@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * 麻将牌物品：单个物品，牌面由数据组件 mahjong_tile_code（即 NBT）驱动。
+ * 麻雀牌物品：单个物品，牌面由数据组件 mahjong_tile_code（即 NBT）驱动。
  * 模型切换：客户端 ItemProperties "code" + 模型 overrides（见 MahjongClient）。
  * 牌面代码：0m..9m=0..9，0p..9p=10..19，0s..9s=20..29，1z..7z=30..36；无组件 = 未知牌。
  */

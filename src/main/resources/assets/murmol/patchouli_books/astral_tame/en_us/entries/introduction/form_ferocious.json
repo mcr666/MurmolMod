@@ -2,6 +2,7 @@
   "name": "Ferocious",
   "icon": "minecraft:nether_wart",
   "category": "murmol:fengyang_classic",
+  "sortnum": 6,
   "advancement": "murmol:unlock/ferocious",
   "pages": [
     {

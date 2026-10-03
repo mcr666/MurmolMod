@@ -10,7 +10,7 @@ import java.util.List;
 import net.minecraft.core.BlockPos;
 
 /**
- * 麻将内容服务端简易调度器：按延迟 tick 执行任务（发牌动画等）。
+ * 麻雀内容服务端简易调度器：按延迟 tick 执行任务（发牌动画等）。
  * 后续正式对局逻辑可扩展为统一的行为调度入口。
  */
 @net.neoforged.fml.common.EventBusSubscriber

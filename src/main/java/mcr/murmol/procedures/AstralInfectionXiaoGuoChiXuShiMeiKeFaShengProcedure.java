@@ -15,6 +15,6 @@ public class AstralInfectionXiaoGuoChiXuShiMeiKeFaShengProcedure {
 		if (entity == null)
 			return;
 		entity.hurt(new DamageSource(world.holderOrThrow(ResourceKey.create(Registries.DAMAGE_TYPE, ResourceLocation.parse("murmol:astral_infection_damage")))),
-				(float) (0.3 * (entity instanceof LivingEntity _livEnt && _livEnt.hasEffect(MurmolModMobEffects.ASTRAL_INFECTION) ? _livEnt.getEffect(MurmolModMobEffects.ASTRAL_INFECTION).getAmplifier() : 0)));
+				(float) (1.0 * (entity instanceof LivingEntity _livEnt && _livEnt.hasEffect(MurmolModMobEffects.ASTRAL_INFECTION) ? _livEnt.getEffect(MurmolModMobEffects.ASTRAL_INFECTION).getAmplifier() + 1 : 1)));
 	}
 }

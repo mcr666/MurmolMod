@@ -10,7 +10,7 @@ import net.neoforged.neoforge.network.handling.IPayloadContext;
 import mcr.murmol.MurmolMod;
 
 /**
- * 麻将回合倒计时同步（S -> C）：shortSec = 短考剩余秒（白色），longSec = 长考银行剩余秒（黄色）。
+ * 麻雀回合倒计时同步（S -> C）：shortSec = 短考剩余秒（白色），longSec = 长考银行剩余秒（黄色）。
  * 客户端渲染格式："x+XX"（短考>0 且长考>0，两色同显）；短考耗尽后只显示黄色长考。
  * 服务端仅在任一数字变化时发包；停发后客户端按时效自动隐藏。
  * 客户端缓存为纯原始类型，不引用任何客户端类（该类服务端也会加载）。

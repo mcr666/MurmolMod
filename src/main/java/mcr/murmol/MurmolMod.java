@@ -59,20 +59,23 @@ public class MurmolMod {
 		MurmolModMenus.REGISTRY.register(modEventBus);
 		MurmolModParticleTypes.REGISTRY.register(modEventBus);
 		MurmolModAttributes.REGISTRY.register(modEventBus);
-		// 麻将内容（移植测试，注册在 mcr.mahjong 包）
+		// 麻雀内容（移植测试，注册在 mcr.mahjong 包）
 		mcr.richi.MahjongItems.REGISTRY.register(modEventBus);
 		mcr.richi.MahjongBlocks.REGISTRY.register(modEventBus);
 		mcr.richi.MahjongCreativeTabs.REGISTRY.register(modEventBus);
 		mcr.richi.MahjongComponents.COMPONENTS.register(modEventBus);
-		// 麻将回合倒计时叠加层 payload（须在 RegisterPayloadHandlersEvent 前注册）
+		mcr.richi.MahjongLoot.TYPES.register(modEventBus); // 随机牌面 loot function（战利品表用）
+		// 麻雀回合倒计时叠加层 payload（须在 RegisterPayloadHandlersEvent 前注册）
 		mcr.richi.network.MahjongCountdownPayload.register();
-		// 麻将大厅（等待队列/管理）与对局进行 payload
+		// 风盘点播唱片（右击风盘临时压制原版 BGM 播放唱片内容）
+		mcr.richi.network.FengPanMusicPayload.register();
+		// 麻雀大厅（等待队列/管理）与对局进行 payload
 		mcr.richi.network.MahjongLobbyPayloads.register();
 		mcr.richi.network.MahjongGamePayloads.register();
-		// 麻将结算界面（和牌结算/终局结算）+ 点数变化界面
+		// 麻雀结算界面（和牌结算/终局结算）+ 点数变化界面
 		mcr.richi.network.MahjongSettlementPayload.register();
 		mcr.richi.network.MahjongPointDeltaPayload.register();
-		// 麻将牌局渲染状态包（服务端过滤后整桌快照，客户端自建显示实体）
+		// 麻雀牌局渲染状态包（服务端过滤后整桌快照，客户端自建显示实体）
 		mcr.richi.network.MahjongTablePayload.register();
 		mcr.richi.network.PaipuPayload.register();
 		// Start of user code block mod init

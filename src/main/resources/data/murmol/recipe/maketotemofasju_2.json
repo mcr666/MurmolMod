@@ -2,28 +2,25 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "pattern": [
-    "abc",
-    "de ",
-    "f  "
+    "csc",
+    "gmg",
+    "ctc"
   ],
   "key": {
-    "a": {
+    "c": {
+      "item": "minecraft:copper_ingot"
+    },
+    "g": {
+      "item": "minecraft:glass_pane"
+    },
+    "s": {
+      "item": "murmol:astral_matrix"
+    },
+    "m": {
       "item": "murmol:murmol_soul"
     },
-    "b": {
+    "t": {
       "item": "minecraft:totem_of_undying"
-    },
-    "c": {
-      "item": "minecraft:emerald"
-    },
-    "d": {
-      "item": "minecraft:water_bucket"
-    },
-    "e": {
-      "item": "murmol:the_astral_tome"
-    },
-    "f": {
-      "item": "minecraft:oak_boat"
     }
   },
   "result": {

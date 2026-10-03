@@ -19,7 +19,7 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import mcr.murmol.network.MurmolModVariables;
 
 /**
- * 麻将 AI 形象的村民模式渲染（客户端）：玩家附件 feralFormId 为 {@link #FORM_ID} 哨兵时
+ * 麻雀 AI 形象的村民模式渲染（客户端）：玩家附件 feralFormId 为 {@link #FORM_ID} 哨兵时
  * （仅本 mod 客户端假玩家会写入），取消原版玩家渲染并手动绘制原版村民模型与贴图（静止站桩）。
  * 其余模式（human / 各形态 id）不走本类，human 由原版玩家渲染 + 注入 PlayerInfo 的皮肤处理。
  */

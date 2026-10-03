@@ -26,6 +26,24 @@
       }
     ]
   },
+  "snowy_hills": {
+    "subtitle": "subtitles.snowy_hills",
+    "sounds": [
+      {
+        "name": "murmol:astral_affection",
+        "stream": true
+      }
+    ]
+  },
+  "graceful": {
+    "subtitle": "subtitles.graceful",
+    "sounds": [
+      {
+        "name": "murmol:graceful",
+        "stream": true
+      }
+    ]
+  },
   "drake_0": {
     "subtitle": "subtitles.drake_0",
     "sounds": [

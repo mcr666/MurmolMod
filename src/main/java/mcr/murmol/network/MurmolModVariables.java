@@ -94,6 +94,7 @@ public class MurmolModVariables {
 			clone.alfarspatt = original.alfarspatt;
 		}
 		clone.feralFormId = original.feralFormId;
+		clone.revealOriginalFormId = original.revealOriginalFormId;
 		event.getEntity().setData(PLAYER_VARIABLES, clone);
 	}
 
@@ -106,6 +107,8 @@ public class MurmolModVariables {
 		public boolean caged = false;
 		/** 磐座石像模式标记（右键磐座激活的狛犬石像，苔石贴图/定身/仅 shift 解除；自然石像为 false） */
 		public boolean statueBanza = false;
+		/** 显形效果期间记录的原形态 id（非空 = 显形进行中/待复原，由 RevealManager 管理） */
+		public String revealOriginalFormId = "";
 
 		@Override
 		public CompoundTag serializeNBT(HolderLookup.Provider lookupProvider) {
@@ -114,6 +117,7 @@ public class MurmolModVariables {
 		nbt.putBoolean("caged", caged);
 		nbt.putBoolean("statueBanza", statueBanza);
 		nbt.putString("feralFormId", feralFormId);
+		nbt.putString("revealOriginalFormId", revealOriginalFormId);
 			return nbt;
 		}
 
@@ -135,6 +139,7 @@ public class MurmolModVariables {
 			} else {
 				feralFormId = FeralForm.HUMAN_ID;
 			}
+			revealOriginalFormId = nbt.getString("revealOriginalFormId");
 		}
 
 		public void markSyncDirty() {

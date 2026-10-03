@@ -86,6 +86,15 @@ public class MurmolModBlocks {
 					.sound(net.minecraft.world.level.block.SoundType.WOOD).strength(3f, 10f)
 					.requiresCorrectToolForDrops()));
 
+	// 照妖镜方块：类似物品展示框，可贴六面放置（物品潜行右键放置）
+	public static final DeferredBlock<Block> TRUTH_MIRROR = REGISTRY.register("truth_mirror",
+			() -> new mcr.murmol.block.TruthMirrorBlock(Block.Properties.of()
+					.mapColor(net.minecraft.world.level.material.MapColor.METAL)
+					.strength(0.3F).sound(net.minecraft.world.level.block.SoundType.AMETHYST)
+					.noOcclusion().forceSolidOn()
+					.isSuffocating((state, level, pos) -> false)
+					.isViewBlocking((state, level, pos) -> false)));
+
 	private static net.minecraft.world.level.block.SaplingBlock astralSapling() {
 		java.util.Optional<net.minecraft.resources.ResourceKey<net.minecraft.world.level.levelgen.feature.ConfiguredFeature<?, ?>>> tree =
 				java.util.Optional.of(net.minecraft.resources.ResourceKey.create(net.minecraft.core.registries.Registries.CONFIGURED_FEATURE,

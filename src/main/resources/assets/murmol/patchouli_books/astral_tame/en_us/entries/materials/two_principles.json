@@ -2,7 +2,7 @@
   "name": "Two Principles",
   "icon": "murmol:two_principles",
   "category": "murmol:materials",
-  "sortnum": 5,
+  "sortnum": 6,
   "pages": [
     {
       "type": "patchouli:spotlight",

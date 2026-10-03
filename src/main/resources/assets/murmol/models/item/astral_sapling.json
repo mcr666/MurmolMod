@@ -1,3 +1,7 @@
 {
-  "parent": "murmol:block/astral_sapling"
+  "parent": "minecraft:item/generated",
+  "render_type": "minecraft:cutout",
+  "textures": {
+    "layer0": "murmol:block/astral_sapling"
+  }
 }

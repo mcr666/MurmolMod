@@ -2,6 +2,7 @@
   "name": "月蛾",
   "icon": "minecraft:phantom_membrane",
   "category": "murmol:fengyang_classic",
+  "sortnum": 3,
   "advancement": "murmol:unlock/silkmoth",
   "pages": [
     {

@@ -11,6 +11,7 @@ import net.neoforged.api.distmarker.Dist;
 import net.minecraft.client.renderer.entity.ThrownItemRenderer;
 import net.minecraft.client.renderer.entity.SlimeRenderer;
 
+import mcr.murmol.client.renderer.MurmolNpcRenderer;
 import mcr.murmol.client.renderer.PepperCHRenderer;
 import mcr.murmol.client.renderer.AstralDrakeRenderer;
 import mcr.murmol.client.renderer.AlfarRenderer;
@@ -28,5 +29,6 @@ public class MurmolModEntityRenderers {
 		event.registerEntityRenderer(MurmolModEntities.ASTRAL_DRAKE.get(), AstralDrakeRenderer::new);
 		event.registerEntityRenderer(MurmolModEntities.GLUTTONY_SLIME.get(), SlimeRenderer::new);
 		event.registerEntityRenderer(MurmolModEntities.ASTRAL_CORE_PROJECTILE.get(), ThrownItemRenderer::new);
+		event.registerEntityRenderer(MurmolModEntities.MURMOL_NPC.get(), MurmolNpcRenderer::new);
 	}
 }

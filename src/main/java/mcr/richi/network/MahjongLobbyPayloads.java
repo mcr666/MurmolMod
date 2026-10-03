@@ -15,7 +15,7 @@ import mcr.murmol.MurmolMod;
 import mcr.richi.game.MahjongLobby;
 
 /**
- * 麻将大厅（等待队列 / 管理）网络包。
+ * 麻雀大厅（等待队列 / 管理）网络包。
  * <ul>
  * <li>SyncMessage（S→C）：全量同步一张桌的大厅状态（阶段/座位/队列/管理权限），
  * 客户端缓存按原点存放，管理界面与队列渲染据此刷新。</li>

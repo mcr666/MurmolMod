@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "facing=down": { "model": "murmol:block/truth_mirror", "x": 180 },
+    "facing=east": { "model": "murmol:block/truth_mirror", "x": 90, "y": 90 },
+    "facing=north": { "model": "murmol:block/truth_mirror", "x": 90 },
+    "facing=south": { "model": "murmol:block/truth_mirror", "x": 90, "y": 180 },
+    "facing=up": { "model": "murmol:block/truth_mirror" },
+    "facing=west": { "model": "murmol:block/truth_mirror", "x": 90, "y": 270 }
+  }
+}

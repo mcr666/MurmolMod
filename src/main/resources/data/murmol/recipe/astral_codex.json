@@ -1,0 +1,30 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    "MSM",
+    "AIA",
+    "MDM"
+  ],
+  "key": {
+    "M": {
+      "item": "murmol:astral_matrix"
+    },
+    "S": {
+      "item": "minecraft:nether_star"
+    },
+    "A": {
+      "item": "murmol:astral_ingot"
+    },
+    "I": {
+      "item": "minecraft:book"
+    },
+    "D": {
+      "item": "minecraft:diamond"
+    }
+  },
+  "result": {
+    "id": "murmol:astral_codex",
+    "count": 1
+  }
+}

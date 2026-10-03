@@ -45,8 +45,12 @@ public final class TableLayout {
 	public static final double EDGE_INSET = 0.35;
 	/** 手牌相邻牌间距（格）——牌宽 12px×s/16≈0.15625，紧贴（+0.0007 防共面闪烁） */
 	public static final double TILE_GAP = 0.157;
-	/** 副露多组沿玩家右手方向的组间距（声明牌端位偏移 0.37 + 纵牌半长 0.104 + 余量；暗杠组半宽 0.21） */
-	public static final double MELD_PITCH = 0.56;
+	/** 副露行向桌心内收距离（格）——与手牌行错开 z 带，避免占用同一条线 */
+	public static final double MELD_ROW_INSET = 0.20;
+	/** 副露区外缘上限（格，沿玩家右侧轴）：邻家行列带从 ±(edge - TILE_WIDTH/2)=±1.572 起，留隙取 1.55，保证桌角两侧副露永不重叠 */
+	public static final double MELD_EDGE_CAP = 1.55;
+	/** 相邻副露组之间的最小间隙（格） */
+	public static final double MELD_GAP = 0.02;
 	/** 发牌间隔（tick） */
 	public static final int DEAL_INTERVAL_TICKS = 1;
 	/** 牌渲染缩放：模型宽度 12px（第二窄边），目标 2.5 单位 → 2.5/12 */
@@ -176,9 +180,9 @@ public final class TableLayout {
 		for (int h = 0; h < 4; h++)
 			yRots[h] = (float) Math.toDegrees(Math.atan2(-outs[h].x, outs[h].z));
 
-		// 0) 座位标记：各家外侧 3.5 格、上方 2 格处（文本由渲染方拼装）
+		// 0) 座位标记：各家外侧 3.25 格（向桌心收 0.25）、上方 2 格处（文本由渲染方拼装）
 		for (int h = 0; h < 4; h++) {
-			Vec3 labelPos = center.add(outs[h].scale(SEAT_DISTANCE)).add(0, SEAT_HEIGHT, 0);
+			Vec3 labelPos = center.add(outs[h].scale(SEAT_DISTANCE - 0.25)).add(0, SEAT_HEIGHT, 0);
 			out.add(new Placement(KIND_SEAT, labelPos, labelPos, -1, 0, null, true, h, -1, h * step));
 		}
 		// 1) 手牌：四家同时发牌（第 k 张四家一起出：delay = (4 + k*4 + h)*step）；选中牌升高 SELECT_LIFT
@@ -219,7 +223,10 @@ public final class TableLayout {
 						flatYaw(dir), dir, true, h, i, dealIndex++ * step));
 			}
 		}
-		// 3) 副露（吃碰杠）：组序从外（手牌右端外侧）向内排开；整组朝向与横牌（声明牌）端位对应喂牌家座位——
+		// 3) 副露（吃碰杠）：副露行向桌心内收（与手牌行错开带），组序从外向内游标式排开——
+		//    每组按实际占宽（纵牌展开 + 声明牌伸出方向）推进，外缘不超过 MELD_EDGE_CAP，
+		//    保证相邻两家副露在桌角处永不重叠；同一家的多组也不会因声明牌相对而压叠。
+		//    整组朝向与横牌（声明牌）端位对应喂牌家座位——
 		//    上家（左手边）横牌在组左端、下家（右手边）在右端、对家（对面）整组旋转 90° 朝桌心展开且横牌在朝心一端、
 		//    自杠无来源方向取右端；横牌与相邻纵牌边距 = 组内牌缝（flatStep - 牌宽），紧贴无豁口。
 		for (int h = 0; h < 4; h++) {
@@ -227,7 +234,8 @@ public final class TableLayout {
 			Vec3 facingCenter = outs[h].scale(-1);
 			Vec3 playerRight = new Vec3(-facingCenter.z, 0, facingCenter.x); // 面朝桌心时的右手方向
 			List<RichiTableState.MeldGroup> groups = st.meldGroupInfos(h);
-			Vec3 meldBase = rows[h].add(playerRight.scale(HAND_SIZE / 2.0 * TILE_GAP + 0.35));
+			Vec3 meldRow = rows[h].subtract(outs[h].scale(MELD_ROW_INSET));
+			double cursor = MELD_EDGE_CAP; // 游标：当前可用外缘（沿 playerRight 的标量）
 			for (int g = 0; g < groups.size(); g++) {
 				List<Integer> meld = groups.get(g).codes();
 				if (meld.isEmpty())
@@ -238,7 +246,19 @@ public final class TableLayout {
 				// 暗杠（来源 = 自己 且 4 张）：四张平行平躺，中间两张牌面朝下（盖牌）
 				boolean ankan = fromSeat == h && meld.size() == 4;
 				int flatCount = Math.max(0, meld.size() - 1);
-				Vec3 groupCenter = meldBase.subtract(playerRight.scale(g * MELD_PITCH));
+				// 声明牌沿 playerRight 的伸出方向：+1 向外（桌角侧）、-1 向内、0 无（对家/暗杠，伸出垂直于轴）
+				double claimDir = toimen || ankan ? 0
+						: (rel == 1 || rel == 0 ? 1 : -1);
+				double flush = (flatCount + 1) / 2.0 * flatStep + (TILE_LONG - TILE_WIDTH) / 2.0;
+				// 组沿轴各侧占宽（中心到外缘）：纵牌展开 + 半牌宽；声明牌伸出侧为 flush + 半牌长
+				double flatHalf = toimen ? TILE_LONG / 2
+						: (flatCount - 1) / 2.0 * flatStep + TILE_WIDTH / 2;
+				double claimHalf = flush + TILE_LONG / 2;
+				double outer = claimDir > 0 ? claimHalf : flatHalf;
+				double inner = claimDir < 0 ? claimHalf : flatHalf;
+				double c = cursor - outer; // 组中心标量
+				cursor = c - inner - MELD_GAP;
+				Vec3 groupCenter = meldRow.add(playerRight.scale(c));
 				Vec3 spread = toimen ? facingCenter : tangent;   // 纵牌展开方向 = 喂牌家方位
 				Vec3 flatLong = toimen ? tangent : facingCenter; // 纵牌长轴（垂直于展开方向）
 				if (ankan) {
@@ -250,14 +270,13 @@ public final class TableLayout {
 					}
 					continue;
 				}
-				// 横牌中心偏移：紧贴最外侧纵牌（边距与组内牌缝一致）
-				double flush = (flatCount + 1) / 2.0 * flatStep + (TILE_LONG - TILE_WIDTH) / 2.0;
-				Vec3 claimedDir = toimen ? spread : rel == 1 || rel == 0 ? playerRight : playerRight.scale(-1);
 				for (int j = 0; j < flatCount; j++) {
 					Vec3 target = groupCenter.add(spread.scale((j - (flatCount - 1) / 2.0) * flatStep));
 					out.add(new Placement(KIND_MELD, flatEntityPos(target, 0), target, meld.get(j),
 							flatYaw(flatLong), flatLong, true, h, j, dealIndex++ * step));
 				}
+				Vec3 claimedDir = toimen ? spread
+						: (claimDir > 0 ? playerRight : playerRight.scale(-1));
 				Vec3 claimedTarget = groupCenter.add(claimedDir.scale(flush));
 				out.add(new Placement(KIND_MELD, flatEntityPos(claimedTarget, 0), claimedTarget,
 						meld.get(meld.size() - 1), flatYaw(spread), spread, true, h, -1, dealIndex++ * step));

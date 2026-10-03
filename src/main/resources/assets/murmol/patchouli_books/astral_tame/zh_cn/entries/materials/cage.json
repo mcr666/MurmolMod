@@ -2,7 +2,7 @@
   "name": "囚笼",
   "icon": "murmol:cage",
   "category": "murmol:materials",
-  "sortnum": 6,
+  "sortnum": 8,
   "pages": [
     {
       "type": "patchouli:crafting",

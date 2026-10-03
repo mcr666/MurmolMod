@@ -36,7 +36,7 @@ import mcr.richi.render.DisplayEntityNbt;
 import mcr.richi.render.TableLayout;
 
 /**
- * 麻将牌桌客户端渲染：收到 {@link MahjongTablePayload}（服务端按观看者过滤后的快照）后
+ * 麻雀牌桌客户端渲染：收到 {@link MahjongTablePayload}（服务端按观看者过滤后的快照）后
  * 增量更新 client-side 显示实体。每个逻辑牌位有稳定 key（手牌:座位:牌面:内序 / 牌河:座位:下标 /
  * 副露:座位:序 / 点棒:座位:序 / 宝牌:叠:底顶 / 座位标签等），按"签名"（kind+牌面+正反面+立平形态，
  * 文本实体为文本内容）比对：签名不变仅位置/朝向变化 → 复用实体并走 display 自带 pos-rot 插值
@@ -73,10 +73,10 @@ public final class MahjongTableClient {
 	/** 假玩家客户端实体 id 计数（负数且递减，与服务端实体 id 区间隔离） */
 	private static int nextAvatarEntityId = -1_000_000;
 
-	/** Maocry55 本地内置皮肤（assets/richi/textures/entity/maocry55.png），不拉正版档案 */
-	private static final net.minecraft.client.resources.PlayerSkin MAOCRY55_SKIN = new net.minecraft.client.resources.PlayerSkin(
-			net.minecraft.resources.ResourceLocation.fromNamespaceAndPath("richi", "textures/entity/maocry55.png"),
-			null, null, null, net.minecraft.client.resources.PlayerSkin.Model.WIDE, false);
+	/** Murmol 本地内置皮肤（assets/murmol/textures/entity/murmol.png），不拉正版档案；人类形象名为 Murmol 时使用 */
+	private static final net.minecraft.client.resources.PlayerSkin MURMOL_SKIN = new net.minecraft.client.resources.PlayerSkin(
+			net.minecraft.resources.ResourceLocation.fromNamespaceAndPath("murmol", "textures/entity/murmol.png"),
+			null, null, null, net.minecraft.client.resources.PlayerSkin.Model.SLIM, false);
 
 	/** 隐形坐骑载具的抬升（格）：玩家坐标由骑乘挂点跟随载具，调此值即调坐姿高度；human 形象不加 */
 	private static final double SEAT_LIFT = 0.625;
@@ -194,7 +194,7 @@ public final class MahjongTableClient {
 		SCHEDULED.remove(key); // 重建即取消在途动画任务
 		if (msg.phase() == RichiTableState.PHASE_WAITING) {
 			// 无对局（局目间重置/大厅等待）：清除该桌客户端牌面实体；
-			// 只要仍有 AI 形象就保留假玩家（跨局目连续渲染），全部形象为空才移除
+			// 形象仍走 updateAvatars 增删建（预约即渲染，随机模式 = 盔甲架占位）
 			if (table != null) {
 				discardAll(level, table);
 				TABLES.remove(key);
@@ -205,6 +205,9 @@ public final class MahjongTableClient {
 					anyForm = true;
 			if (!anyForm)
 				discardAvatars(key);
+			BlockPos waitingOrigin = BlockPos.of(key);
+			if (level.getBlockState(waitingOrigin).getBlock() instanceof FengPanBlock)
+				updateAvatars(level, key, waitingOrigin, TableLayout.of(level, waitingOrigin), msg);
 			return;
 		}
 		if (table == null) {
@@ -241,10 +244,31 @@ public final class MahjongTableClient {
 		st.selectedIndex = msg.selectedIndex();
 		st.drawnSeat = msg.drawnSeat();
 		st.phase = msg.phase();
-		// 手牌码：可见家解析记法；隐藏家按 hidden 数量渲染未知牌背（-1 = 无牌面组件）
+		// 观战摊手（客户端配置）：观战者视角把立牌手牌全部改为面朝上平摊显示
+		if (mcr.murmol.MurmolModConfig.SPECTATOR_OPEN_HANDS.get() && msg.viewerSeat() < 0)
+			for (int s = 0; s < 4; s++)
+				if (st.handsExposed[s] == RichiTableState.HAND_STAND)
+					st.handsExposed[s] = RichiTableState.HAND_FACE_UP;
+		// 手牌码：可见家解析记法；隐藏家按 hidden 数量渲染未知牌背（-1 = 无牌面组件）；
+		// 盖牌（HAND_FACE_DOWN，流局未听/九种九牌途中流局）一律渲染牌背——自己的手牌也不显示牌面
 		List<List<Integer>> handCodes = new ArrayList<>(4);
 		for (int s = 0; s < 4; s++) {
+			int count;
 			if (msg.hidden()[s] > 0) {
+				count = msg.hidden()[s];
+			} else {
+				try {
+					count = MahjongTileNotation.parse(orEmpty(msg.hands()[s])).size();
+				} catch (RuntimeException e) {
+					count = 0;
+				}
+			}
+			if (msg.handsExposed()[s] == RichiTableState.HAND_FACE_DOWN) {
+				List<Integer> backs = new ArrayList<>();
+				for (int k = 0; k < count; k++)
+					backs.add(-1);
+				handCodes.add(backs);
+			} else if (msg.hidden()[s] > 0) {
 				List<Integer> backs = new ArrayList<>();
 				for (int k = 0; k < msg.hidden()[s]; k++)
 					backs.add(-1);
@@ -304,6 +328,15 @@ public final class MahjongTableClient {
 				removeStand(stands, seat);
 				continue;
 			}
+			// NPC 参战座位（Murmol）：真实实体在服务端钉位渲染，客户端不建假玩家
+			if (form.equals("npc")) {
+				if (cur != null) {
+					avatars.remove(seat);
+					removeAvatar(cur);
+				}
+				removeStand(stands, seat);
+				continue;
+			}
 			// 随机模式等待期占位：桌边随机位置立一个可见盔甲架（不揭示形态）
 			if (form.equals("stand")) {
 				if (cur != null) {
@@ -313,7 +346,7 @@ public final class MahjongTableClient {
 				var stand = stands.get(seat);
 				if (stand == null || stand.isRemoved()) {
 					double ang = level.random.nextDouble() * Math.PI * 2;
-					double r = 2.2 + level.random.nextDouble() * 1.4;
+					double r = 1.95 + level.random.nextDouble() * 1.4; // 随机站位向内收 0.25
 					Vec3 p = center.add(Math.cos(ang) * r, 0, Math.sin(ang) * r);
 					float sy = (float) Math.toDegrees(Math.atan2(-(center.x - p.x), center.z - p.z));
 					var s = new net.minecraft.world.entity.decoration.ArmorStand(
@@ -330,10 +363,10 @@ public final class MahjongTableClient {
 			}
 			removeStand(stands, seat);
 			Vec3 pos = waiting
-					// 等待阶段：预约后即出现，站在桌边随机位置（创建时定一次，不随同步重摆）
-					? center.add(level.random.nextDouble() * 4 - 2, 0,
-							level.random.nextDouble() * 4 - 2)
-					: center.add(geom.outs()[seat].scale(TableLayout.SEAT_DISTANCE));
+					// 等待阶段：预约后即出现，站在桌边随机位置（创建时定一次，不随同步重摆）；同座位标记向内收 0.25
+				? center.add(level.random.nextDouble() * 3.5 - 1.75, 0,
+						level.random.nextDouble() * 3.5 - 1.75)
+					: center.add(geom.outs()[seat].scale(TableLayout.SEAT_DISTANCE - 0.25)); // AI 形象比座位标记更靠内 0.25 格
 			float yaw = (float) Math.toDegrees(Math.atan2(-(center.x - pos.x), center.z - pos.z));
 			UUID uuid = profileUuidOf(key, seat, msg);
 			// 显示名：human 形象用随机人类名；其余形态直接用形态名称（av_* 语言键），不再显示 AI·座位(AI:流派)
@@ -397,9 +430,9 @@ public final class MahjongTableClient {
 
 			@Override
 			public net.minecraft.client.resources.PlayerSkin getSkin() {
-				// Maocry55：本地内置皮肤，不拉正版档案
-				if ("Maocry55".equals(name))
-					return MAOCRY55_SKIN;
+				// Murmol：本地内置皮肤，不拉正版档案
+				if ("Murmol".equals(name))
+					return MURMOL_SKIN;
 				return super.getSkin();
 			}
 		};
@@ -490,7 +523,13 @@ public final class MahjongTableClient {
 		for (TableLayout.Placement p : plan) {
 			switch (p.kind()) {
 				case TableLayout.KIND_SEAT -> {
-					String text = (msg.turnSeat() == p.seat() ? "▶ " : "") + TableLayout.SEAT_NAMES[p.seat()]
+					// 局目轮换（轮庄）后世界位置的东南西北随之改变：庄家位 = (round-1)%4，
+					// 各位置风 = SEAT_NAMES[floorMod(座位 - 庄家位, 4)]（与服务端 broadcastRoundStart 同式）
+					int dealer = (msg.round() - 1) % 4;
+					String wind = msg.round() > 0
+							? TableLayout.SEAT_NAMES[Math.floorMod(p.seat() - dealer, 4)]
+							: TableLayout.SEAT_NAMES[p.seat()];
+					String text = (msg.turnSeat() == p.seat() ? "▶ " : "") + wind
 							+ "\n" + msg.points()[p.seat()];
 					out.add(new Slot(p, "seat:" + p.seat(), "T:" + text, text));
 				}

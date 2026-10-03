@@ -115,6 +115,18 @@ public final class MahjongGameLog {
 				.resolve("data/mahjong/" + origin.getX() + "_" + origin.getY() + "_" + origin.getZ() + ".log");
 	}
 
+	/** 整文件覆写（客户端上传牌谱用）。成功返回 true */
+	public static synchronized boolean writeFile(ServerLevel level, BlockPos origin, String content) {
+		try {
+			Path file = fileOf(level, origin);
+			Files.createDirectories(file.getParent());
+			Files.writeString(file, content == null ? "" : content, StandardCharsets.UTF_8);
+			return true;
+		} catch (Exception e) {
+			return false;
+		}
+	}
+
 	/**
 	 * 列出全部牌谱（按对局开始时间倒序）：每项 "x_y_z|局序|开始毫秒"。
 	 * 一桌一文件，文件内每个 G…E 段拆为一个条目（局序 = 文件内第几局，回放定位用）。

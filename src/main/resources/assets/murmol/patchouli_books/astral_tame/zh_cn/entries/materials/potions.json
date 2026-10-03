@@ -1,0 +1,20 @@
+{
+  "name": "药水",
+  "icon": "minecraft:potion[minecraft:potion_contents={potion:\"murmol:petrify\"}]",
+  "category": "murmol:materials",
+  "sortnum": 9,
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "minecraft:potion[minecraft:potion_contents={potion:\"murmol:petrify\"}]",
+      "title": "石化药水",
+      "text": "$(thing)石化$(0)：持续 30 秒，药效期间无法移动、无法使用物品与攻击，静止如石。$(br)$(li)粗制药水 + $(item)石头$(0) → 石化药水$(li)可制成喷溅/滞留版本，用于石化其他生物$(br)牛奶可解除石化(是的)。"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "minecraft:potion[minecraft:potion_contents={potion:\"murmol:reveal\"}]",
+      "title": "显形药水",
+      "text": "$(thing)显形$(0)：药效期间，化形者会显现人形；人类则会展现出心中的恶魔。$(br)$(li)粗制药水 + $(item)摩摩尔之魂$(0) → 显形药水（1 分钟）$(li)"
+    }
+  ]
+}

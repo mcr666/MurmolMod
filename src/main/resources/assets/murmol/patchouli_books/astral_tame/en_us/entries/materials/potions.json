@@ -1,0 +1,20 @@
+{
+  "name": "Potions",
+  "icon": "minecraft:potion[minecraft:potion_contents={potion:\"murmol:petrify\"}]",
+  "category": "murmol:materials",
+  "sortnum": 9,
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "minecraft:potion[minecraft:potion_contents={potion:\"murmol:petrify\"}]",
+      "title": "Potion of Petrification",
+      "text": "$(thing)Petrified$(0): lasts 30 seconds. While active, the target cannot move, use items, or attack — frozen solid as stone.$(br)$(li)Awkward Potion + $(item)Stone$(0) → Potion of Petrification$(li)Splash/lingering versions can petrify other creatures$(br)Milk cures petrification (yes, it does)."
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "minecraft:potion[minecraft:potion_contents={potion:\"murmol:reveal\"}]",
+      "title": "Potion of Reveal",
+      "text": "$(thing)Reveal$(0): while the effect lasts, shapeshifters take on their human form; humans instead reveal the demon within.$(br)$(li)Awkward Potion + $(item)Murmol's Soul$(0) → Potion of Reveal (1 min)$(li)"
+    }
+  ]
+}

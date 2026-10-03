@@ -13,7 +13,7 @@ import net.minecraft.network.codec.ByteBufCodecs;
 import mcr.richi.MahjongItems;
 
 /**
- * 麻将内容数据组件（1.21.1 中即物品的持久化 NBT）。
+ * 麻雀内容数据组件（1.21.1 中即物品的持久化 NBT）。
  */
 public class MahjongComponents {
 	public static final DataComponents COMPONENTS = DeferredRegister.createDataComponents(Registries.DATA_COMPONENT_TYPE, MahjongItems.NAMESPACE);

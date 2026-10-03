@@ -1,0 +1,22 @@
+{
+  "parent": "minecraft:block/block",
+  "render_type": "minecraft:cutout",
+  "textures": {
+    "0": "murmol:item/truth_mirror",
+    "particle": "murmol:item/truth_mirror"
+  },
+  "elements": [
+    {
+      "from": [0, 0, 0],
+      "to": [16, 1, 16],
+      "faces": {
+        "down": { "texture": "#0", "uv": [16, 0, 0, 16] },
+        "up": { "texture": "#0", "uv": [0, 0, 16, 16] },
+        "north": { "texture": "#0", "uv": [0, 15, 16, 16] },
+        "south": { "texture": "#0", "uv": [0, 15, 16, 16] },
+        "west": { "texture": "#0", "uv": [0, 15, 16, 16] },
+        "east": { "texture": "#0", "uv": [0, 15, 16, 16] }
+      }
+    }
+  ]
+}

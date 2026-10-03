@@ -15,10 +15,11 @@ import mcr.richi.network.MahjongTablePayload;
 /**
  * 牌局渲染同步（防抓包看牌核心）：把 RichiTableState 按观看者过滤后整桌广播
  * （RiichiGame.writeBack / FengPanBlock 重渲染与发牌动画时调用）。
- * 过滤规则：visible(座位 s) = 观战者(viewerSeat&lt;0) || openHand || s==viewer || handsExposed[s]!=HAND_STAND；
+ * 过滤规则：visible(座位 s) = 观战者(viewerSeat&lt;0) || openHand || s==viewer || handsExposed[s]==HAND_FACE_UP
+ * （盖牌 HAND_FACE_DOWN 不下发真实牌面，客户端渲染牌背——流局未听/途中流局的防抓包处理）；
  * 不可见座位只发牌数（hidden），客户端渲染牌背。牌河/副露/立直棒永远真实；
  * 宝牌指示区仅已揭开的上张下发真实牌面（底张=里宝与未翻开上张发未知占位 "?"，防抓包/实体检视泄露）；
- * 局终盖牌（FACE_DOWN）发真实牌面（客户端面朝下渲染，无泄露）。
+ * 局终盖牌（FACE_DOWN）也不下发牌面，客户端按 hidden 数渲染牌背平躺。
  */
 public final class RichiTableSync {
 	/** 同步范围：桌心 16 格内同维玩家 */
@@ -83,7 +84,7 @@ public final class RichiTableSync {
 		String[] avatarSkins = new String[4];
 		for (int s = 0; s < 4; s++) {
 			boolean visible = viewerSeat < 0 || st.openHand || s == viewerSeat
-					|| st.handsExposed[s] != RichiTableState.HAND_STAND;
+					|| st.handsExposed[s] == RichiTableState.HAND_FACE_UP;
 			if (visible) {
 				hands[s] = st.hands[s] == null ? "" : st.hands[s];
 				hidden[s] = 0;

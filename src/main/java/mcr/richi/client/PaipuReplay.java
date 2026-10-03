@@ -65,12 +65,23 @@ public final class PaipuReplay {
 
 	/** 从牌谱列表打开回放（点击条目，内容到达时调用；startGame = 列表点选的对局序号） */
 	public static void open(long originPacked, String content, boolean fromList, int startGame) {
+		open(originPacked, content, fromList, startGame, null);
+	}
+
+	/** 打开回放（通用）：returnTo = Esc 退出后的返回界面（null = 按原逻辑返回服务端牌谱列表） */
+	public static void open(long originPacked, String content, boolean fromList, int startGame, Runnable returnTo) {
 		end();
 		session = new Session(originPacked, content, fromList);
 		MahjongTableClient.beginReplay(originPacked); // 回放驱动风盘实体，实时同步暂时屏蔽
 		if (startGame > 0 && !session.games.isEmpty())
 			session.gameIdx = Math.min(startGame, session.games.size() - 1);
 		prepareHand();
+		PaipuReplay.returnTo = returnTo;
+	}
+
+	/** 从本地牌谱库打开回放（Esc 返回本地列表） */
+	public static void openLocal(long originPacked, String content) {
+		open(originPacked, content, true, 0, () -> PaipuLocalScreen.open());
 	}
 
 	/** 列表屏点击条目时置位：下一次收到牌谱全文按"来自列表"处理（Esc 返回列表） */
@@ -83,17 +94,23 @@ public final class PaipuReplay {
 		return v;
 	}
 
-	/** 结束回放，恢复桌面真实状态；fromList 时返回牌谱列表 */
+	/** 结束回放，恢复桌面真实状态；returnTo 优先，其次 fromList 返回服务端牌谱列表 */
 	public static void end() {
 		if (session == null)
 			return;
-		long origin = session.originPacked;
 		boolean backToList = session.fromList;
 		session = null;
 		MahjongTableClient.endReplay();
-		if (backToList)
+		Runnable ret = returnTo;
+		returnTo = null;
+		if (ret != null)
+			ret.run();
+		else if (backToList)
 			PaipuListScreen.open();
 	}
+
+	/** 回放退出后的自定义返回界面（本地牌谱库用；null = 默认逻辑） */
+	private static Runnable returnTo;
 
 	public static boolean active() {
 		return session != null;
@@ -330,7 +347,8 @@ public final class PaipuReplay {
 			lastFrame.points[h.fromSeat] -= h.pay;
 		}
 		s.frames = out;
-		s.cursor = Math.min(s.cursor, out.size() - 1);
+		// cursor 夹到 [0, size-1]：step(-1) 跨局时 cursor 为 -1，未夹紧会导致 frames.get(-1) 崩溃
+		s.cursor = Math.max(0, Math.min(s.cursor, out.size() - 1));
 		syncToTable();
 	}
 

@@ -1,0 +1,194 @@
+{
+  "type": "minecraft:chest",
+  "pools": [
+    {
+      "rolls": {
+        "min": 1,
+        "max": 3
+      },
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "richi:mahjong_tile",
+          "functions": [
+            {
+              "function": "richi:set_mahjong_tile_code"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "rolls": {
+        "min": 2,
+        "max": 5
+      },
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:bamboo",
+          "weight": 3,
+          "functions": [
+            {
+              "function": "minecraft:set_count",
+              "count": {
+                "min": 1,
+                "max": 4
+              }
+            }
+          ]
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:iron_ingot",
+          "weight": 2,
+          "functions": [
+            {
+              "function": "minecraft:set_count",
+              "count": {
+                "min": 1,
+                "max": 3
+              }
+            }
+          ]
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:glass",
+          "weight": 2,
+          "functions": [
+            {
+              "function": "minecraft:set_count",
+              "count": {
+                "min": 1,
+                "max": 4
+              }
+            }
+          ]
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:bread",
+          "weight": 2,
+          "functions": [
+            {
+              "function": "minecraft:set_count",
+              "count": {
+                "min": 1,
+                "max": 2
+              }
+            }
+          ]
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:baked_potato",
+          "weight": 2,
+          "functions": [
+            {
+              "function": "minecraft:set_count",
+              "count": {
+                "min": 1,
+                "max": 3
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "murmol:ancient_knowledge_scrap",
+          "functions": [
+            {
+              "function": "minecraft:set_custom_data",
+              "tag": "{FormId:\"luohong\"}"
+            }
+          ]
+        },
+        {
+          "type": "minecraft:item",
+          "name": "murmol:ancient_knowledge_scrap",
+          "functions": [
+            {
+              "function": "minecraft:set_custom_data",
+              "tag": "{FormId:\"chen_huang\"}"
+            }
+          ]
+        },
+        {
+          "type": "minecraft:item",
+          "name": "murmol:ancient_knowledge_scrap",
+          "functions": [
+            {
+              "function": "minecraft:set_custom_data",
+              "tag": "{FormId:\"moss_beast\"}"
+            }
+          ]
+        },
+        {
+          "type": "minecraft:item",
+          "name": "murmol:ancient_knowledge_scrap",
+          "functions": [
+            {
+              "function": "minecraft:set_custom_data",
+              "tag": "{FormId:\"silkmoth\"}"
+            }
+          ]
+        },
+        {
+          "type": "minecraft:item",
+          "name": "murmol:ancient_knowledge_scrap",
+          "functions": [
+            {
+              "function": "minecraft:set_custom_data",
+              "tag": "{FormId:\"komainu\"}"
+            }
+          ]
+        },
+        {
+          "type": "minecraft:item",
+          "name": "murmol:ancient_knowledge_scrap",
+          "functions": [
+            {
+              "function": "minecraft:set_custom_data",
+              "tag": "{FormId:\"wenyao\"}"
+            }
+          ]
+        },
+        {
+          "type": "minecraft:item",
+          "name": "murmol:ancient_knowledge_scrap",
+          "functions": [
+            {
+              "function": "minecraft:set_custom_data",
+              "tag": "{FormId:\"ferocious\"}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:empty",
+          "weight": 6
+        },
+        {
+          "type": "minecraft:item",
+          "name": "murmol:snowy_hills",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "murmol:graceful",
+          "weight": 1
+        }
+      ]
+    }
+  ]
+}

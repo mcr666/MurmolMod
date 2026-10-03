@@ -1,0 +1,10 @@
+{
+  "sound_event": {
+    "sound_id": "murmol:graceful"
+  },
+  "description": {
+    "translate": "jukebox_song.murmol.graceful"
+  },
+  "length_in_seconds": 218.4244,
+  "comparator_output": 2
+}

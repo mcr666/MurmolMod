@@ -2,6 +2,7 @@
   "name": "Chen Huang",
   "icon": "minecraft:golden_apple",
   "category": "murmol:fengyang_classic",
+  "sortnum": 0,
   "advancement": "murmol:unlock/chen_huang",
   "pages": [
     {

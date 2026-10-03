@@ -1,0 +1,10 @@
+{
+  "sound_event": {
+    "sound_id": "murmol:snowy_hills"
+  },
+  "description": {
+    "translate": "jukebox_song.murmol.snowy_hills"
+  },
+  "length_in_seconds": 97.1155,
+  "comparator_output": 1
+}

@@ -33,7 +33,7 @@ import mcr.richi.render.DisplayEntityNbt;
 import mcr.richi.render.TableLayout;
 
 /**
- * 风盘（麻将牌桌）：类原版床的 2x2 多方块，一次放置铺满 2x2（中心四个 0.5x0.5 雪层拼成 1 格桌面），
+ * 风盘（麻雀牌桌）：类原版床的 2x2 多方块，一次放置铺满 2x2（中心四个 0.5x0.5 雪层拼成 1 格桌面），
  * 放置前检测周边 4x4 区域（含桌子本体）是否为空，有阻挡则放置失败并提示。破坏任意部分整桌消失且只掉落一个物品。
  * tx/tz 为相对桌角原点（0,0）的偏移；原点为放置点，沿玩家水平朝向及其右侧延伸。
  * 渲染：服务端不再生成牌面实体（防抓包看牌），客户端按 RichiTableSync 过滤广播的状态包自建显示实体；
@@ -116,6 +116,46 @@ public class FengPanBlock extends Block {
 				.relative(right.getOpposite(), state.getValue(TZ));
 	}
 
+	/**
+	 * 旋转免疫的桌角还原：沿“前进/右向的反方向”走到头（结构 jigsaw 旋转只会变换 FACING，
+	 * 不会变换自定义 tx/tz——必须按世界邻居扫描定位原点，而不是信 NBT 里的 tx/tz）。
+	 */
+	public static BlockPos scanOrigin(LevelAccessor level, BlockState state, BlockPos pos) {
+		Direction forward = state.getValue(FACING);
+		Direction right = forward.getClockWise();
+		BlockPos p = pos;
+		while (level.getBlockState(p.relative(forward.getOpposite())).getBlock() instanceof FengPanBlock)
+			p = p.relative(forward.getOpposite());
+		while (level.getBlockState(p.relative(right.getOpposite())).getBlock() instanceof FengPanBlock)
+			p = p.relative(right.getOpposite());
+		return p;
+	}
+
+	/**
+	 * 结构生成自愈：jigsaw 随机旋转后 tx/tz 全部失真（四块各算各的原点，表现为四张独立桌子）。
+	 * 按扫描到的原点反推每块的正确 tx/tz 并写回（UPDATE_CLIENTS，不触发邻居更新）。
+	 */
+	public static BlockPos normalizeTable(net.minecraft.server.level.ServerLevel level, BlockState state, BlockPos pos) {
+		BlockPos origin = scanOrigin(level, state, pos);
+		BlockState originState = level.getBlockState(origin);
+		if (!(originState.getBlock() instanceof FengPanBlock))
+			return origin;
+		Direction forward = originState.getValue(FACING);
+		Direction right = forward.getClockWise();
+		for (int i = 0; i < SIZE; i++) {
+			for (int j = 0; j < SIZE; j++) {
+				BlockPos p = origin.relative(forward, i).relative(right, j);
+				BlockState s = level.getBlockState(p);
+				if (!(s.getBlock() instanceof FengPanBlock))
+					continue;
+				int wantTx = Math.floorMod(i, SIZE), wantTz = Math.floorMod(j, SIZE);
+				if (s.getValue(TX) != wantTx || s.getValue(TZ) != wantTz)
+					level.setBlock(p, s.setValue(TX, wantTx).setValue(TZ, wantTz), 2);
+			}
+		}
+		return origin;
+	}
+
 	/** 桌面几何中心（2x2 区域中点，f/r 可为负方向），y 取桌面顶面 */
 	public static Vec3 getTableCenter(BlockState state, BlockPos pos) {
 		BlockPos origin = getOrigin(state, pos);
@@ -191,12 +231,34 @@ public class FengPanBlock extends Block {
 		int nx = state.getValue(TX) + di;
 		int nz = state.getValue(TZ) + dj;
 		if (nx >= 0 && nx < SIZE && nz >= 0 && nz < SIZE && neighborState.getBlock() != this) {
-			// 连锁拆除时一并清掉桌面上的牌
+			// 邻座缺失：不当场变空气（updateOrDestroy 会带掉落连锁掉 4 个），
+			// 改排 1 tick 后由 scheduledTick 静默拆除整桌
 			if (level instanceof Level lvl && !lvl.isClientSide)
-				killTableDisplays(lvl, getOrigin(state, pos), forward, right);
-			return net.minecraft.world.level.block.Blocks.AIR.defaultBlockState();
+				lvl.scheduleTick(pos, this, 1);
+			return super.updateShape(state, direction, neighborState, level, pos, neighborPos);
 		}
 		return super.updateShape(state, direction, neighborState, level, pos, neighborPos);
+	}
+
+	/** 静默连锁拆除（无掉落）+ 旋转自愈：计划刻时按世界坐标校验整桌——完整则归一化 tx/tz，缺失则整桌静默清除 */
+	@Override
+	protected void tick(BlockState state, net.minecraft.server.level.ServerLevel level, BlockPos pos,
+			net.minecraft.util.RandomSource random) {
+		BlockPos origin = scanOrigin(level, state, pos);
+		Direction forward = state.getValue(FACING);
+		Direction right = forward.getClockWise();
+		for (int i = 0; i < SIZE; i++)
+			for (int j = 0; j < SIZE; j++)
+				if (level.getBlockState(origin.relative(forward, i).relative(right, j)).getBlock() != this) {
+					// 仍缺失 → 静默拆除整桌（removeBlock 无掉落、无邻居更新，不再触发连锁）
+					killTableDisplays(level, origin, forward, right);
+					for (int a = 0; a < SIZE; a++)
+						for (int b = 0; b < SIZE; b++)
+							level.removeBlock(origin.relative(forward, a).relative(right, b), false);
+					return;
+				}
+		// 整桌健在 → 修复可能因结构旋转而失真的 tx/tz
+		normalizeTable(level, state, pos);
 	}
 
 	/** 类原版床：破坏任意部分，整桌消失且只掉落本次破坏的这个物品；桌面上的牌一并消失 */
@@ -265,12 +327,38 @@ public class FengPanBlock extends Block {
 		clearDisplays(level, origin);
 	}
 
+	/**
+	 * 手持任意唱片右击风盘：在桌面中心播放该唱片内容直到结束（唱片不消耗），
+	 * 周围玩家收到一次"正在播放xxx"提示（曲名绿色），播放期间客户端压制原版 BGM。
+	 * 手持其他物品/空手仍走 useWithoutItem 的开桌流程。
+	 */
+	@Override
+	protected net.minecraft.world.ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos,
+			Player player, net.minecraft.world.InteractionHand hand, BlockHitResult hitResult) {
+		var playable = stack.get(net.minecraft.core.component.DataComponents.JUKEBOX_PLAYABLE);
+		if (playable != null && level instanceof net.minecraft.server.level.ServerLevel serverLevel) {
+			var song = playable.song()
+					.unwrap(serverLevel.registryAccess().registryOrThrow(net.minecraft.core.registries.Registries.JUKEBOX_SONG));
+			if (song.isPresent()) {
+				var def = song.get();
+				Vec3 center = getTableCenter(state, pos);
+				net.neoforged.neoforge.network.PacketDistributor.sendToPlayersNear(serverLevel, null,
+						center.x, center.y, center.z, 32.0,
+						new mcr.richi.network.FengPanMusicPayload.PlayRecord(center.x, center.y, center.z,
+								def.soundEvent().value().getLocation(), def.lengthInSeconds(), def.description()));
+				return net.minecraft.world.ItemInteractionResult.SUCCESS; // 双端 SUCCESS：手臂挥动，不消耗物品、不开大厅
+			}
+		}
+		return super.useItemOn(stack, state, level, pos, player, hand, hitResult);
+	}
+
 	@Override
 	protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult) {
 		if (!level.isClientSide) {
-			// 桌角原点按朝向反推；确保状态存在（空大厅等待排队）
-			BlockPos origin = getOrigin(state, pos);
+			// 先按世界坐标自愈旋转失真的 tx/tz（jigsaw 旋转后 NBT 存的 tx/tz 不可信），
+			// 再取桌角原点；确保状态存在（空大厅等待排队）
 			var serverLevel = (net.minecraft.server.level.ServerLevel) level;
+			BlockPos origin = normalizeTable(serverLevel, state, pos);
 			mcr.richi.game.RichiTableManager.getOrCreate(serverLevel, origin);
 			// 右击（无论是否潜行）：打开管理界面（GUI 排队/退出/安排 AI/设置/开始对局）
 			mcr.richi.game.MahjongLobby.openLobby((net.minecraft.server.level.ServerPlayer) player, origin);
@@ -424,6 +512,16 @@ public class FengPanBlock extends Block {
 				st.aiAvatarSkins[seat] = "";
 				continue;
 			}
+			// NPC 参战座位（Murmol，对局中）：不发假玩家形态（form=npc，客户端跳过渲染），
+			// 真实 NPC 实体由 MahjongLobby.pinNpcSeats 钉在座位站位
+			if (st.phase == RichiTableState.PHASE_PLAYING && st.players[seat] != null
+					&& st.npcUuids.contains(st.players[seat])) {
+				st.aiAvatarForms[seat] = "npc";
+				st.aiAvatarNames[seat] = "Murmol";
+				st.aiAvatarSkins[seat] = "";
+				st.aiFlows[seat] = 6; // Murmol NPC 固定鬼神境
+				continue;
+			}
 			// 每座位独立模式；null/空 = 随机形态
 			String seatMode = st.aiAvatarModes[seat];
 			String mode = seatMode == null || seatMode.isEmpty() ? "random" : seatMode;
@@ -446,7 +544,7 @@ public class FengPanBlock extends Block {
 			st.aiAvatarNames[seat] = name;
 			st.aiAvatarSkins[seat] = skin;
 			// 流派随形象/名字确定（乘黄=一般流 落红=野猪流 苔叶兽=门清流 文鳐=御无双 狛犬=魂天流
-			// 月蛾=闪电流；人类/村民随机 0-4，名为 Maocry55 的人类=鬼神境）
+			// 月蛾=闪电流；人类/村民随机 0-4，名为 Murmol 的人类=鬼神境（仅当被显式指定，随机不触发））
 			st.aiFlows[seat] = mcr.richi.game.riichi.RiichiBot.flowOfAvatar(form, name,
 					level.random::nextDouble);
 		}
@@ -465,10 +563,8 @@ public class FengPanBlock extends Block {
 		});
 	}
 
-	/** 随机生成一个人类风格的名字（1/16 概率为 Maocry55 —— 对应鬼神境流派） */
+	/** 随机生成一个人类风格的名字（不含 Murmol —— 该名字仅可显式指定以触发鬼神境，机制保留但随机不触发） */
 	private static String randomHumanName(net.minecraft.server.level.ServerLevel level) {
-		if (level.random.nextInt(16) == 0)
-			return "Maocry55";
 		String[] a = { "Sky", "Night", "Iron", "Cloud", "Storm", "Silent", "Red", "Myst", "Ember", "Frost" };
 		String[] b = { "Wolf", "Fox", "Blade", "River", "Wind", "Leaf", "Stone", "Raven", "Flame", "Drift" };
 		return a[level.random.nextInt(a.length)] + b[level.random.nextInt(b.length)] + (level.random.nextInt(90) + 10);
@@ -505,6 +601,12 @@ public class FengPanBlock extends Block {
 							LAST_COUNTDOWN.put(p.getUUID(), key);
 							net.neoforged.neoforge.network.PacketDistributor.sendToPlayer(p,
 									new mcr.richi.network.MahjongCountdownPayload.CountdownMessage(shortSec, longSec));
+							// 末 3 秒每秒一声竖琴提示（A 音）——仅当全部时间即将耗尽（还有长考银行时不提示）
+							int dispSec = st.turnInLong ? longSec : shortSec;
+							boolean lastChance = st.turnInLong || st.longBank[st.turnSeat] <= 0;
+							if (lastChance && dispSec <= 3 && dispSec > 0)
+								p.playNotifySound(net.minecraft.sounds.SoundEvents.NOTE_BLOCK_HARP.value(),
+										net.minecraft.sounds.SoundSource.PLAYERS, 1.0f, 0.891f);
 						}
 					}
 					continue;

@@ -19,6 +19,8 @@ import mcr.murmol.potion.FrozenedMobEffect;
 import mcr.murmol.potion.CreativeShockMobEffect;
 import mcr.murmol.potion.AstralInfectionMobEffect;
 import mcr.murmol.potion.PetrifyMobEffect;
+import mcr.murmol.potion.RevealMobEffect;
+import mcr.murmol.potion.RevealManager;
 import mcr.murmol.MurmolMod;
 
 @EventBusSubscriber
@@ -28,6 +30,7 @@ public class MurmolModMobEffects {
 	public static final DeferredHolder<MobEffect, MobEffect> ASTRAL_INFECTION = REGISTRY.register("astral_infection", AstralInfectionMobEffect::new);
 	public static final DeferredHolder<MobEffect, MobEffect> CREATIVE_SHOCK = REGISTRY.register("creative_shock", CreativeShockMobEffect::new);
 	public static final DeferredHolder<MobEffect, MobEffect> PETRIFY = REGISTRY.register("petrify", PetrifyMobEffect::new);
+	public static final DeferredHolder<MobEffect, MobEffect> REVEAL = REGISTRY.register("reveal", RevealMobEffect::new);
 
 	@SubscribeEvent
 	public static void onEffectRemoved(MobEffectEvent.Remove event) {
@@ -48,6 +51,10 @@ public class MurmolModMobEffects {
 	private static void expireEffects(Entity entity, MobEffectInstance effectInstance) {
 		if (effectInstance.getEffect().is(CREATIVE_SHOCK)) {
 			CreativeShockZhuangTaiXiaoGuoJieShuShiProcedure.execute(entity);
+		}
+		// 显形结束：复原原形态
+		if (effectInstance.getEffect().is(REVEAL)) {
+			RevealManager.onRevealEnd(entity);
 		}
 	}
 }

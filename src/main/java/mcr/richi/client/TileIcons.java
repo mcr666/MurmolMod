@@ -3,7 +3,7 @@ package mcr.richi.client;
 import net.minecraft.resources.ResourceLocation;
 
 /**
- * 麻将牌面贴图直绘（客户端）：把牌面代码映射到 assets/richi/textures/item/mahjong/<名>.png，
+ * 麻雀牌面贴图直绘（客户端）：把牌面代码映射到 assets/richi/textures/item/mahjong/<名>.png，
  * GUI 上直接 blit 原始贴图（不经 item 模型渲染管线）。
  * 贴图实际尺寸 48×64（3:4 竖长），绘制时按比例缩放（宽 w → 高 w*4/3），避免压扁。
  * code：0=红5万 1-9=万 10=红5饼 11-19=饼 20=红5索 21-29=索 30-36=字。

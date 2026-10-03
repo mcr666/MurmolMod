@@ -47,6 +47,10 @@ public class MurmolModItems {
 	public static final DeferredItem<Item> ASTRAL_ORE;
 	public static final DeferredItem<Item> ASTRAL_ORE_SHARD;
 	public static final DeferredItem<Item> ASTRAL_INGOT;
+	public static final DeferredItem<Item> ASTRAL_PICKAXE;
+	public static final DeferredItem<Item> ASTRAL_SHOVEL;
+	public static final DeferredItem<Item> ASTRAL_AXE;
+	public static final DeferredItem<Item> ASTRAL_CODEX;
 	public static final DeferredItem<Item> PEPPER_CH_SPAWN_EGG;
 	public static final DeferredItem<Item> ASTRAL_LOG;
 	public static final DeferredItem<Item> ASTRAL_PLANKS;
@@ -98,6 +102,9 @@ public class MurmolModItems {
 	public static final DeferredItem<Item> ASTRAL_PLANKS_SLAB;
 	public static final DeferredItem<Item> ASTRAL_PLANKS_STAIRS;
 	public static final DeferredItem<Item> STRIPPED_ASTRAL_LOG;
+	public static final DeferredItem<Item> MURMOL_NPC_SPAWN_EGG;
+	public static final DeferredItem<Item> SNOWY_HILLS;
+	public static final DeferredItem<Item> GRACEFUL;
 	static {
 		MAOCRY_BLESSING = REGISTRY.register("maocry_blessing", MaocryBlessingItem::new);
 		XIAOHUI = REGISTRY.register("xiaohui", XiaohuiItem::new);
@@ -128,6 +135,10 @@ public class MurmolModItems {
 		ASTRAL_ORE = block(MurmolModBlocks.ASTRAL_ORE, new Item.Properties().rarity(Rarity.RARE).fireResistant());
 		ASTRAL_ORE_SHARD = REGISTRY.register("astral_ore_shard", AstralOreShardItem::new);
 		ASTRAL_INGOT = REGISTRY.register("astral_ingot", AstralIngotItem::new);
+		ASTRAL_PICKAXE = REGISTRY.register("astral_pickaxe", AstralToolItem.Pickaxe::new);
+		ASTRAL_SHOVEL = REGISTRY.register("astral_shovel", AstralToolItem.Shovel::new);
+		ASTRAL_AXE = REGISTRY.register("astral_axe", AstralToolItem.Axe::new);
+		ASTRAL_CODEX = REGISTRY.register("astral_codex", AstralCodexItem::new);
 		PEPPER_CH_SPAWN_EGG = REGISTRY.register("pepper_ch_spawn_egg", () -> new DeferredSpawnEggItem(MurmolModEntities.PEPPER_CH, -13312, -52, new Item.Properties()));
 		ASTRAL_LOG = block(MurmolModBlocks.ASTRAL_LOG);
 		ASTRAL_PLANKS = block(MurmolModBlocks.ASTRAL_PLANKS);
@@ -178,9 +189,20 @@ public class MurmolModItems {
 				() -> new net.minecraft.world.item.StandingAndWallBlockItem(MurmolModBlocks.ASTRAL_TORCH.get(),
 							MurmolModBlocks.ASTRAL_WALL_TORCH.get(), new Item.Properties(), net.minecraft.core.Direction.DOWN));
 		ASTRAL_LANTERN = block(MurmolModBlocks.ASTRAL_LANTERN);
+		MURMOL_NPC_SPAWN_EGG = REGISTRY.register("murmol_npc_spawn_egg", () -> new DeferredSpawnEggItem(MurmolModEntities.MURMOL_NPC, 9062847, 15257586, new Item.Properties()));
 		ASTRAL_PLANKS_SLAB = block(MurmolModBlocks.ASTRAL_PLANKS_SLAB);
 		ASTRAL_PLANKS_STAIRS = block(MurmolModBlocks.ASTRAL_PLANKS_STAIRS);
 		STRIPPED_ASTRAL_LOG = block(MurmolModBlocks.STRIPPED_ASTRAL_LOG);
+		SNOWY_HILLS = REGISTRY.register("snowy_hills",
+				() -> new Item(new Item.Properties().rarity(Rarity.RARE).stacksTo(1).jukeboxPlayable(songKey("snowy_hills"))));
+		GRACEFUL = REGISTRY.register("graceful",
+				() -> new Item(new Item.Properties().rarity(Rarity.RARE).stacksTo(1).jukeboxPlayable(songKey("graceful"))));
+	}
+
+	/** 点唱机曲目 key（曲目本体为数据包 jukebox_song JSON） */
+	private static net.minecraft.resources.ResourceKey<net.minecraft.world.item.JukeboxSong> songKey(String path) {
+		return net.minecraft.resources.ResourceKey.create(net.minecraft.core.registries.Registries.JUKEBOX_SONG,
+				net.minecraft.resources.ResourceLocation.fromNamespaceAndPath(MurmolMod.MODID, path));
 	}
 
 	// Start of user code block custom items
