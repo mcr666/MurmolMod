@@ -2,7 +2,7 @@
   "name": "Astral Ore",
   "icon": "murmol:astral_ore",
   "category": "murmol:materials",
-  "sortnum": 2,
+  "sortnum": 3,
   "pages": [
     {
       "type": "patchouli:spotlight",

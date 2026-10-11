@@ -49,12 +49,16 @@ public class MurmolModVariables {
 	@SubscribeEvent
 	public static void onPlayerLoggedInSyncPlayerVariables(PlayerEvent.PlayerLoggedInEvent event) {
 		if (event.getEntity() instanceof ServerPlayer player) {
+			// 形态解锁状态刷新（须在发送玩家变量同步前，客户端拦截判定依赖）
+			mcr.murmol.feral.FeralFormManager.syncUnlockState(player);
 			for (Entity entityiterator : player.level().players())
 				if (entityiterator != player && entityiterator instanceof ServerPlayer playeriterator)
 					PacketDistributor.sendToPlayer(player, new PlayerVariablesSyncMessage(playeriterator.getData(PLAYER_VARIABLES), playeriterator.getId()));
 			PacketDistributor.sendToPlayersInDimension((ServerLevel) player.level(), new PlayerVariablesSyncMessage(player.getData(PLAYER_VARIABLES), player.getId()));
 			// 形态开关状态全量同步给新登录玩家
 			mcr.murmol.network.FormTogglePayloads.syncTo(player);
+			// 形态飞行机制游戏规则同步给新登录玩家
+			mcr.murmol.network.FeralFlightPayloads.syncTo(player);
 		}
 	}
 
@@ -95,6 +99,7 @@ public class MurmolModVariables {
 		}
 		clone.feralFormId = original.feralFormId;
 		clone.revealOriginalFormId = original.revealOriginalFormId;
+		clone.unlockedForms.addAll(original.unlockedForms);
 		event.getEntity().setData(PLAYER_VARIABLES, clone);
 	}
 
@@ -109,6 +114,8 @@ public class MurmolModVariables {
 		public boolean statueBanza = false;
 		/** 显形效果期间记录的原形态 id（非空 = 显形进行中/待复原，由 RevealManager 管理） */
 		public String revealOriginalFormId = "";
+		/** 已解锁形态 id 集合（客户端拦截判定用，由服务端 syncUnlockState 刷新；解锁规则关闭时包含全部形态） */
+		public java.util.HashSet<String> unlockedForms = new java.util.HashSet<>();
 
 		@Override
 		public CompoundTag serializeNBT(HolderLookup.Provider lookupProvider) {
@@ -118,6 +125,10 @@ public class MurmolModVariables {
 		nbt.putBoolean("statueBanza", statueBanza);
 		nbt.putString("feralFormId", feralFormId);
 		nbt.putString("revealOriginalFormId", revealOriginalFormId);
+		net.minecraft.nbt.ListTag unlockList = new net.minecraft.nbt.ListTag();
+		for (String id : unlockedForms)
+			unlockList.add(net.minecraft.nbt.StringTag.valueOf(id));
+		nbt.put("unlockedForms", unlockList);
 			return nbt;
 		}
 
@@ -140,6 +151,10 @@ public class MurmolModVariables {
 				feralFormId = FeralForm.HUMAN_ID;
 			}
 			revealOriginalFormId = nbt.getString("revealOriginalFormId");
+			unlockedForms.clear();
+			net.minecraft.nbt.ListTag unlockList = nbt.getList("unlockedForms", net.minecraft.nbt.Tag.TAG_STRING);
+			for (int i = 0; i < unlockList.size(); i++)
+				unlockedForms.add(unlockList.getString(i));
 		}
 
 		public void markSyncDirty() {

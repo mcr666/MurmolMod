@@ -1,0 +1,43 @@
+{
+  "name": "Dark Fury",
+  "icon": "minecraft:obsidian",
+  "category": "murmol:fengyang_classic",
+  "sortnum": 7,
+  "advancement": "murmol:unlock/dark_fury",
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "murmol:dark_fury_soul",
+      "title": "Dark Fury",
+      "text": "The Dark Fury is a winged beast black as ink, its form merging with the storm clouds as it circles the night sky above the river. It claims to come from a thousand years later, and once bore the self-slain King of Chu away from the banks of the Wu River."
+    },
+    {
+      "type": "patchouli:crafting",
+      "title": "Keepsakes of Bond",
+      "recipe": "murmol:scrap_dark_fury_soul",
+      "text": "Offerings of the bond."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Attributes",
+      "text": "$(li)Can fly$(br)$(li)Body size +60%$(li)Max health +10$(li)Armor +4$(li)Attack damage +1.5$(li)Attack knockback +0.5$(li)Movement speed +0.01"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Night at Hong Gate",
+      "text": "According to the Records of the Grand Historian, Emperor Gaozu of Han left behind a little-known testament before his death.$(br)By the banks of the Wu River, black clouds blotted out the sun and all was dark as night. A bitter wind sighed. His sword rose and drew across his throat.$(br)The Chu songs on all sides gradually faded; calmly, he welcomed the passing of life. He closed his eyes, and the feel of the hilt and his armor slowly vanished, leaving only void. He waited for death—until, at some unknown moment, a voice came to his ear: \"My King of Xiang?\""
+    },
+    {
+      "type": "patchouli:text",
+      "text": "He thought a divine physician had come to save him and snapped his eyes open, only to find a sky of utter blackness. Looking down, he saw himself lying upon the back of a winged beast as black as the sky itself, circling above the river, its form one with the dark clouds.$(br)\"You are awake at last, my King,\" the winged beast said slowly. \"I saw you take your own life and was filled with admiration. I raised you up with the art of unmaking death—but this place is about to be overturned.\""
+    },
+    {
+      "type": "patchouli:text",
+      "text": "\"My thanks, immortal lord, for saving my life... yet the war is lost, and I have no face left to show,\" said the King of Xiang.$(br)\"That matters not,\" said the beast. \"To have walked the righteous path to this day already makes you extraordinary. But your life is not meant to end here.\""
+    },
+    {
+      "type": "patchouli:text",
+      "text": "\"Ever since the Feast at Hong Gate, Liu Bang's petty heart has been plain: he would slay his own meritorious ministers for the throne, flee a pledged banquet without farewell, and fill his wars and stratagems with deceit... were the Central Plains ruled by such an emperor's ways, it could not long endure.\"$(br)\"To this end I have planned for long. Once the Han army returns victorious, I shall annihilate Liu Bang's consciousness and pour your wisdom into him. Thereafter, great deeds lie before our Chinese people.\"$(br)\"I am Dark Fury, come from a thousand years hence. King of Chu—the revival of Han begins with you.\""
+    }
+  ]
+}

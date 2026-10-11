@@ -2,7 +2,7 @@
   "name": "Ice Sharp Ore",
   "icon": "murmol:ice_sharp_ore",
   "category": "murmol:materials",
-  "sortnum": 10,
+  "sortnum": 11,
   "pages": [
     {
       "type": "patchouli:spotlight",

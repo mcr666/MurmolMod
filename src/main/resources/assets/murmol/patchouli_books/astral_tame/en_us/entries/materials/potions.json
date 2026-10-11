@@ -2,7 +2,7 @@
   "name": "Potions",
   "icon": "minecraft:potion[minecraft:potion_contents={potion:\"murmol:petrify\"}]",
   "category": "murmol:materials",
-  "sortnum": 9,
+  "sortnum": 10,
   "pages": [
     {
       "type": "patchouli:spotlight",

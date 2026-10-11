@@ -77,7 +77,9 @@ public class PaipuPayload {
 	}
 
 	private static Data readData(RegistryFriendlyByteBuf buf) {
-		return new Data(buf.readLong(), buf.readUtf(2_097_152), buf.readVarInt());
+		long originPacked = buf.readLong();
+		int gameIdx = buf.readVarInt();
+		return new Data(originPacked, buf.readUtf(2_097_152), gameIdx);
 	}
 
 	public record ListRequest() implements CustomPacketPayload {

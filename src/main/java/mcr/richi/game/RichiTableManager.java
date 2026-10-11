@@ -97,7 +97,7 @@ public static void remove(BlockPos origin) {
 		return result;
 	}
 
-	/** 维度内离 pos 最近的牌局原点（quit 指令用），超过 maxDist 返回 null */
+	/** 维度内离 pos 最近的牌局原点（clean 等指令用），超过 maxDist 返回 null */
 	public static BlockPos nearest(ServerLevel level, Vec3 pos, double maxDist) {
 		BlockPos best = null;
 		double bestDist = maxDist * maxDist;

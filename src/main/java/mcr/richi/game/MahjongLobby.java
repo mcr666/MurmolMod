@@ -276,6 +276,7 @@ public final class MahjongLobby {
 		st.phase = RichiTableState.PHASE_PLAYING;
 		st.avatarsDirty = true;
 		FengPanBlock.resolveAvatars(level, st);
+		mcr.richi.game.ai.akochan.AkochanEngine.ensureSessions(level, origin, st); // akochan流座位：随开局建立外部进程会话
 		st.honba = 0;
 		// 东风战单局：每局点数重置
 		java.util.Arrays.fill(st.points, 25000);
@@ -473,7 +474,7 @@ public final class MahjongLobby {
 
 	/** AI 形象模式（管理界面按座位循环切换，null = 随机；形态同时决定 AI 流派；顺序：随机 > 人类 > 各形态） */
 	public static final String[] AVATAR_MODES = { "random", "human", "luohong", "chen_huang",
-			"moss_beast", "silkmoth", "komainu", "wenyao", "ferocious", "villager" };
+			"moss_beast", "silkmoth", "komainu", "wenyao", "ferocious", "dark_fury", "villager" };
 
 	/** 管理权限：2 级权限（OP/单人作弊） */
 	public static boolean canManage(ServerPlayer sp) {

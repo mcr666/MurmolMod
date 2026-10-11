@@ -29,7 +29,7 @@ public class WenyaoPlayerRenderer extends PlayerRenderer {
 	/** 渲染 Y 校正（模型单位，1/16 格）：正=下移、负=上移，实测微调用 */
 	private static final float RENDER_Y_OFFSET = 0.0F;
 
-	/** 蹲下/潜行时的额外上移（模型单位，与其他形态的 CROUCH_Y_OFFSET = 2 一致） */
+	/** 蹲下/潜行时的额外上移（模型单位，2 = 0.125 格） */
 	private static final float CROUCH_LIFT = -2.0F;
 
 	private final boolean slim;
@@ -85,8 +85,7 @@ public class WenyaoPlayerRenderer extends PlayerRenderer {
 		poseStack.scale(-0.9375F * bodyScale, -0.9375F * bodyScale, 0.9375F * bodyScale);
 		poseStack.translate(0.0D, -1.501D, 0.0D);
 		poseStack.translate(0.0D, RENDER_Y_OFFSET / 16.0D, 0.0D);
-		// 蹲下/潜行/爬下时额外上移（与其他形态的 shiftModelY(CROUCH_Y_OFFSET) 等效：
-		// 模型空间 Y+ 朝下，负值即向上抬升）
+		// 蹲下/潜行/爬下时额外上移（模型空间 Y+ 经二级翻转向下，负值即向上抬升）：
 		if (entity.isCrouching() || entity.isShiftKeyDown() || entity.hasPose(Pose.SWIMMING)) {
 			poseStack.translate(0.0D, CROUCH_LIFT / 16.0D, 0.0D);
 		}

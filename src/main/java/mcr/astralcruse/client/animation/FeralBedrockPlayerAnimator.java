@@ -44,8 +44,15 @@ public final class FeralBedrockPlayerAnimator {
 	private static final float TRANSITION_TICKS = 4.0F;
 	private static final float ONE_SHOT_TRANSITION_TICKS = 2.0F;
 	private static final float FERAL_ENTRY_TRANSITION_TICKS = 20.0F;
-	private static final float BODY_RENDER_Y_OFFSET = 1.0F;
-	private static final float CROUCH_RENDER_Y_OFFSET = 2.0F;
+	/** 保留原版 PlayerModel 形态（test）body 根骨骼 Y 基准（原 AstralCruse 校准值） */
+	private static final float VANILLA_BODY_Y_OFFSET = 1.0F;
+	/** Blockbench 包装模型形态旧骨骼烘焙位移（模型像素）：Y 向下 13（月蛾再叠加 bodyYOffset）、Z 向前 5 */
+	private static final float WRAPPED_MODEL_BAKE_Y = 13.0F;
+	private static final float WRAPPED_MODEL_BAKE_Z = -5.0F;
+	/** 包装模型二级缩放系数（与 renderHumanoid 的 scale(-0.938) 一致）：基准位移须乘此系数 */
+	private static final float WRAPPED_MODEL_SPACE_SCALE = 0.938F;
+	/** 潜行时 body 根骨骼上移量（模型像素，Y 轴向上空间正值=上移，复刻原版 setupRotations 的 0.125） */
+	private static final float CROUCH_RENDER_Y_DELTA = 2.0F;
 	private static final Map<LivingEntity, AnimationTransition> TRANSITIONS = new WeakHashMap<>();
 	private static final Map<LivingEntity, AnimationPlaybackClock> PLAYBACK_CLOCKS = new WeakHashMap<>();
 	private static final Map<LivingEntity, FeralActivation> ACTIVATIONS = new WeakHashMap<>();
@@ -128,6 +135,11 @@ public final class FeralBedrockPlayerAnimator {
 		AnimationState state = animationStateForTick(entity, limbSwingAmount);
 		if (state == AnimationState.FLY || state == AnimationState.ELYTRA_FLY) {
 			return true;
+		}
+		// 鞘翅规则模式：未真正进入滑翔（isFallFlying→ELYTRA_FLY）前，按住跳跃不算飞行，
+		// 避免起跳瞬间就播 wings_flying；悬停模式维持按住空格即飞行
+		if (FeralFormManager.useElytraFlight(entity)) {
+			return false;
 		}
 		return FeralFormManager.getForm(entity).canHoverFlight()
 				&& entity == net.minecraft.client.Minecraft.getInstance().player
@@ -245,27 +257,53 @@ public final class FeralBedrockPlayerAnimator {
 		}
 		// 石像状态冻结关键帧推进
 		ageInTicks = effectiveAge(entity, ageInTicks);
+		var form = mcr.murmol.feral.FeralFormManager.getForm(entity);
 		Map<String, BedrockAnimation> loadedAnimations = animationsFor(entity);
 		SelectedAnimation selectedAnimation = selectAnimation(loadedAnimations, entity, entity.walkAnimation.position(), entity.walkAnimation.speed(), ageInTicks);
-		if (selectedAnimation == null) {
-			return;
+		// body 根骨骼通道可选：姿态烘焙形态（月蛾）动画文件无 feral_* 动画，selectAnimation 返回 null，
+		// 但基准偏移仍须无条件施加，否则包装模型丢失旧骨骼烘焙的定位
+		float[] scale = null;
+		float[] position = null;
+		float[] rotation = null;
+		if (selectedAnimation != null) {
+			AnimationTransition transition = transitionFor(entity, selectedAnimation, ageInTicks);
+			float time = selectedAnimation.animation.time(selectedAnimation.seconds);
+			scale = blendedScale(transition, "body", time, entity.getXRot(), entity.getYRot(), ageInTicks);
+			position = blendedPosition(transition, "body", time, entity.getXRot(), entity.getYRot(), ageInTicks);
+			rotation = blendedRotation(transition, "body", time, entity.getXRot(), entity.getYRot(), ageInTicks);
 		}
-		AnimationTransition transition = transitionFor(entity, selectedAnimation, ageInTicks);
-		float time = selectedAnimation.animation.time(selectedAnimation.seconds);
-		float[] scale = blendedScale(transition, "body", time, entity.getXRot(), entity.getYRot(), ageInTicks);
-		float[] position = blendedPosition(transition, "body", time, entity.getXRot(), entity.getYRot(), ageInTicks);
-		float[] rotation = blendedRotation(transition, "body", time, entity.getXRot(), entity.getYRot(), ageInTicks);
-		if (scale == null && position == null && rotation == null) {
-			return;
+		// 基准偏移施加在 setupRotations 的 Y 轴向上空间（二级翻转之前）：
+		//  - 保留原版 PlayerModel（test）：原 AstralCruse 校准值 y+1/z±0
+		//  - 包装模型 + 核心骨骼驱动（乘黄/狰/落鸿/青苔兽/狛犬）：动画 body 静息 [0,-13,-6]，
+		//    baseY=-bodyYOffset、baseZ=+1 后静息净值 -13/-5，复刻旧骨骼烘焙（向下13/向前5 模型像素）
+		//  - 包装模型 + 姿态烘焙（月蛾）：无 body 通道，直接取旧烘焙常量 -(13+bodyYOffset)/-5
+		boolean vanillaPlayerModel = form.getBodyLayer() == null;
+		float baseY;
+		float baseZ;
+		if (vanillaPlayerModel) {
+			baseY = VANILLA_BODY_Y_OFFSET;
+			baseZ = 0.0F;
+		} else if (form.animateCoreBones()) {
+			baseY = -form.getBodyYOffset();
+			baseZ = 1.0F;
+		} else {
+			baseY = -WRAPPED_MODEL_BAKE_Y - form.getBodyYOffset();
+			baseZ = WRAPPED_MODEL_BAKE_Z;
 		}
 		float entryAlpha = feralEntryAlpha(entity, ageInTicks);
 		if (scale != null) {
 			poseStack.scale(lerp(1.0F, scale[0], entryAlpha), lerp(1.0F, scale[1], entryAlpha), lerp(1.0F, scale[2], entryAlpha));
 		}
 		float bodyX = (position == null ? 0.0F : position[0]) * entryAlpha;
-		float bodyY = ((position == null ? 0.0F : position[1]) + BODY_RENDER_Y_OFFSET + (isSneakingForRender(entity) ? CROUCH_RENDER_Y_OFFSET : 0.0F)) * entryAlpha;
-		float bodyZ = (position == null ? 0.0F : position[2]) * entryAlpha;
-		poseStack.translate(-bodyX * 0.0625F, bodyY * 0.0625F + 0.75F, bodyZ * 0.0625F);
+		float bodyY = ((position == null ? 0.0F : position[1]) + baseY
+				+ (isSneakingForRender(entity) ? CROUCH_RENDER_Y_DELTA : 0.0F)) * entryAlpha;
+		float bodyZ = ((position == null ? 0.0F : position[2]) + baseZ) * entryAlpha;
+		// 像素换算只含二级翻转系数 0.938，不含形态尺寸：调用方（renderHumanoid）与原版
+		// LivingEntityRenderer 均已在 setupRotations 之外先施加 entity.getScale()，
+		// 身体模型与原版图层（盔甲层）处于同一缩放空间。若在此再乘尺寸，两条管线会按
+		// s 与 s² 发散，导致狰（1.5x）/落鸿（0.75x）等尺寸形态头盔错位
+		float pixelScale = vanillaPlayerModel ? 0.0625F : 0.0625F * WRAPPED_MODEL_SPACE_SCALE;
+		poseStack.translate(-bodyX * pixelScale, bodyY * pixelScale + 0.75F, bodyZ * pixelScale);
 		if (rotation != null) {
 			poseStack.mulPose(Axis.ZP.rotationDegrees(rotation[2] * entryAlpha));
 			poseStack.mulPose(Axis.YP.rotationDegrees(-rotation[1] * entryAlpha));
@@ -403,10 +441,14 @@ public final class FeralBedrockPlayerAnimator {
 		if (FeralFormManager.getForm(entity).getWholeModelLayer() != null) {
 			return false;
 		}
-		// 月蛾形态不叼嘴：手臂保留原版动画，物品按原版方式拿在手里
-		if (FeralFormManager.getForm(entity) == mcr.murmol.feral.FeralForms.SILKMOTH) {
+		// 客户端配置 feralItemsAllInMouth：所有手持物品（含工具、副手）统一叼在嘴部
+		boolean allInMouth = mcr.murmol.MurmolModConfig.FERAL_ITEMS_ALL_IN_MOUTH.get();
+		// 月蛾形态默认不叼嘴（手臂保留原版动画），但统一嘴部配置开启时按配置走
+		if (!allInMouth && FeralFormManager.getForm(entity) == mcr.murmol.feral.FeralForms.SILKMOTH) {
 			return false;
 		}
+		if (allInMouth)
+			return isFeral(entity) && !itemStack.isEmpty();
 		return isFeral(entity) && arm == HumanoidArm.RIGHT && !itemStack.isEmpty() && !isToolLikeItem(itemStack.getItem());
 	}
 
@@ -443,11 +485,31 @@ public final class FeralBedrockPlayerAnimator {
 	}
 
 	public static boolean shouldAnimate(LivingEntity entity) {
+		return shouldAnimate(entity, Float.NEGATIVE_INFINITY);
+	}
+
+	/**
+	 * 带 age 的观测入口：age 必须单调推进才参与人类/形态渲染流记录。
+	 * 第一人称手臂渲染以 ageInTicks=0 调用 setupAnim，会被哨兵值与单调过滤挡在观测之外。
+	 */
+	public static boolean shouldAnimate(LivingEntity entity, float ageInTicks) {
 		boolean feral = isFeral(entity);
+		FeralActivation activation = ACTIVATIONS.computeIfAbsent(entity, ignored -> new FeralActivation());
 		if (!feral) {
-			FeralActivation activation = ACTIVATIONS.computeIfAbsent(entity, ignored -> new FeralActivation());
 			activation.wasFeral = false;
 			activation.entryStartAge = Float.NEGATIVE_INFINITY;
+			if (ageInTicks > activation.lastHumanSeenAge) {
+				// 人类形态连续渲染段：上一观测为形态（或段已失效）时开启新段
+				if (!activation.humanStreak || activation.lastSeenFeral) {
+					activation.humanStreakStart = ageInTicks;
+				}
+				activation.humanStreak = true;
+				activation.lastHumanSeenAge = ageInTicks;
+			}
+		}
+		if (ageInTicks > activation.lastSeenAge) {
+			activation.lastSeenAge = ageInTicks;
+			activation.lastSeenFeral = feral;
 		}
 		return feral;
 	}
@@ -459,8 +521,16 @@ public final class FeralBedrockPlayerAnimator {
 	private static float feralEntryAlpha(LivingEntity entity, float ageInTicks) {
 		FeralActivation activation = ACTIVATIONS.computeIfAbsent(entity, ignored -> new FeralActivation());
 		if (!activation.wasFeral) {
-			// 仅在人类→形态的瞬间播放入场过渡；实体初次被渲染时已是形态（进服、切回第三人称）则跳过
-			activation.entryStartAge = activation.everFeral ? ageInTicks : ageInTicks - FERAL_ENTRY_TRANSITION_TICKS;
+			// 仅在真正的人类→形态转变瞬间播放入场过渡：该实体曾以形态渲染过（everFeral），
+			// 此前以人类形态连续渲染了至少 5 tick（排除单帧数据同步抖动），
+			// 且距最后一帧人类渲染 ≤2 tick（排除进服初次渲染、切回第三人称等渲染恢复场景）
+			boolean realTransform = activation.everFeral
+					&& activation.humanStreak
+					&& ageInTicks >= activation.humanStreakStart
+					&& ageInTicks - activation.humanStreakStart >= 5.0F
+					&& ageInTicks >= activation.lastHumanSeenAge
+					&& ageInTicks - activation.lastHumanSeenAge <= 2.0F;
+			activation.entryStartAge = realTransform ? ageInTicks : ageInTicks - FERAL_ENTRY_TRANSITION_TICKS;
 			activation.everFeral = true;
 		}
 		activation.wasFeral = true;
@@ -595,8 +665,9 @@ public final class FeralBedrockPlayerAnimator {
 			return AnimationState.SWIM;
 		}
 		if (!entity.onGround()) {
-			// 悬停飞行形态（如蚕蛾）滞空时视作飞行姿态
-			if (FeralFormManager.getForm(entity).canHoverFlight()) {
+			// 悬停飞行形态（如蚕蛾）滞空时视作飞行姿态；
+			// 鞘翅规则模式下滑翔已由上方 isFallFlying 判为 ELYTRA_FLY，未展开时保留跳跃/下落姿态
+			if (FeralFormManager.getForm(entity).canHoverFlight() && !FeralFormManager.useElytraFlight(entity)) {
 				return AnimationState.FLY;
 			}
 			return entity.getDeltaMovement().y < -0.08D ? AnimationState.FALL : AnimationState.JUMP;
@@ -881,6 +952,14 @@ public final class FeralBedrockPlayerAnimator {
 		/** 该实体是否曾经历人类→形态的转变（用于区分真变形与初次渲染即处于形态） */
 		private boolean everFeral;
 		private float entryStartAge = Float.NEGATIVE_INFINITY;
+		/** 渲染流观测：最近一次人类形态渲染 age（单调过滤后） */
+		private float lastHumanSeenAge = Float.NEGATIVE_INFINITY;
+		/** 当前人类形态连续渲染段的起始 age */
+		private float humanStreakStart = Float.NEGATIVE_INFINITY;
+		private boolean humanStreak;
+		/** 最近一次观测（任意形态）的 age 与结果 */
+		private float lastSeenAge = Float.NEGATIVE_INFINITY;
+		private boolean lastSeenFeral;
 	}
 
 	private record PlayerPose(PartPose head, PartPose body, PartPose rightArm, PartPose leftArm, PartPose rightLeg, PartPose leftLeg) {

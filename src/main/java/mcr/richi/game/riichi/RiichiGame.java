@@ -14,6 +14,8 @@ import net.minecraft.world.phys.Vec3;
 
 import mcr.richi.block.FengPanBlock;
 import mcr.richi.game.MahjongGameLog;
+import mcr.richi.game.ai.akochan.AkochanEngine;
+import mcr.richi.game.ai.akochan.MjaiProtocolConverter;
 import mcr.richi.game.MahjongTileNotation;
 import mcr.richi.game.RichiTableState;
 import mcr.richi.game.RichiTableSync;
@@ -96,6 +98,18 @@ public class RiichiGame {
 	/** 吃的组合缓存：选项 "chi:<idx>" → 手牌两张 code */
 	private final List<int[]> chiCombos = new ArrayList<>();
 
+	// ---- future 预排队列（/murmol mahjong future）：各家接下来摸牌的强制顺序 ----
+	/** 各家预排摸牌队列（null = 无；摸牌时优先取队首并从牌山移除一张同牌，其他玩家摸不到） */
+	@SuppressWarnings("unchecked")
+	private final List<Integer>[] futureDraws = new List[4];
+
+	/** 追加某家的预排摸牌序列（按参数顺序依次摸到；每次摸牌同时从牌山移除一张同牌） */
+	public void addFutureDraws(int seat, List<Integer> codes) {
+		if (this.futureDraws[seat] == null)
+			this.futureDraws[seat] = new ArrayList<>();
+		this.futureDraws[seat].addAll(codes);
+	}
+
 	// ---- 延迟任务（多条并存：结算轮播 / AI 荣和延迟宣言 / 10s 续局） ----
 	private record DelayedTask(long at, Runnable run) {
 	}
@@ -107,6 +121,11 @@ public class RiichiGame {
 	private int aiRonPending;
 	/** 待延迟决策的 AI 副露数（速度档中/慢时决策延后，期间响应窗口不收口） */
 	private int aiMeldPending;
+	/** 待 akochan 外部 AI 响应窗口决策的座位数（响应窗口不收口，决策超时回落本地 AI） */
+	private int akochanClaimPending;
+	/** akochan 响应中排队待执行的动作（鸣牌后随附的切牌；杠/明杠后清空走岭上新鲜请求） */
+	@SuppressWarnings("unchecked")
+	private final List<MjaiProtocolConverter.Action>[] akochanQueued = new List[4];
 	/** 当前鸣牌窗口的打牌者座位（-1 = 无窗口）；延迟决策任务用 */
 	private int discarderSeat = -1;
 
@@ -176,7 +195,7 @@ public class RiichiGame {
 		String[] names = new String[4];
 		for (int i = 0; i < 4; i++)
 			names[i] = ps[i].name + (ps[i].ai && !"npc".equals(st.aiAvatarForms[i])
-					? "(AI:" + RiichiBot.FLOW_NAMES[Math.floorMod(st.aiFlows[i], 7)] + ")" : "");
+						? "(AI:" + RiichiBot.FLOW_NAMES[Math.floorMod(st.aiFlows[i], 8)] + ")" : "");
 		MahjongGameLog.gameStart(level, origin, totalHands, names, st.points);
 	}
 
@@ -233,6 +252,7 @@ public class RiichiGame {
 					MahjongTileNotation.format(wall.rinshanStackTiles()));
 		}
 		writeBack();
+		akochanStartKyoku();
 		st.phase = RichiTableState.PHASE_PLAYING;
 		int dealTicks = FengPanBlock.startDealAnimation(level, origin, st);
 		messageTable("message.richi.hand_start",
@@ -266,14 +286,23 @@ public class RiichiGame {
 
 	/** 摸牌回合开始：牌尾摸一张，短考重置，检查九种九牌/自摸/立直/杠选项 */
 	private void beginTurn(int seat) {
-		int drawn = wall.draw();
-		if (drawn < 0) {
-			ryuukyoku();
-			return;
+		int drawn;
+		List<Integer> queued = this.futureDraws[seat];
+		if (queued != null && !queued.isEmpty()) {
+			// future 预排：直接发队首牌，并从牌山移除一张同牌（其他玩家摸不到）
+			drawn = queued.remove(0);
+			wall.removeTile(drawn);
+		} else {
+			drawn = wall.draw();
+			if (drawn < 0) {
+				ryuukyoku();
+				return;
+			}
 		}
 		lastTileHand = wall.isEmpty(); // 海底判定：摸进的是最后一张
 		rinshanFlag = false;
 		ps[seat].hand.add(drawn);
+		akochanEvent(MjaiProtocolConverter.tsumo(seat, drawn)); // akochan：本家摸牌即触发决策
 		// 九种九牌（本局首次摸牌且幺九字牌 ≥9 种）：确认制——本回合可宣言，按数字键确认，不宣则继续
 		if (!ps[seat].firstDrawDone) {
 			ps[seat].firstDrawDone = true;
@@ -314,6 +343,8 @@ public class RiichiGame {
 		// 立直后摸切（日麻规则：立直者打牌锁定）：无自摸/暗杠机会则自动打出刚摸的牌（AI 与人类一致）
 		if (ps[seat].riichi && !(justDrew && canWinNow(seat, true)) && findAnkan(seat) < 0) {
 			int last = ps[seat].hand.size() - 1;
+			if (isAkochan(seat))
+				AkochanEngine.drain(origin, seat, level); // 摸牌触发的响应不再需要（锁定摸切）
 			schedule((8 + level.random.nextInt(6)) * aiMul(), () -> playerDiscard(seat, last));
 			return;
 		}
@@ -423,7 +454,8 @@ public class RiichiGame {
 		waitingDiscard = false;
 		justDrew = false;
 		// 手切/摸切标记（隐藏手牌的牌背动画 key 错位用）：摸切 = 本巡刚摸牌且打出最右一张
-		st.lastTedashi[seat] = (st.drawnSeat == seat && index == p.hand.size() - 1) ? 0 : 1;
+		boolean tsumogiri = st.drawnSeat == seat && index == p.hand.size() - 1;
+		st.lastTedashi[seat] = tsumogiri ? 0 : 1;
 		st.drawnSeat = -1; // 摸牌已打出/摸切
 		// 摸牌位的交互代理随打出移除（其余 13 张代理与理牌后的固定槽位对齐）
 		FengPanBlock.removeHandInteractor(level, origin, seat, p.hand.size() - 1);
@@ -433,6 +465,10 @@ public class RiichiGame {
 		boolean riichiDeclared = pendingRiichi; // 牌谱事件旗（置位在下方立直块消费）
 		p.sortHand();
 		p.river.add(code);
+		// akochan 事件：立直宣言在切牌之前（mjai 顺序），切牌触发他家会话决策
+		if (riichiDeclared)
+			akochanEvent(MjaiProtocolConverter.reach(seat));
+		akochanEvent(MjaiProtocolConverter.dahai(seat, code, tsumogiri));
 		// 立直宣言牌被鸣后：下一张切牌改为横摆，补回立直标记
 		if (st.riichiPending[seat]) {
 			st.riichiPending[seat] = false;
@@ -447,6 +483,7 @@ public class RiichiGame {
 			p.points -= 1000;
 			ippatsu[seat] = true;
 			pendingRiichi = false;
+			akochanEvent(MjaiProtocolConverter.reachAccepted(seat));
 			// 宣言牌特效：旋转扩散的 astral_burst 粒子环
 			FengPanBlock.spawnRiichiBurst(level, origin,
 					FengPanBlock.riverTilePos(level, origin, seat, st.riichiRiverIdx[seat]));
@@ -504,8 +541,8 @@ public class RiichiGame {
 			// 地和：闲家荣和本局第一张打出的牌（须构成和牌形）
 			if (canRon(seat) || isChihoWin(seat)) {
 				opts.add("ron");
-				if (ps[seat].ai)
-					scheduleAiRon(seat); // AI 停 0.5s 再宣布和牌
+				if (ps[seat].ai && !isAkochan(seat))
+					scheduleAiRon(seat); // AI 停 0.5s 再宣布和牌（akochan 座位由响应决策处理）
 			}
 			if (!ps[seat].riichi) {
 				// 红五与普通五等价计数（如手里 1 红5 + 2 普通5 也可碰红5声明牌）
@@ -567,12 +604,23 @@ public class RiichiGame {
 					if (claimOptions[s].contains("pon") || claimOptions[s].contains("minkan"))
 						humanMeld = true;
 				}
-				if (humanRon)
+				if (humanRon) {
+					// 有人类可荣和：AI 不副露/不抢荣和；akochan 会话仍须消费各自触发的响应行
+					drainAkochanClaims(dsc);
 					return;
+				}
+				// akochan 外部 AI 决策（荣和/碰/杠/吃，异步等待进程响应，回调在服务端线程执行）
+				for (int seat = 0; seat < 4; seat++) {
+					if (seat == dsc || !isAkochan(seat))
+						continue;
+					akochanClaimPending++;
+					final int as = seat;
+					AkochanEngine.decide(origin, as, actions -> handleAkochanClaim(as, actions), level);
+				}
 				for (int seat = 0; seat < 4; seat++) {
 					if (!ps[seat].ai || seat == dsc || claimOptions[seat] == null)
 						continue;
-					int flow = Math.floorMod(st.aiFlows[seat], 7);
+					int flow = Math.floorMod(st.aiFlows[seat], 8);
 					if (flow != 0 && flow != 1 && flow != 4 && flow != 6)
 						continue; // 该流派不副露
 					List<String> opts = claimOptions[seat];
@@ -606,12 +654,12 @@ public class RiichiGame {
 						}
 					}
 				}
-				// 无 AI 副露：若窗口本应由本方法收口且人类已全部表态，则收口
+				// 无 AI 副露：若窗口本应由本方法收口且人类已全部表态，则收口（akochan 决策未齐则等待回调收口）
 				boolean anyHuman = false;
 				for (int s = 0; s < 4; s++)
 					if (!ps[s].ai && claimOptions[s] != null)
 						anyHuman = true;
-				if (!anyHuman && pendingRons.isEmpty() && aiRonPending == 0) {
+				if (!anyHuman && pendingRons.isEmpty() && aiRonPending == 0 && akochanClaimPending == 0) {
 					claimWindowEnd = 0;
 					advanceTurn();
 				}
@@ -657,8 +705,8 @@ public class RiichiGame {
 	private void resolveWindow() {
 		if (claimWindowEnd <= 0)
 			return;
-		if (aiRonPending > 0)
-			return; // 有 AI 荣和待宣言（0.5s 延迟），窗口保持开放
+		if (aiRonPending > 0 || akochanClaimPending > 0)
+			return; // 有 AI 荣和待宣言（0.5s 延迟）或 akochan 决策未齐，窗口保持开放
 		for (int s = 0; s < 4; s++)
 			if (!ps[s].ai && claimOptions[s] != null)
 				return; // 还有未表态的人类
@@ -799,6 +847,11 @@ public class RiichiGame {
 		anyCall = true;
 		st.drawnSeat = -1; // 副露家未摸牌（声明牌不在手牌中）
 		p.melds.add(new Fuuro(type, tiles, calledTile, claimDiscarder));
+		// akochan 事件：吃/碰/明杠（不触发响应，仅记录）
+		akochanEvent(MjaiProtocolConverter.meld(
+				type == Fuuro.Type.CHII ? "chi" : type == Fuuro.Type.PON ? "pon" : "daiminkan",
+				seat, claimDiscarder, calledTile,
+				java.util.Arrays.copyOfRange(tiles, 1, tiles.length)));
 		// T 行：吃(c)/碰(p)/明杠(k)
 		MahjongGameLog.turnEvent(level, origin, seat,
 				type == Fuuro.Type.CHII ? "c" : type == Fuuro.Type.PON ? "p" : "k",
@@ -917,6 +970,7 @@ public class RiichiGame {
 		}
 		p.melds.add(fuuro);
 		anyCall = true;
+		akochanEvent(MjaiProtocolConverter.kong(kind, seat, code)); // akochan：暗杠/加杠（他家加杠触发抢杠响应）
 		// T 行：暗杠(a 四张)/加杠(g 一张)
 		MahjongGameLog.turnEvent(level, origin, seat, kind.equals("ankan") ? "a" : "g",
 				MahjongTileNotation.format(java.util.Arrays.stream(fuuro.tiles).boxed().toList()));
@@ -948,7 +1002,11 @@ public class RiichiGame {
 		chiCombos.clear();
 		for (int s : claimers) {
 			claimOptions[s] = List.of("ron");
-			if (ps[s].ai) {
+			if (isAkochan(s)) {
+				akochanClaimPending++;
+				final int as = s;
+				AkochanEngine.decide(origin, as, actions -> handleAkochanClaim(as, actions), level);
+			} else if (ps[s].ai) {
 				scheduleAiRon(s); // AI 抢杠同样停 0.5s 再宣布
 			} else {
 				ServerPlayer p = st.playerOf(level, s);
@@ -960,6 +1018,10 @@ public class RiichiGame {
 				}
 			}
 		}
+		// 加杠事件触发了所有 akochan 会话的响应行：未参与抢杠的座位直接消费丢弃
+		for (int s : AkochanEngine.seatsOf(origin))
+			if (s != kongSeat && !claimers.contains(s))
+				AkochanEngine.drain(origin, s, level);
 		armClaimTiming();
 		writeBack();
 		resolveWindow();
@@ -973,6 +1035,14 @@ public class RiichiGame {
 			p.hand.add(rinshan);
 		wall.revealNextDora();
 		st.revealedIndicators = wall.revealedIndicatorCount();
+		// akochan 事件：杠后揭新宝 + 岭上摸牌（岭上 tsumo 触发该家决策）
+		if (AkochanEngine.hasAny(origin)) {
+			List<Integer> stack = wall.doraStackTiles();
+			if (!stack.isEmpty())
+				akochanEvent(MjaiProtocolConverter.dora(stack.get(2 * (st.revealedIndicators - 1))));
+			if (rinshan >= 0)
+				akochanEvent(MjaiProtocolConverter.tsumo(seat, rinshan));
+		}
 		rinshanFlag = true;
 		lastTileHand = wall.isEmpty();
 		writeBack();
@@ -1605,6 +1675,8 @@ public class RiichiGame {
 		tasks.clear();
 		aiRonPending = 0;
 		aiMeldPending = 0;
+		akochanClaimPending = 0;
+		java.util.Arrays.fill(akochanQueued, null);
 		discarderSeat = -1;
 		clearAllOptions();
 		endGame();
@@ -2025,18 +2097,201 @@ public class RiichiGame {
 		if (!waitingDiscard || seat < 0 || !ps[seat].ai)
 			return;
 		if (kyuushuAvailable) {
+			if (isAkochan(seat))
+				AkochanEngine.drain(origin, seat, level); // 摸牌触发的响应作废
 			doKyuushu(seat); // AI 直接宣言九种九牌
 			return;
 		}
 		if (justDrew && (canWinNow(seat, true) || firstTurnShapeWin(seat))) {
 			// AI 自摸按速度档延迟后宣布（立直摸切家立即和，避免与自动摸切任务竞态）
 			if (ps[seat].riichi)
-				doTsumo(seat);
+				doTsumoWithDrain(seat);
 			else
-				schedule(10 * aiMul(), () -> doTsumo(seat));
+				schedule(10 * aiMul(), () -> doTsumoWithDrain(seat));
 			return;
 		}
-		int flow = Math.floorMod(st.aiFlows[seat], 7);
+		if (Math.floorMod(st.aiFlows[seat], 8) == 7) {
+			akochanTakeTurn(seat); // akochan 外部 AI：等待进程决策（超时回落本地）
+			return;
+		}
+		aiTakeTurnLocal(seat);
+	}
+
+	/** 自摸宣和（akochan 座位须先消费摸牌触发的响应行：和牌后本局结束，不再决策） */
+	private void doTsumoWithDrain(int seat) {
+		if (isAkochan(seat))
+			AkochanEngine.drain(origin, seat, level);
+		doTsumo(seat);
+	}
+
+	/** akochan 座位回合决策：排队动作（鸣牌后随附切牌）优先，否则异步等待进程响应 */
+	private void akochanTakeTurn(int seat) {
+		if (!waitingDiscard || turn != seat)
+			return;
+		List<MjaiProtocolConverter.Action> queued = akochanQueued[seat];
+		if (queued != null) {
+			akochanQueued[seat] = null;
+			handleAkochanTurn(seat, queued);
+			return;
+		}
+		AkochanEngine.decide(origin, seat, actions -> handleAkochanTurn(seat, actions), level);
+	}
+
+	/** akochan 回合动作执行（reach → dahai 顺序；杠清队列走岭上新鲜请求；异常/超时回落本地 AI） */
+	private void handleAkochanTurn(int seat, List<MjaiProtocolConverter.Action> actions) {
+		if (!waitingDiscard || turn != seat)
+			return;
+		if (actions == null || actions.isEmpty()) {
+			aiTakeTurnLocal(seat);
+			return;
+		}
+		MjaiProtocolConverter.Action a = actions.get(0);
+		switch (a.type()) {
+			case "reach" -> {
+				if (canRiichi(seat))
+					pendingRiichi = true;
+				handleAkochanTurn(seat, actions.subList(1, actions.size()));
+			}
+			case "dahai" -> playerDiscard(seat, findDiscardIndex(seat, a));
+			case "hora" -> {
+				if (justDrew && canWinNow(seat, true))
+					doTsumo(seat);
+				else
+					aiTakeTurnLocal(seat);
+			}
+			case "ankan", "kakan" -> {
+				akochanQueued[seat] = null; // 杠后岭上摸牌触发新鲜响应
+				doKong(seat, a.type(), a.tile());
+			}
+			default -> aiTakeTurnLocal(seat); // 回合上下文不应出现的动作
+		}
+	}
+
+	/** akochan 打牌动作 → 手牌下标（tsumogiri = 最右一张；红五与普通五等价匹配；失配兜底摸切） */
+	private int findDiscardIndex(int seat, MjaiProtocolConverter.Action a) {
+		List<Integer> hand = ps[seat].hand;
+		if (a.tsumogiri())
+			return hand.size() - 1;
+		int code = a.tile();
+		for (int i = 0; i < hand.size(); i++)
+			if (hand.get(i) == code)
+				return i;
+		int alt = code < 30 ? (code % 10 == 5 ? code - 5 : code % 10 == 0 ? code + 5 : -1) : -1;
+		if (alt >= 0)
+			for (int i = 0; i < hand.size(); i++)
+				if (hand.get(i) == alt)
+					return i;
+		return hand.size() - 1;
+	}
+
+	/** akochan 响应窗口决策回调（荣和/碰/杠/吃；含响应中随附的切牌排队） */
+	private void handleAkochanClaim(int seat, List<MjaiProtocolConverter.Action> actions) {
+		akochanClaimPending = Math.max(0, akochanClaimPending - 1);
+		if (claimWindowEnd <= 0 || discarderSeat < 0)
+			return; // 窗口已收口（响应行已消费即可）
+		if (actions == null || actions.isEmpty()) {
+			claimOptions[seat] = null; // 不鸣：等价跳过
+			akochanClaimsSettledClose();
+			return;
+		}
+		if (claimOptions[seat] == null)
+			return; // 该座位本无可用选项
+		MjaiProtocolConverter.Action a = actions.get(0);
+		switch (a.type()) {
+			case "hora" -> {
+				if (!claimOptions[seat].contains("ron"))
+					return;
+				claimOptions[seat] = null;
+				pendingRons.add(seat);
+				swingIfNpc(seat); // NPC 荣和宣言挥手
+				resolveWindow();
+			}
+			case "pon", "minkan" -> {
+				if (!claimOptions[seat].contains(a.type()))
+					return;
+				claimWindowEnd = 0;
+				clearAllOptions();
+				if (actions.size() > 1 && "dahai".equals(actions.get(1).type()))
+					akochanQueued[seat] = new ArrayList<>(actions.subList(1, actions.size()));
+				doOpenMeld(seat, a.type().equals("pon") ? Fuuro.Type.PON : Fuuro.Type.MINKAN, claimTile, null);
+			}
+			case "chi" -> {
+				int[] combo = matchChiCombo(a.consumed());
+				if (combo == null || claimOptions[seat].stream().noneMatch(t -> t.startsWith("chi:"))) {
+					claimOptions[seat] = null; // 吃组合失配：放弃鸣牌
+					akochanClaimsSettledClose();
+					return;
+				}
+				claimWindowEnd = 0;
+				clearAllOptions();
+				if (actions.size() > 1 && "dahai".equals(actions.get(1).type()))
+					akochanQueued[seat] = new ArrayList<>(actions.subList(1, actions.size()));
+				doOpenMeld(seat, Fuuro.Type.CHII, claimTile, combo);
+			}
+			default -> {
+				claimOptions[seat] = null;
+				akochanClaimsSettledClose();
+			}
+		}
+	}
+
+	/** 吃组合匹配：akochan consumed 两张与本方缓存组合按红五等价配对 */
+	private int[] matchChiCombo(int[] consumed) {
+		if (consumed == null || consumed.length != 2)
+			return null;
+		for (int[] combo : chiCombos)
+			if ((sameTile(combo[0], consumed[0]) && sameTile(combo[1], consumed[1]))
+					|| (sameTile(combo[0], consumed[1]) && sameTile(combo[1], consumed[0])))
+				return combo;
+		return null;
+	}
+
+	/** akochan 决策全部表态后的窗口收口（与本地 AI 副露尾部收口同款判定） */
+	private void akochanClaimsSettledClose() {
+		if (claimWindowEnd <= 0 || discarderSeat < 0)
+			return;
+		boolean anyHuman = false;
+		for (int s = 0; s < 4; s++)
+			if (!ps[s].ai && claimOptions[s] != null)
+				anyHuman = true;
+		if (!anyHuman && pendingRons.isEmpty() && aiRonPending == 0 && akochanClaimPending == 0) {
+			claimWindowEnd = 0;
+			advanceTurn();
+		}
+	}
+
+	/** 有人类可荣和时：所有 akochan 会话的响应行直接消费丢弃（不抢人类荣和机会） */
+	private void drainAkochanClaims(int discarder) {
+		for (int s : AkochanEngine.seatsOf(origin))
+			if (s != discarder)
+				AkochanEngine.drain(origin, s, level);
+	}
+
+	private boolean isAkochan(int seat) {
+		return ps[seat].ai && Math.floorMod(st.aiFlows[seat], 8) == 7;
+	}
+
+	/** 向该桌所有 akochan 会话广播 mjai 事件 */
+	private void akochanEvent(String json) {
+		if (AkochanEngine.hasAny(origin))
+			AkochanEngine.broadcast(origin, json);
+	}
+
+	/** 每局开始下发 start_kyoku（全量明牌视角，供 akochan 服务端记录） */
+	private void akochanStartKyoku() {
+		if (!AkochanEngine.hasAny(origin))
+			return;
+		List<Integer> stack = wall.doraStackTiles();
+		int marker = stack.isEmpty() ? -1 : stack.get(0);
+		List<List<Integer>> tehais = new ArrayList<>();
+		for (int s = 0; s < 4; s++)
+			tehais.add(ps[s].hand);
+		akochanEvent(MjaiProtocolConverter.startKyoku(st.roundWind, st.round, st.honba,
+				totalRiichiSticks() / 1000, dealerSeat(), st.points, marker, tehais));
+	}
+
+	private void aiTakeTurnLocal(int seat) {
+		int flow = Math.floorMod(st.aiFlows[seat], 8);
 		boolean defensiveFlow = flow == 2 || flow == 4;
 		boolean opponentRiichi = defendActive(seat);
 		// 开杠决策：防守型（门清流/魂天流）视情况——场上有立直家时不杠（不暴露新宝牌信息、

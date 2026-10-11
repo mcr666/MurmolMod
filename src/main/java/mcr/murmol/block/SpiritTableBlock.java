@@ -85,16 +85,30 @@ public class SpiritTableBlock extends BaseEntityBlock {
 					if (!allFilled) {
 						player.displayClientMessage(Component.literal("\u00A74The ritual materials are incomplete."), true);
 					} else {
-						FeralForm form = FeralFormManager.findFormByMaterials(materials);
-						if (form != null) {
-							// 形态被两仪禁用时：失败提示（在 transformFromItem 中），材料保留在坛内
-							if (FeralFormManager.transformFromItem(level, pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, player, form, ItemStack.EMPTY)) {
-								for (int i = 0; i < inventory.getSlots(); i++)
-									inventory.setStackInSlot(i, ItemStack.EMPTY);
-								blockEntity.setChanged();
-								level.sendBlockUpdated(pos, state, state, 3);
-							}
-						} else {
+							FeralForm form = FeralFormManager.findFormByMaterials(materials);
+							if (form != null) {
+								// 游戏规则 murmolSpiritTableXpCost：变形消耗经验等级（创造免费，不足时材料保留）
+								if (level.getGameRules().getBoolean(
+										mcr.murmol.init.MurmolModGameRules.SPIRIT_TABLE_XP_COST)
+										&& !player.getAbilities().instabuild
+										&& player.experienceLevel < mcr.murmol.init.MurmolModGameRules.SPIRIT_TABLE_XP_AMOUNT) {
+									player.displayClientMessage(Component.translatable(
+											"message.murmol.spirit_table.xp_needed",
+											mcr.murmol.init.MurmolModGameRules.SPIRIT_TABLE_XP_AMOUNT), true);
+									return ItemInteractionResult.SUCCESS;
+								}
+								// 形态被两仪禁用/未解锁时：失败提示（在 transformFromItem 中），材料保留在坛内
+								if (FeralFormManager.transformFromItem(level, pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, player, form, ItemStack.EMPTY)) {
+									if (level.getGameRules().getBoolean(
+											mcr.murmol.init.MurmolModGameRules.SPIRIT_TABLE_XP_COST)
+											&& !player.getAbilities().instabuild)
+										player.giveExperienceLevels(-mcr.murmol.init.MurmolModGameRules.SPIRIT_TABLE_XP_AMOUNT);
+									for (int i = 0; i < inventory.getSlots(); i++)
+										inventory.setStackInSlot(i, ItemStack.EMPTY);
+									blockEntity.setChanged();
+									level.sendBlockUpdated(pos, state, state, 3);
+								}
+							} else {
 							// 配方错误：小型爆炸（不破坏方块），内容物在爆炸结束后掉落，不会被炸毁
 							java.util.List<ItemStack> drops = new java.util.ArrayList<>();
 							for (int i = 0; i < inventory.getSlots(); i++) {

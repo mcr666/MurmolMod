@@ -19,6 +19,8 @@ public final class FeralForms {
 	public static final FeralForm KOMAINU = new KomainuForm();
 	public static final FeralForm WENYAO = new WenyaoForm();
 	public static final FeralForm FEROCIOUS = new FerociousForm();
+	public static final FeralForm DARK_FURY = new DarkFuryForm();
+	public static final FeralForm TEST = new TestForm();
 
 	private static final Map<String, FeralForm> BY_ID = new HashMap<>();
 
@@ -31,6 +33,8 @@ public final class FeralForms {
 		register(KOMAINU);
 		register(WENYAO);
 		register(FEROCIOUS);
+		register(DARK_FURY);
+		register(TEST);
 	}
 
 	private FeralForms() {

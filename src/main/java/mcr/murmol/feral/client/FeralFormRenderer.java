@@ -44,15 +44,6 @@ import java.util.Set;
 @EventBusSubscriber(Dist.CLIENT)
 public class FeralFormRenderer {
 
-	/** 整体偏移（模型坐标 Y+ 朝下），当前值由玩家实测调定为 13 */
-	public static final float BODY_Y_OFFSET = 13.0F;
-
-	/** 整体向前偏移（模型坐标 -Z 为实体面朝方向），5 个模型单位 = 5/16 格 */
-	public static final float BODY_Z_OFFSET = -5.0F;
-
-	/** 蹲下/潜行时的额外上移（沿用原 applyBodyRenderTransform 的 CROUCH_RENDER_Y_OFFSET = 2 个模型单位 = 0.125 格） */
-	private static final float CROUCH_Y_OFFSET = -2.0F;
-
 	/** 尾巴 idle↔walk 交叉混合时长（tick），与身体动画 TRANSITION_TICKS 一致 */
 	private static final float TAIL_BLEND_TICKS = 4.0F;
 
@@ -60,6 +51,15 @@ public class FeralFormRenderer {
 	private static final java.util.WeakHashMap<Player, TailBlend> TAIL_BLENDS = new java.util.WeakHashMap<>();
 	/** 石像状态冻结的朝向（按玩家 UUID 记录进入石像那一刻的 身体yaw / 头部相对yaw / 头部俯仰） */
 	private static final java.util.Map<java.util.UUID, float[]> STATUE_POSES = new java.util.HashMap<>();
+
+	/**
+	 * 石像状态冻结的身体 yaw（供盔甲层把原版渲染空间的实时 yaw 修正回冻结值）；
+	 * 非石像或本帧尚未渲染兽身时返回 null。
+	 */
+	public static Float frozenStatueBodyYaw(java.util.UUID playerId) {
+		float[] frozen = STATUE_POSES.get(playerId);
+		return frozen == null ? null : frozen[0];
+	}
 
 
 	@SubscribeEvent
@@ -140,11 +140,13 @@ public class FeralFormRenderer {
 		if (form.getWholeModelLayer() != null)
 			return;
 
-		hideVanillaParts(event.getRenderer().getModel());
-
 		PlayerModel bodyModel = form.getBodyModel();
 		if (bodyModel == null)
+			// 无自定义身体模型（如 test 形态）：保留原版玩家模型原样渲染，
+			// Bedrock 动画由 FeralPlayerModelMixin 在原版 setupAnim 中直接驱动
 			return;
+
+		hideVanillaParts(event.getRenderer().getModel());
 
 		ResourceLocation texture = resolveTexture(form, event.getEntity());
 		if (texture != null) {
@@ -270,47 +272,10 @@ public class FeralFormRenderer {
 		FeralForm form = FeralFormManager.getForm(player);
 		if (!form.isFeral())
 			return;
-		PlayerModel bodyModel = form.getBodyModel();
-		if (bodyModel == null)
-			return;
-		shiftModelY(bodyModel, -BODY_Y_OFFSET - form.getBodyYOffset());
-		shiftModelZ(bodyModel, -BODY_Z_OFFSET);
-		shiftExtraPartsY(form, -BODY_Y_OFFSET - form.getBodyYOffset());
-		shiftExtraPartsZ(form, -BODY_Z_OFFSET);
 	}
 
 	private static Map<String, ModelPart> extraBodyParts(FeralForm form) {
 		return FeralFormModels.getExtraBodyParts(form.getBodyLayer());
-	}
-
-	private static void shiftExtraPartsY(FeralForm form, float dy) {
-		for (ModelPart part : extraBodyParts(form).values()) {
-			part.y += dy;
-		}
-	}
-
-	private static void shiftExtraPartsZ(FeralForm form, float dz) {
-		for (ModelPart part : extraBodyParts(form).values()) {
-			part.z += dz;
-		}
-	}
-
-	private static void shiftModelY(PlayerModel model, float dy) {
-		model.head.y += dy;
-		model.body.y += dy;
-		model.leftArm.y += dy;
-		model.rightArm.y += dy;
-		model.leftLeg.y += dy;
-		model.rightLeg.y += dy;
-	}
-
-	private static void shiftModelZ(PlayerModel model, float dz) {
-		model.head.z += dz;
-		model.body.z += dz;
-		model.leftArm.z += dz;
-		model.rightArm.z += dz;
-		model.leftLeg.z += dz;
-		model.rightLeg.z += dz;
 	}
 
 	private static void offsetScale(PlayerModel model, Vector3f offset) {
@@ -382,18 +347,6 @@ public class FeralFormRenderer {
 		model.setupAnim(entity, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch);
 		applyTailAnimation(form, entity, model, limbSwing, limbSwingAmount, ageInTicks);
 		applyBipedAnimation(form, entity, limbSwing, limbSwingAmount, ageInTicks);
-		// 整体向下偏移（含形态专属偏移），直接烘进骨骼坐标，手持物品等跟随渲染自动对齐
-		shiftModelY(model, BODY_Y_OFFSET + form.getBodyYOffset());
-		// 整体向前偏移（烘进骨骼坐标，渲染结束后还原）
-		shiftModelZ(model, BODY_Z_OFFSET);
-		// biped_* 附加骨骼同步偏移，保持与身体对齐
-		shiftExtraPartsY(form, BODY_Y_OFFSET + form.getBodyYOffset());
-		shiftExtraPartsZ(form, BODY_Z_OFFSET);
-		// 蹲下/潜行时额外上移（原由 FeralPlayerRendererMixin -> applyBodyRenderTransform 提供，该 Mixin 已移除）
-		if (entity.isCrouching() || entity.isShiftKeyDown()) {
-			shiftModelY(model, CROUCH_Y_OFFSET);
-			shiftExtraPartsY(form, CROUCH_Y_OFFSET);
-		}
 		if (entity.hasPose(Pose.SLEEPING)) {
 			Direction direction = entity.getBedOrientation();
 			if (direction != null) {
@@ -402,12 +355,14 @@ public class FeralFormRenderer {
 						(float) (-direction.getStepZ()) * eyeHeightOffset);
 			}
 		}
-		event.getRenderer().setupRotations(entity, poseStack, ageInTicks, interpolatedBodyYaw, partialTick, 0);
-		// 取消游泳/爬行时的模型前倾旋转
-		cancelSwimRotation(entity, poseStack, partialTick);
-		// SCALE 属性（如春花形态 0.75x）影响碰撞箱与原版渲染，这里同步应用到自定义模型
+		// 与原版 LivingEntityRenderer.render 顺序一致：先施加形态尺寸缩放，再 setupRotations。
+		// setupRotations 被 Mixin 替换为 body 根骨骼变换（含 13/-5 基准位移），
+		// 该位移必须与原版图层（盔甲层）处于同一缩放空间，否则尺寸形态头盔错位
 		float bodyScale = entity.getScale();
-		poseStack.scale(-0.938f * bodyScale, -0.938f * bodyScale, 0.938f * bodyScale);
+		poseStack.scale(bodyScale, bodyScale, bodyScale);
+		event.getRenderer().setupRotations(entity, poseStack, ageInTicks, interpolatedBodyYaw, partialTick, 0);
+		// Blockbench 包装模型二级翻转（尺寸缩放已在上方施加）
+		poseStack.scale(-0.938f, -0.938f, 0.938f);
 		poseStack.translate(0.0D, -1.50D, 0.0D);
 		Vector3f offset = new Vector3f(0.015f);
 		offsetScale(model, offset);

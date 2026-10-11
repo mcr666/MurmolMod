@@ -20,4 +20,19 @@ public class RevealMobEffect extends MobEffect {
 				&& player.getData(mcr.murmol.network.MurmolModVariables.PLAYER_VARIABLES).revealOriginalFormId.isEmpty())
 			RevealManager.beginReveal(player);
 	}
+
+	@Override
+	public boolean shouldApplyEffectTickThisTick(int duration, int amplifier) {
+		return true;
+	}
+
+	@Override
+	public boolean applyEffectTick(net.minecraft.world.entity.LivingEntity entity, int amplifier) {
+		// 实体中心每 tick 生成 1 个 end_rod 粒子，三轴各 ±0.25 偏移
+		if (entity.level() instanceof net.minecraft.server.level.ServerLevel level)
+			level.sendParticles(net.minecraft.core.particles.ParticleTypes.END_ROD,
+					entity.getX(), entity.getY() + entity.getBbHeight() / 2.0, entity.getZ(),
+					1, 0.25, 0.25, 0.25, 0.0);
+		return true;
+	}
 }

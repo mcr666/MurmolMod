@@ -2,7 +2,7 @@
   "name": "幻星麻雀",
   "icon": "richi:fengpan",
   "category": "murmol:materials",
-  "sortnum": 7,
+  "sortnum": 8,
   "pages": [
     {
       "type": "patchouli:spotlight",

@@ -9,6 +9,7 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.core.Direction;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -33,13 +34,15 @@ public class SpiritTableRenderer implements BlockEntityRenderer<SpiritTableBlock
 			if (stack.isEmpty())
 				continue;
 			poseStack.pushPose();
-			// 2x2 网格平放于顶面（顶面 y=0.75），中心对称偏移 ±0.25
-			double offsetX = (i % 2 == 0) ? -0.25 : 0.25;
-			double offsetZ = (i < 2) ? -0.25 : 0.25;
-			poseStack.translate(0.5 + offsetX, 0.83, 0.5 + offsetZ);
-			poseStack.mulPose(Axis.XP.rotationDegrees(-90));
-			poseStack.scale(0.4f, 0.4f, 0.4f);
-			Minecraft.getInstance().getItemRenderer().renderStatic(stack, ItemDisplayContext.GROUND, lightColor, OverlayTexture.NO_OVERLAY, poseStack, bufferSource, level, 0);
+			// 同原版营火：四件物品朝四个方向外沿摆放，外边缘与方块边缘齐平。
+			// 台面位于 y=0.75，加 0.0117 间隙避免 Z-fighting（营火同款 0.44921875 思路）。
+			poseStack.translate(0.5, 0.7617, 0.5);
+			Direction direction = Direction.from2DDataValue(i);
+			poseStack.mulPose(Axis.YP.rotationDegrees(-direction.toYRot()));
+			poseStack.mulPose(Axis.XP.rotationDegrees(90.0F));
+			poseStack.translate(-0.3125, -0.3125, 0.0);
+			poseStack.scale(0.375F, 0.375F, 0.375F);
+			Minecraft.getInstance().getItemRenderer().renderStatic(stack, ItemDisplayContext.FIXED, lightColor, OverlayTexture.NO_OVERLAY, poseStack, bufferSource, level, i);
 			poseStack.popPose();
 		}
 	}

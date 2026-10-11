@@ -20,7 +20,7 @@
     {
       "type": "patchouli:text",
       "title": "Attributes",
-      "text": "$(li)Max Health +4$(li)Attack Knockback +0.5$(br)In caves:$(li)Movement Speed +10%$(li)Jump Strength +0.2$(li)Mining Efficiency +1$(br)On the surface:$(li)Movement Speed -50%"
+      "text": "$(li)Max Health +4$(li)Attack Knockback +0.5$(br)In caves:$(li)Movement Speed +10%$(li)Jump Strength +0.2$(li)Mining Efficiency +1$(br)On the surface:$(li)Movement Speed -50%$(br2)Diet: it can feed on plant blocks — flowers, saplings, leaves, moss, vines, sugar cane, cactus, drip-leaves and more — each providing the same nourishment as a $(item)Carrot$(0)."
     },
     {
       "type": "patchouli:text",

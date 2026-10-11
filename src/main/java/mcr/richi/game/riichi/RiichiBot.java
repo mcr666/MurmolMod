@@ -29,8 +29,8 @@ public final class RiichiBot {
 
 	private static final String[] NAMES = { "AI·東", "AI·南", "AI·西", "AI·北" };
 
-	/** 流派名（日志/调试用） */
-	public static final String[] FLOW_NAMES = { "一般流", "野猪流", "门清流", "御无双", "魂天流", "闪电流", "鬼神境" };
+	/** 流派名（日志/调试用）：7 = akochan（外部进程深度学习 AI，决策全部委托，超时回落本地） */
+	public static final String[] FLOW_NAMES = { "一般流", "野猪流", "门清流", "御无双", "魂天流", "闪电流", "鬼神境", "akochan流" };
 
 	/** AI 虚拟 UUID（UUID.fromString 可解析的固定占位，按座位区分） */
 	public static String aiUuid(int seat) {
@@ -75,6 +75,9 @@ public final class RiichiBot {
 	public static int flowOfAvatar(String form, String name, DoubleSupplier random) {
 		if ("human".equals(form) && "Murmol".equals(name))
 			return 6;
+		// 人类形象名字 akochan（忽略大小写）= 外部 AI 流派（仅显式指定时触发）
+		if ("human".equals(form) && "akochan".equalsIgnoreCase(name))
+			return 7;
 		int f = switch (form == null ? "" : form) {
 			case "chen_huang" -> 0;
 			case "luohong" -> 1;
@@ -82,6 +85,7 @@ public final class RiichiBot {
 			case "wenyao" -> 3;
 			case "komainu" -> 4;
 			case "ferocious" -> 4; // 凶兽 = 魂天流
+			case "dark_fury" -> 4; // 黯忿 = 魂天流
 			case "silkmoth" -> 5;
 			default -> -1; // human/villager → 随机 0-4（不含闪电流/鬼神境）
 		};

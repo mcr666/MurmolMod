@@ -29,15 +29,25 @@ public class MahjongItems {
 		IDS.add("mahjong_stick_1000");
 	}
 
-	/** 单个麻雀牌物品：牌面由数据组件 mahjong_tile_code（NBT）驱动（阶段二起为正式方案） */
+	/** 单个麻雀牌物品（同时为 BlockItem：右键摆放为平放牌方块）：牌面由数据组件 mahjong_tile_code（NBT）驱动 */
 	public static final DeferredHolder<Item, Item> MAHJONG_TILE =
-			REGISTRY.register("mahjong_tile", () -> new MahjongTileItem(new Item.Properties().stacksTo(4)));
+			REGISTRY.register("mahjong_tile", () -> new MahjongTileItem(MahjongBlocks.MAHJONG_TILE_BLOCK.get(),
+					new Item.Properties().stacksTo(4)));
 
 	/** 风盘（麻雀牌桌）的物品形式 */
 	public static final DeferredHolder<Item, Item> FENG_PAN =
 			REGISTRY.register("fengpan", () -> new net.minecraft.world.item.BlockItem(MahjongBlocks.FENG_PAN.get(), new Item.Properties()));
 
 	public static final List<DeferredHolder<Item, Item>> ITEMS = IDS.stream()
-			.map(id -> REGISTRY.register(id, () -> new Item(new Item.Properties())))
+			.map(id -> REGISTRY.register(id, () -> {
+				Item.Properties props = new Item.Properties();
+				if (id.equals("mahjong_stick_1000"))
+					// 1000 点棒可食用：回复 3 格饱食度（nutrition 6）+ 饱和度
+					props.food(new net.minecraft.world.food.FoodProperties.Builder()
+							.nutrition(6)
+							.saturationModifier(1.0f)
+							.build());
+				return new Item(props);
+			}))
 			.toList();
 }

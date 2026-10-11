@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    "PPP",
+    "PWP",
+    "PPP"
+  ],
+  "key": {
+    "P": { "item": "minecraft:glass_pane" },
+    "W": { "item": "minecraft:potion" }
+  },
+  "result": {
+    "id": "murmol:water_bubble",
+    "count": 1
+  }
+}

@@ -73,6 +73,7 @@ public class FeralFormModels {
 		event.registerLayerDefinition(KomainuModel.LAYER_LOCATION, KomainuModel::createBodyLayer);
 		event.registerLayerDefinition(mcr.murmol.client.model.WenYaoModel.LAYER_LOCATION, mcr.murmol.client.model.WenYaoModel::createBodyLayer);
 		event.registerLayerDefinition(mcr.murmol.client.model.FerociousModel.LAYER_LOCATION, mcr.murmol.client.model.FerociousModel::createBodyLayer);
+		event.registerLayerDefinition(mcr.murmol.client.model.DarkFuryModel.LAYER_LOCATION, mcr.murmol.client.model.DarkFuryModel::createBodyLayer);
 	}
 
 	@SubscribeEvent
@@ -84,6 +85,7 @@ public class FeralFormModels {
 		bakeBodyModel(event, "silkmoth", SilkmothModel.class);
 		bakeBodyModel(event, "komainu", KomainuModel.class);
 		bakeBodyModel(event, "ferocious", mcr.murmol.client.model.FerociousModel.class);
+		bakeBodyModel(event, "dark_fury", mcr.murmol.client.model.DarkFuryModel.class);
 
 		bakeTailModel(event, "luohong_tail", Modelfurtals.class);
 		bakeTailModel(event, "chen_huang_tail", ModelCHtail.class);

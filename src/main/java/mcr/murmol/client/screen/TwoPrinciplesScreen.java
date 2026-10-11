@@ -2,7 +2,6 @@ package mcr.murmol.client.screen;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 
@@ -11,6 +10,7 @@ import mcr.murmol.feral.FeralForms;
 import mcr.murmol.feral.FeralFormToggles;
 import mcr.murmol.network.FormTogglePayloads;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -32,6 +32,16 @@ public class TwoPrinciplesScreen extends Screen {
 	/** 待定修改：形态 id -> 是否启用（确认前仅本地生效，不发送网络包） */
 	private final Map<String, Boolean> pending = new HashMap<>();
 
+	/** 灰色半透明按钮（与列表行同款样式，替代原版 Button） */
+	private record UiBtn(int x, int y, int w, int h, String label, Runnable action) {
+	}
+
+	private final List<UiBtn> btns = new ArrayList<>();
+	/** 右下角「设置」小按钮（所有玩家可见，打开本 mod 配置界面，不受编辑权限限制） */
+	private UiBtn settingsBtn;
+	/** 右下角「游戏规则」小按钮（所有玩家可见，打开本 mod 游戏规则设置界面） */
+	private UiBtn gameRulesBtn;
+
 	public TwoPrinciplesScreen() {
 		super(Component.translatable("gui.murmol.two_principles.title"));
 	}
@@ -50,28 +60,45 @@ public class TwoPrinciplesScreen extends Screen {
 		this.canEdit = this.minecraft != null && this.minecraft.player != null
 				&& this.minecraft.player.hasPermissions(3);
 
+		this.btns.clear();
+		// 右下角「设置」小按钮：打开本 mod 配置界面（NeoForge ConfigurationScreen）
+		int sw = 50, sh = 16;
+		this.settingsBtn = new UiBtn(this.width - sw - 6, this.height - sh - 6, sw, sh,
+				Component.translatable("gui.murmol.two_principles.btn_settings").getString(),
+				TwoPrinciplesScreen.this::openModConfig);
+		// 「设置」左侧的「游戏规则」小按钮：打开本 mod 游戏规则设置界面
+		int grw = 60;
+		this.gameRulesBtn = new UiBtn(this.settingsBtn.x() - grw - 4, this.height - sh - 6, grw, sh,
+				Component.translatable("gui.murmol.two_principles.btn_game_rules").getString(),
+				() -> MurmolGameRulesScreen.open(TwoPrinciplesScreen.this));
 		if (this.canEdit) {
 			int left = this.width / 2 - ROW_WIDTH / 2;
 			int top = 34;
-			int listHeight = VISIBLE_ROWS * ROW_HEIGHT;
-			int btnY = top + listHeight + 10;
+			int btnY = top + VISIBLE_ROWS * ROW_HEIGHT + 10;
 			// 一行四个按钮：全部启用 / 全部禁用 / 确认 / 取消
-			addRenderableWidget(Button.builder(
-					Component.translatable("gui.murmol.two_principles.btn_enable_all"), b -> setAll(true))
-					.bounds(left, btnY, 60, 20).build());
-			addRenderableWidget(Button.builder(
-					Component.translatable("gui.murmol.two_principles.btn_disable_all"), b -> setAll(false))
-					.bounds(left + 62, btnY, 60, 20).build());
-			addRenderableWidget(Button.builder(
-					Component.translatable("gui.murmol.two_principles.btn_apply"), b -> applyChanges())
-					.bounds(left + 124, btnY, 46, 20).build());
-			addRenderableWidget(Button.builder(
-					Component.translatable("gui.murmol.two_principles.btn_cancel"), b -> {
+			this.btns.add(new UiBtn(left, btnY, 60, 20,
+					Component.translatable("gui.murmol.two_principles.btn_enable_all").getString(),
+					() -> setAll(true)));
+			this.btns.add(new UiBtn(left + 62, btnY, 60, 20,
+					Component.translatable("gui.murmol.two_principles.btn_disable_all").getString(),
+					() -> setAll(false)));
+			this.btns.add(new UiBtn(left + 124, btnY, 46, 20,
+					Component.translatable("gui.murmol.two_principles.btn_apply").getString(),
+					this::applyChanges));
+			this.btns.add(new UiBtn(left + 172, btnY, 48, 20,
+					Component.translatable("gui.murmol.two_principles.btn_cancel").getString(), () -> {
 						this.pending.clear();
 						onClose();
-					})
-					.bounds(left + 172, btnY, 48, 20).build());
+					}));
 		}
+	}
+
+	/** 打开本 mod 的配置界面（MurmolMod 构造器中注册的 IConfigScreenFactory） */
+	private void openModConfig() {
+		var mc = Minecraft.getInstance();
+		net.neoforged.fml.ModList.get().getModContainerById(mcr.murmol.MurmolMod.MODID).ifPresent(container -> container
+				.getCustomExtension(net.neoforged.neoforge.client.gui.IConfigScreenFactory.class)
+				.ifPresent(factory -> mc.setScreen(factory.createScreen(container, this))));
 	}
 
 	/** 待定状态下的形态是否启用（优先本地待定值，其次服务端同步缓存） */
@@ -149,6 +176,26 @@ public class TwoPrinciplesScreen extends Screen {
 			graphics.fill(left + ROW_WIDTH + 1, barY, left + ROW_WIDTH + 3, barY + barHeight, 0xFFA0A0A0);
 		}
 
+		// 灰色半透明按钮（与列表行同款样式：悬停高亮）
+		for (UiBtn b : this.btns) {
+			boolean hov = mouseX >= b.x() && mouseX < b.x() + b.w() && mouseY >= b.y() && mouseY < b.y() + b.h();
+			graphics.fill(b.x(), b.y(), b.x() + b.w(), b.y() + b.h(), hov ? 0x509090C0 : 0x30A0A0A0);
+			graphics.drawString(font, b.label(), b.x() + (b.w() - font.width(b.label())) / 2, b.y() + 6,
+					0xFFFFFF, false);
+		}
+
+		// 右下角「游戏规则」「设置」小按钮（同款样式）
+		UiBtn[] cornerBtns = { this.gameRulesBtn, this.settingsBtn };
+		for (UiBtn b0 : cornerBtns) {
+			if (b0 == null)
+				continue;
+			UiBtn b = b0;
+			boolean hov = mouseX >= b.x() && mouseX < b.x() + b.w() && mouseY >= b.y() && mouseY < b.y() + b.h();
+			graphics.fill(b.x(), b.y(), b.x() + b.w(), b.y() + b.h(), hov ? 0x509090C0 : 0x30A0A0A0);
+			graphics.drawString(font, b.label(), b.x() + (b.w() - font.width(b.label())) / 2, b.y() + 3,
+					0xFFFFFF, false);
+		}
+
 		// 底部提示（按钮在下方，再往下移）
 		Component hint = this.canEdit
 				? Component.translatable("gui.murmol.two_principles.hint_edit")
@@ -158,6 +205,25 @@ public class TwoPrinciplesScreen extends Screen {
 
 	@Override
 	public boolean mouseClicked(double mouseX, double mouseY, int button) {
+		// 右下角「游戏规则」「设置」按钮（所有玩家可用，不受编辑权限限制）
+		if (button == 0) {
+			for (UiBtn b : new UiBtn[] { this.gameRulesBtn, this.settingsBtn }) {
+				if (b != null && mouseX >= b.x() && mouseX < b.x() + b.w()
+						&& mouseY >= b.y() && mouseY < b.y() + b.h()) {
+					b.action().run();
+					return true;
+				}
+			}
+		}
+		// 灰色半透明按钮（列表样式）命中
+		if (this.canEdit && button == 0) {
+			for (UiBtn b : this.btns) {
+				if (mouseX >= b.x() && mouseX < b.x() + b.w() && mouseY >= b.y() && mouseY < b.y() + b.h()) {
+					b.action().run();
+					return true;
+				}
+			}
+		}
 		if (this.canEdit && button == 0 && !this.formIds.isEmpty()) {
 			int left = this.width / 2 - ROW_WIDTH / 2;
 			int top = 34;

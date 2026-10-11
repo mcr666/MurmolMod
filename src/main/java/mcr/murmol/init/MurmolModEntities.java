@@ -25,10 +25,6 @@ public class MurmolModEntities {
 			EntityType.Builder.<XiaoHuiProjectileEntity>of(XiaoHuiProjectileEntity::new, MobCategory.MISC).setShouldReceiveVelocityUpdates(true).setTrackingRange(64).setUpdateInterval(1).sized(0.3f, 0.3f));
 	public static final DeferredHolder<EntityType<?>, EntityType<IceBoltEntity>> ICE_BOLT = register("ice_bolt",
 			EntityType.Builder.<IceBoltEntity>of(IceBoltEntity::new, MobCategory.MISC).setShouldReceiveVelocityUpdates(true).setTrackingRange(64).setUpdateInterval(1).sized(0.3f, 0.3f));
-	public static final DeferredHolder<EntityType<?>, EntityType<PepperCHEntity>> PEPPER_CH = register("pepper_ch",
-			EntityType.Builder.<PepperCHEntity>of(PepperCHEntity::new, MobCategory.CREATURE).setShouldReceiveVelocityUpdates(true).setTrackingRange(64).setUpdateInterval(3)
-
-					.sized(0.8f, 0.8f));
 	public static final DeferredHolder<EntityType<?>, EntityType<PetalProjectileEntity>> PETAL_PROJECTILE = register("petal_projectile",
 			EntityType.Builder.<PetalProjectileEntity>of(PetalProjectileEntity::new, MobCategory.MISC).setShouldReceiveVelocityUpdates(true).setTrackingRange(64).setUpdateInterval(1).sized(0.2f, 0.2f));
 	public static final DeferredHolder<EntityType<?>, EntityType<AlfarEntity>> ALFAR = register("alfar",
@@ -41,9 +37,6 @@ public class MurmolModEntities {
 			EntityType.Builder.<AstralDrakeEntity>of(AstralDrakeEntity::new, MobCategory.AMBIENT).setShouldReceiveVelocityUpdates(true).setTrackingRange(64).setUpdateInterval(3)
 
 					.sized(0.6f, 1.8f));
-	public static final DeferredHolder<EntityType<?>, EntityType<GluttonySlimeEntity>> GLUTTONY_SLIME = register("gluttony_slime",
-			EntityType.Builder.<GluttonySlimeEntity>of(GluttonySlimeEntity::new, MobCategory.MONSTER).setShouldReceiveVelocityUpdates(true).setTrackingRange(64).setUpdateInterval(3)
-					.sized(0.52f, 0.52f));
 	public static final DeferredHolder<EntityType<?>, EntityType<AstralCoreProjectileEntity>> ASTRAL_CORE_PROJECTILE = register("astral_core_projectile",
 			EntityType.Builder.<AstralCoreProjectileEntity>of(AstralCoreProjectileEntity::new, MobCategory.MISC).setShouldReceiveVelocityUpdates(true).setTrackingRange(64).setUpdateInterval(1).sized(0.25f, 0.25f));
 
@@ -59,18 +52,14 @@ public class MurmolModEntities {
 
 	@SubscribeEvent
 	public static void init(RegisterSpawnPlacementsEvent event) {
-		PepperCHEntity.init(event);
 		AlfarEntity.init(event);
 		AstralDrakeEntity.init(event);
-		GluttonySlimeEntity.init(event);
 	}
 
 	@SubscribeEvent
 	public static void registerAttributes(EntityAttributeCreationEvent event) {
-		event.put(PEPPER_CH.get(), PepperCHEntity.createAttributes().build());
 		event.put(ALFAR.get(), AlfarEntity.createAttributes().build());
 		event.put(ASTRAL_DRAKE.get(), AstralDrakeEntity.createAttributes().build());
-		event.put(GLUTTONY_SLIME.get(), GluttonySlimeEntity.createAttributes().build());
 		event.put(MURMOL_NPC.get(), MurmolNpcEntity.createAttributes().build());
 	}
 }

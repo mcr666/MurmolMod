@@ -5,12 +5,15 @@
   "mixins": [
     "NoiseGeneratorSettingsMixin",
     "BiomeSourcePresetMixin",
+    "MultiNoiseBiomeSourceParameterListMixin",
     "PlayerRespawnLogicMixin",
     "RecipeManagerMixin",
-    "PetrifyEffectInvisibleMixin"
+    "PetrifyEffectInvisibleMixin",
+    "EntityWaterBubbleMixin"
   ],
   "client": [
-    "MusicManagerMixin"
+    "MusicManagerMixin",
+    "client.LocalPlayerWaterBubbleMixin"
   ],
   "injectors": {
     "defaultRequire": 1

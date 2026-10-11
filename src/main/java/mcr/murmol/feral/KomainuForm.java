@@ -35,8 +35,8 @@ public class KomainuForm extends FeralForm {
 							new ItemStack(Items.DIAMOND)));
 		// 该形态不显示第一人称手臂
 		enableFirstPersonArm();
-		// 与乘黄共用同一套动画文件（通用 idle/walk/sneak + tail_idle/tail_walk）
-		setAnimationFile(ResourceLocation.fromNamespaceAndPath("murmol", "player_animations/chen_huang_anim.json"));
+		// 形态专属动画文件（通用 idle/walk/sneak + tail_idle/tail_walk，初始内容与乘黄一致）
+		setAnimationFile(ResourceLocation.fromNamespaceAndPath("murmol", "player_animations/komainu_anim.json"));
 	}
 
 	@Override

@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    ".aa",
+    "bca",
+    "bb."
+  ],
+  "key": {
+    "a": {
+      "item": "murmol:petal"
+    },
+    "b": {
+      "item": "minecraft:kelp"
+    },
+    "c": {
+      "item": "murmol:tree_heart"
+    }
+  },
+  "result": {
+    "id": "murmol:fragrant_corsage",
+    "count": 1
+  }
+}

@@ -3,10 +3,10 @@ package mcr.murmol.mixin;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Mutable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Final;
+import org.spongepowered.asm.mixin.Shadow;
 
 import net.minecraft.world.level.biome.MultiNoiseBiomeSourceParameterList;
 import net.minecraft.world.level.biome.Climate;
@@ -33,7 +33,10 @@ public class BiomeSourcePresetMixin {
 				@Override
 				public <T> Climate.ParameterList<T> apply(Function<ResourceKey<Biome>, T> lookup) {
 					Climate.ParameterList<T> originalList = existingProvider.apply(lookup);
-					return MurmolModBiomes.adaptPresetParameterList(idArg, originalList, lookup);
+					// 范围等级取世界创建时的线程上下文（WorldGenContextMixin 注入），缺失则默认 2
+					return MurmolModBiomes.adaptPresetParameterList(idArg, originalList, lookup,
+							mcr.murmol.init.MurmolModGameRules.astralInfectionRangeForPreset(
+									mcr.murmol.worldgen.WorldGenRuleContext.currentInfectionRange()));
 				}
 			};
 		}

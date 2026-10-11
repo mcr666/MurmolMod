@@ -19,7 +19,7 @@ public abstract class FeralPlayerModelMixin<T extends LivingEntity> extends Huma
 	@Inject(method = "setupAnim(Lnet/minecraft/world/entity/LivingEntity;FFFFF)V", at = @At("HEAD"))
 	private void astralCruse$clearPreviousFeralPose(T entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch, CallbackInfo ci) {
 		PlayerModel<?> model = (PlayerModel<?>) (Object) this;
-		if (FeralBedrockPlayerAnimator.shouldAnimate(entity)) {
+		if (FeralBedrockPlayerAnimator.shouldAnimate(entity, ageInTicks)) {
 			this.attackTime = 0.0F;
 			this.leftArmPose = ArmPose.EMPTY;
 			this.rightArmPose = ArmPose.EMPTY;
@@ -40,7 +40,7 @@ public abstract class FeralPlayerModelMixin<T extends LivingEntity> extends Huma
 
 	@Inject(method = "setupAnim(Lnet/minecraft/world/entity/LivingEntity;FFFFF)V", at = @At("TAIL"))
 	private void astralCruse$applyFeralAnimation(T entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch, CallbackInfo ci) {
-		if (FeralBedrockPlayerAnimator.shouldAnimate(entity)) {
+		if (FeralBedrockPlayerAnimator.shouldAnimate(entity, ageInTicks)) {
 			this.attackTime = 0.0F;
 			this.leftArmPose = ArmPose.EMPTY;
 			this.rightArmPose = ArmPose.EMPTY;

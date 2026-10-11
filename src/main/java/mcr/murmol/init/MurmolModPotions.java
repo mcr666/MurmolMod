@@ -18,6 +18,8 @@ import mcr.murmol.MurmolMod;
  * 药水注册与酿造：
  * - 石化药水 = 粗制药水（地狱疣）+ 石头
  * - 显形药水（1 分钟）= 粗制药水（地狱疣）+ 摩摩尔之魂；显形药水（延长，5 分钟）= 显形药水 + 红石
+ * - 星幻感染药水（30 秒）= 粗制药水（地狱疣）+ 幻星矿碎片
+ * - 创造冲击药水（30 秒）= 粗制药水（地狱疣）+ 紫颂果
  */
 @EventBusSubscriber
 public class MurmolModPotions {
@@ -39,6 +41,16 @@ public class MurmolModPotions {
 			() -> new Potion("reveal_long", new net.minecraft.world.effect.MobEffectInstance(
 					MurmolModMobEffects.REVEAL, 6000)));
 
+	/** 星幻感染：30 秒 */
+	public static final DeferredHolder<Potion, Potion> ASTRAL_INFECTION = REGISTRY.register("astral_infection",
+			() -> new Potion("astral_infection", new net.minecraft.world.effect.MobEffectInstance(
+					MurmolModMobEffects.ASTRAL_INFECTION, 600)));
+
+	/** 创造冲击：30 秒 */
+	public static final DeferredHolder<Potion, Potion> CREATIVE_SHOCK = REGISTRY.register("creative_shock",
+			() -> new Potion("creative_shock", new net.minecraft.world.effect.MobEffectInstance(
+					MurmolModMobEffects.CREATIVE_SHOCK, 600)));
+
 	@SubscribeEvent
 	public static void onRegisterBrewingRecipes(RegisterBrewingRecipesEvent event) {
 		var builder = event.getBuilder();
@@ -47,5 +59,9 @@ public class MurmolModPotions {
 		// 显形：粗制 + 摩摩尔之魂；延长：显形 + 红石
 		builder.addMix(Potions.AWKWARD, mcr.murmol.init.MurmolModItems.MURMOL_SOUL.get(), REVEAL);
 		builder.addMix(REVEAL, Items.REDSTONE, REVEAL_LONG);
+		// 星幻感染：粗制 + 幻星矿碎片
+		builder.addMix(Potions.AWKWARD, mcr.murmol.init.MurmolModItems.ASTRAL_ORE_SHARD.get(), ASTRAL_INFECTION);
+		// 创造冲击：粗制 + 紫颂果
+		builder.addMix(Potions.AWKWARD, Items.CHORUS_FRUIT, CREATIVE_SHOCK);
 	}
 }

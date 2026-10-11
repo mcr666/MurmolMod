@@ -2,7 +2,7 @@
   "name": "Spirit Table",
   "icon": "murmol:spirit_table",
   "category": "murmol:materials",
-  "sortnum": 3,
+  "sortnum": 4,
   "pages": [
     {
       "type": "patchouli:crafting",

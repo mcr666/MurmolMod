@@ -45,6 +45,8 @@ public class MurmolMod {
 					net.neoforged.neoforge.client.gui.ConfigurationScreen::new);
 		}
 		// End of user code block mod constructor
+		// 触发游戏规则静态注册（须在世界创建前完成）
+		mcr.murmol.init.MurmolModGameRules.class.getName();
 		NeoForge.EVENT_BUS.register(this);
 		modEventBus.addListener(this::registerNetworking);
 		MurmolModSounds.REGISTRY.register(modEventBus);
@@ -62,7 +64,7 @@ public class MurmolMod {
 		// 麻雀内容（移植测试，注册在 mcr.mahjong 包）
 		mcr.richi.MahjongItems.REGISTRY.register(modEventBus);
 		mcr.richi.MahjongBlocks.REGISTRY.register(modEventBus);
-		mcr.richi.MahjongCreativeTabs.REGISTRY.register(modEventBus);
+		mcr.richi.MahjongBlockEntities.REGISTRY.register(modEventBus);
 		mcr.richi.MahjongComponents.COMPONENTS.register(modEventBus);
 		mcr.richi.MahjongLoot.TYPES.register(modEventBus); // 随机牌面 loot function（战利品表用）
 		// 麻雀回合倒计时叠加层 payload（须在 RegisterPayloadHandlersEvent 前注册）
@@ -78,6 +80,16 @@ public class MurmolMod {
 		// 麻雀牌局渲染状态包（服务端过滤后整桌快照，客户端自建显示实体）
 		mcr.richi.network.MahjongTablePayload.register();
 		mcr.richi.network.PaipuPayload.register();
+		// Murmol NPC 对话叠加层 payload
+		mcr.murmol.network.NpcDialoguePayloads.register();
+		// 灵气指南针目标同步（服务端定位最近幻星瘟疫群系）
+		mcr.murmol.network.AstralCompassPayload.register();
+		// 形态飞行机制游戏规则（悬停飞行/鞘翅滑翔）同步
+		mcr.murmol.network.FeralFlightPayloads.register();
+		// 两仪「游戏规则」设置界面（请求/切换/同步）
+		mcr.murmol.network.MurmolGameRulePayloads.register();
+		// 苔叶兽可食用植物方块物品（给原版植物物品追加 FOOD 默认组件）
+		modEventBus.addListener(mcr.murmol.feral.FeralFormManager::onModifyDefaultComponents);
 		// Start of user code block mod init
 		// NeoOrigins 联动：起源 ↔ 形态双向同步（软依赖，未安装时跳过注册）
 		mcr.murmol.compat.NeoOriginsCompat.register();

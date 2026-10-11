@@ -102,11 +102,11 @@ public class MurmolModBiomes {
 		return currentRuleSource;
 	}
 
-	public static <T> Climate.ParameterList<T> adaptPresetParameterList(ResourceLocation idArg, Climate.ParameterList<T> originalList, Function<ResourceKey<Biome>, T> lookup) {
+	public static <T> Climate.ParameterList<T> adaptPresetParameterList(ResourceLocation idArg, Climate.ParameterList<T> originalList, Function<ResourceKey<Biome>, T> lookup, int infectionRange) {
 		if (!BOOTSTRAP_VALIDATION_PASSED)
 			return originalList;
 		if (idArg.equals(OVERWORLD_BIOMESOURCE_PRESET_ID))
-			return MurmolModBiomes.modifyOverworldParameterPoints(originalList, lookup);
+			return MurmolModBiomes.modifyOverworldParameterPoints(originalList, lookup, infectionRange);
 		return originalList;
 	}
 
@@ -123,23 +123,32 @@ public class MurmolModBiomes {
 		}
 	}
 
-	public static <T> Climate.ParameterList<T> modifyOverworldParameterPoints(Climate.ParameterList<T> originalList, Function<ResourceKey<Biome>, T> lookup) {
+	/**
+	 * 注入幻星瘟疫群系气候点。四个可竞争气候维度（温度/湿度/大陆性/侵蚀度）的
+	 * 区间半宽按规则等级 range（1~10）缩放：
+	 * range=10 时半宽系数 1.0（满气候范围），range 越小半宽越窄（线性降到 0.1）。
+	 * 现行默认视觉（手动减半）对应 range=2：半宽系数 0.5，与历史参数一致。
+	 * 深度固定地表、奇异性全范围、offset=0（与原版常规群系同优先级公平竞争）。
+	 */
+	public static <T> Climate.ParameterList<T> modifyOverworldParameterPoints(Climate.ParameterList<T> originalList, Function<ResourceKey<Biome>, T> lookup, int infectionRange) {
 		List<Pair<Climate.ParameterPoint, T>> parameters = new ArrayList<>(originalList.values());
-		// 大范围内陆气候格 + offset=0（最高优先级）：
-		// offset 实际是第 7 个气候维度（取值 0.0~1.0，采样目标恒为 0，越大距离越远），
-		// 0 表示与原版常规群系同优先级，在大气候格内公平竞争即可形成大片连续区域。
-		// 注意：不能用负值——负值会作为距离参与计算（平方），导致参数点永远落选。
-		// 各气候维度区间宽度已减半（中心不变），使群系生成范围约为原来的一半。
+		float half = MurmolModGameRules.astralInfectionHalfWidth(infectionRange);
 		Climate.ParameterPoint surfacePoint = new Climate.ParameterPoint(
-				Climate.Parameter.span(-0.35f, 0.15f),   // 温度：偏冷到温和（原 -0.60~0.40，减半）
-				Climate.Parameter.span(-0.20f, 0.20f),   // 湿度：中等区间（原 -0.40~0.40，减半）
-				Climate.Parameter.span(0.00f, 0.37f),    // 大陆性：海岸到内陆（原 -0.19~0.55，减半）
-				Climate.Parameter.span(-0.45f, 0.22f),   // 侵蚀度：排除尖峰山地（原 -0.78~0.55，减半）
-				Climate.Parameter.span(0.0f, 0.0f),      // 深度：仅地表
-				Climate.Parameter.span(-1.0f, 1.0f),     // 奇异性：全范围
+				spanHalf(-0.10f, 0.50f, half),   // 温度：中心 -0.10，满半宽 0.50（-0.60~0.40）
+				spanHalf(0.00f, 0.40f, half),    // 湿度：中心 0，满半宽 0.40
+				spanHalf(0.18f, 0.37f, half),    // 大陆性：中心 0.18，满半宽 0.37（-0.19~0.55）
+				spanHalf(-0.115f, 0.665f, half), // 侵蚀度：中心 -0.115，满半宽 0.665（-0.78~0.55）
+				Climate.Parameter.span(0.0f, 0.0f),  // 深度：仅地表
+				Climate.Parameter.span(-1.0f, 1.0f),  // 奇异性：全范围
 				0);
 		parameters.add(new Pair<>(surfacePoint, lookup.apply(ASTRAL_INFECTION_BIOME)));
 		return new Climate.ParameterList<>(parameters);
+	}
+
+	/** 以 center 为中点、fullHalfWidth*scale 为半宽构造气候参数区间，夹到 [-1,1] */
+	private static Climate.Parameter spanHalf(float center, float fullHalfWidth, float scale) {
+		float hw = fullHalfWidth * scale;
+		return Climate.Parameter.span(center - hw, center + hw);
 	}
 
 	private static SurfaceRules.RuleSource preliminarySurfaceRule(ResourceKey<Biome> biomeKey, BlockState groundBlock, BlockState undergroundBlock, BlockState underwaterBlock) {

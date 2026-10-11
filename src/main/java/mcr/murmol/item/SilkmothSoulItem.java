@@ -27,6 +27,16 @@ public class SilkmothSoulItem extends Item {
 		return UseAnim.BOW;
 	}
 
+	/** 右键：先检查显形锁与解锁限制，通过后才进入蓄力 */
+	@Override
+	public net.minecraft.world.InteractionResultHolder<ItemStack> use(Level world, net.minecraft.world.entity.player.Player player, net.minecraft.world.InteractionHand hand) {
+		ItemStack stack = player.getItemInHand(hand);
+		if (FeralFormManager.checkSoulItemUse(world, player, stack, FeralForms.SILKMOTH) != null)
+			return net.minecraft.world.InteractionResultHolder.fail(stack);
+		player.startUsingItem(hand);
+		return net.minecraft.world.InteractionResultHolder.sidedSuccess(stack, world.isClientSide());
+	}
+
 	@Override
 	public ItemStack finishUsingItem(ItemStack itemstack, Level world, LivingEntity entity) {
 		// 显形药效期间禁止变形

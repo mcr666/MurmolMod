@@ -1,0 +1,19 @@
+{
+  "name": "灵气指南针",
+  "icon": "murmol:astral_compass",
+  "category": "murmol:materials",
+  "sortnum": 1,
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "murmol:astral_compass",
+      "title": "灵气指南针",
+      "text": "在寻常的$(item)指南针$(0)上熔铸$(item)魔力碎片$(0)，针尖便能感应$(thing)幻星瘟疫$(0)的灵气。从此它不再指向出生点，而是一直指向距你最近的$(thing)幻星之地$(0)。$(br)指针周身萦绕着附魔般的微光；若附近没有可以感应的疫区（疫区须已被勘探加载），指针便会失去目标，胡乱打转。"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "合成",
+      "text": "在$(item)工作台$(0)中将$(item)指南针$(0)与$(item)魔力碎片$(0)随意摆放，即可将指南针升华为$(item)灵气指南针$(0)。$(br)瘟疫仍在蔓延——愿这枚指针指引你寻得神兽的遗踪，而非葬身于星幻之地。"
+    }
+  ]
+}

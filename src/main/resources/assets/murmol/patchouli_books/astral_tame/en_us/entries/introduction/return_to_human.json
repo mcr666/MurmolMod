@@ -2,7 +2,7 @@
   "name": "Truth Mirror",
   "icon": "murmol:truth_mirror",
   "category": "murmol:materials",
-  "sortnum": 4,
+  "sortnum": 5,
   "pages": [
     {
       "type": "patchouli:spotlight",

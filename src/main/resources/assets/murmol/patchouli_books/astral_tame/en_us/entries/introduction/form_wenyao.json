@@ -20,7 +20,7 @@
     {
       "type": "patchouli:text",
       "title": "Attributes",
-      "text": "$(li)Can fly$(br)In water:$(li)Breathe freely$(li)Swim swiftly$(br)On land:$(li)Moves with great difficulty$(li)Cannot breathe — return to water quickly."
+      "text": "$(li)Can fly$(br)In water:$(li)Breathe freely$(li)Swim swiftly$(br)On land:$(li)Moves with great difficulty$(li)Cannot breathe — return to water quickly.$(br2)When starved of air on land, drinking any $(item)potion$(0) or $(item)Water Bottle$(0) instantly refills its breath, buying time to return to the water."
     },
     {
       "type": "patchouli:text",

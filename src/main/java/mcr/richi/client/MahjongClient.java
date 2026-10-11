@@ -48,6 +48,13 @@ public class MahjongClient {
 		});
 	}
 
+	/** 平放麻将牌方块实体渲染器（按牌面代码渲染躺平的麻将牌） */
+	@SubscribeEvent
+	public static void onRegisterRenderers(net.neoforged.neoforge.client.event.EntityRenderersEvent.RegisterRenderers event) {
+		event.registerBlockEntityRenderer(mcr.richi.MahjongBlockEntities.MAHJONG_TILE.get(),
+				MahjongTileBlockRenderer::new);
+	}
+
 	/** 隐藏非人类 AI 假玩家的头顶名字（feral/村民形态；human 保留） */
 	@SubscribeEvent
 	public static void onRenderNameTag(net.neoforged.neoforge.client.event.RenderNameTagEvent event) {

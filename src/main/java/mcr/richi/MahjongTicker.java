@@ -34,6 +34,7 @@ public class MahjongTicker {
 	/** 取消某桌所有待执行任务（重渲染/发牌前调用，防止发牌动画残留任务重复生成实体） */
 	public static void cancel(BlockPos origin) {
 		TASKS.removeIf(s -> origin.equals(s.origin()));
+		mcr.richi.game.ai.akochan.AkochanEngine.releaseAll(origin); // 清桌随带释放 akochan 外部进程
 	}
 
 	@SubscribeEvent

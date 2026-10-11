@@ -64,6 +64,8 @@ public class AncientKnowledgeScrapItem extends Item {
 				for (String criterion : progress.getRemainingCriteria())
 					serverPlayer.getAdvancements().award(advancement, criterion);
 			}
+			// 刷新客户端已解锁形态缓存（灵魂物品入口拦截依赖）
+			mcr.murmol.feral.FeralFormManager.syncUnlockState(serverPlayer);
 			// 提示：xx已记录于《幻星秘典》（形态名取自 FeralForm.getDisplayName，新形态自动生效）
 			mcr.murmol.feral.FeralForm form = mcr.murmol.feral.FeralForms.byId(formId);
 			player.sendSystemMessage(Component.translatable("message.murmol.scrap.recorded",

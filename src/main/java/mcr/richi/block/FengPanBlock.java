@@ -33,7 +33,8 @@ import mcr.richi.render.DisplayEntityNbt;
 import mcr.richi.render.TableLayout;
 
 /**
- * 风盘（麻雀牌桌）：类原版床的 2x2 多方块，一次放置铺满 2x2（中心四个 0.5x0.5 雪层拼成 1 格桌面），
+ * 风盘（麻雀牌桌）：类原版床的 2x2 多方块，一次放置铺满 2x2（照妖镜式 1px 贴地薄板，四块各显示
+ * 风盘贴图的一个象限拼成整张桌面图；只能放在方块顶面），
  * 放置前检测周边 4x4 区域（含桌子本体）是否为空，有阻挡则放置失败并提示。破坏任意部分整桌消失且只掉落一个物品。
  * tx/tz 为相对桌角原点（0,0）的偏移；原点为放置点，沿玩家水平朝向及其右侧延伸。
  * 渲染：服务端不再生成牌面实体（防抓包看牌），客户端按 RichiTableSync 过滤广播的状态包自建显示实体；
@@ -69,9 +70,18 @@ public class FengPanBlock extends Block {
 		builder.add(FACING, TX, TZ, GAME_ACTIVE);
 	}
 
-	/** 放置检测：桌子 2x2 及周边一圈共 4x4 区域必须全部为空（空气/可替换方块），否则放置失败并提示 */
+	/**
+	 * 放置检测：只能放在方块顶面（照妖镜式贴地薄板）；且桌子 2x2 及周边一圈共 4x4 区域
+	 * 必须全部为空（空气/可替换方块），否则放置失败并提示。
+	 */
 	@Override
 	public BlockState getStateForPlacement(BlockPlaceContext context) {
+		if (context.getClickedFace() != Direction.UP) {
+			if (context.getPlayer() != null)
+				context.getPlayer().displayClientMessage(
+						Component.translatable("message.richi.fengpan_ground"), true);
+			return null; // 只能放在方块之上
+		}
 		Direction forward = context.getHorizontalDirection();
 		Direction right = forward.getClockWise();
 		Level level = context.getLevel();
@@ -494,7 +504,7 @@ public class FengPanBlock extends Block {
 
 	/** 随机形态池（有独立烘焙模型且非人类的形态；形态同时决定 AI 流派） */
 	private static final String[] AVATAR_FORMS = { "luohong", "chen_huang", "moss_beast", "silkmoth", "komainu",
-			"wenyao", "ferocious" };
+			"wenyao", "ferocious", "dark_fury" };
 
 	/**
 	 * 牌局开始（deal）时解析各 AI 座位形象并存入状态（不生成任何实体）：

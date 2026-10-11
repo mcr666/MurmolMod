@@ -16,7 +16,6 @@ public class MurmolModModels {
 	public static void registerLayerDefinitions(EntityRenderersEvent.RegisterLayerDefinitions event) {
 		event.registerLayerDefinition(Modelastral_drake.LAYER_LOCATION, Modelastral_drake::createBodyLayer);
 		event.registerLayerDefinition(Modelastralarmor_1.LAYER_LOCATION, Modelastralarmor_1::createBodyLayer);
-		event.registerLayerDefinition(Modelunknown.LAYER_LOCATION, Modelunknown::createBodyLayer);
 		event.registerLayerDefinition(Modelastralarmor.LAYER_LOCATION, Modelastralarmor::createBodyLayer);
 		event.registerLayerDefinition(Modelforest_colossus.LAYER_LOCATION, Modelforest_colossus::createBodyLayer);
 		event.registerLayerDefinition(mcr.murmol.client.model.MurmolNpcModel.LAYER_LOCATION, mcr.murmol.client.model.MurmolNpcModel::createBodyLayer);

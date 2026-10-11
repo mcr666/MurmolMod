@@ -49,7 +49,7 @@ public abstract class FeralForm {
 	/** 悬停飞行：长按跳跃键（空格）缓慢上升，松手自然下落（如蚕蛾形态） */
 	private boolean hoverFlight = false;
 
-	/** 形态专属的垂直偏移增量（模型单位，1 = 1/16 格），叠加在通用 BODY_Y_OFFSET 上 */
+	/** 形态专属的垂直偏移增量（模型单位，1 = 1/16 格），由 body 根骨骼渲染变换消费 */
 	private float bodyYOffset = 0.0F;
 
 	/** 形态固定碰撞箱高度（格，含视角高度自动跟随）；0 表示不修改高度 */
@@ -82,6 +82,11 @@ public abstract class FeralForm {
 
 	public String getId() {
 		return id;
+	}
+
+	/** 是否为测试形态（不在两仪 GUI 中显示，仅指令可用） */
+	public boolean isTestForm() {
+		return false;
 	}
 
 	/** 自定义形态显示名的翻译键（默认 form.murmol.<id>） */
@@ -136,7 +141,7 @@ public abstract class FeralForm {
 		return false;
 	}
 
-	/** 设置形态专属的垂直偏移增量（叠加在通用 BODY_Y_OFFSET 上） */
+	/** 设置形态专属的垂直偏移增量（由 body 根骨骼渲染变换消费） */
 	protected void setBodyYOffset(float bodyYOffset) {
 		this.bodyYOffset = bodyYOffset;
 	}

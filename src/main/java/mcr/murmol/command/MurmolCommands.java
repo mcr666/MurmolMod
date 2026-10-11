@@ -50,6 +50,10 @@ public class MurmolCommands {
 					.executes(MurmolCommands::executeTransformSelf)
 					.then(Commands.argument("targets", EntityArgument.players())
 						.executes(MurmolCommands::executeTransform))))
+			.then(Commands.literal("untf")
+				.executes(MurmolCommands::executeUntfSelf)
+				.then(Commands.argument("targets", EntityArgument.players())
+					.executes(MurmolCommands::executeUntf)))
 			.then(Commands.literal("book")
 				.then(Commands.literal("unlock")
 					.then(Commands.argument("targets", EntityArgument.players())
@@ -99,6 +103,8 @@ public class MurmolCommands {
 					if (progress.isDone())
 						progress.revokeProgress("impossible");
 				}
+				// 刷新客户端已解锁形态缓存（灵魂物品入口拦截依赖）
+				mcr.murmol.feral.FeralFormManager.syncUnlockState(player);
 				changed[0]++;
 			}
 		}
@@ -116,6 +122,23 @@ public class MurmolCommands {
 		FeralFormManager.transformFromItem(self.level(), self.getX(), self.getY(), self.getZ(), self, form, ItemStack.EMPTY, true);
 		context.getSource().sendSuccess(() -> Component.literal("transformed self to: " + form.getId()), true);
 		return 1;
+	}
+
+	/** /murmol untf [targets]：等效于 /murmol tf human，变回人类形态 */
+	private static int executeUntfSelf(CommandContext<CommandSourceStack> context) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
+		ServerPlayer self = context.getSource().getPlayerOrException();
+		FeralFormManager.transformFromItem(self.level(), self.getX(), self.getY(), self.getZ(), self, FeralForms.HUMAN, ItemStack.EMPTY, true);
+		context.getSource().sendSuccess(() -> Component.literal("transformed self to: human"), true);
+		return 1;
+	}
+
+	private static int executeUntf(CommandContext<CommandSourceStack> context) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
+		Collection<ServerPlayer> targets = EntityArgument.getPlayers(context, "targets");
+		for (ServerPlayer player : targets) {
+			FeralFormManager.transformFromItem(player.level(), player.getX(), player.getY(), player.getZ(), player, FeralForms.HUMAN, ItemStack.EMPTY, true);
+		}
+		context.getSource().sendSuccess(() -> Component.literal("transformed " + targets.size() + " player(s) to: human"), true);
+		return targets.size();
 	}
 
 	private static FeralForm resolveForm(CommandContext<CommandSourceStack> context, String id) {

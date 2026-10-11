@@ -1,0 +1,12 @@
+{
+  "variants": {
+    "standing=false,facing=north": { "model": "richi:block/mahjong_tile" },
+    "standing=false,facing=south": { "model": "richi:block/mahjong_tile" },
+    "standing=false,facing=east": { "model": "richi:block/mahjong_tile" },
+    "standing=false,facing=west": { "model": "richi:block/mahjong_tile" },
+    "standing=true,facing=north": { "model": "richi:block/mahjong_tile" },
+    "standing=true,facing=south": { "model": "richi:block/mahjong_tile" },
+    "standing=true,facing=east": { "model": "richi:block/mahjong_tile" },
+    "standing=true,facing=west": { "model": "richi:block/mahjong_tile" }
+  }
+}

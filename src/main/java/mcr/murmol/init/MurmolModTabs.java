@@ -18,8 +18,9 @@ public class MurmolModTabs {
 	public static final DeferredHolder<CreativeModeTab, CreativeModeTab> MURMOL_CX = REGISTRY.register("murmol_cx",
 			() -> CreativeModeTab.builder().title(Component.translatable("item_group.murmol.murmol_cx")).icon(() -> new ItemStack(MurmolModItems.MAOCRY_BLESSING.get())).displayItems((parameters, tabData) -> {
 			// ===== 系统道具 =====
-			tabData.accept(MurmolModItems.MAOCRY_BLESSING.get());
 			tabData.accept(MurmolModItems.THE_ASTRAL_TOME.get());
+			// 灵气指南针：指向最近的幻星瘟疫群系
+			tabData.accept(MurmolModItems.ASTRAL_COMPASS.get());
 			// 两仪：形态开关管理
 			tabData.accept(MurmolModItems.TWO_PRINCIPLES.get());
 			// ===== 变形系统 =====
@@ -32,30 +33,21 @@ public class MurmolModTabs {
 			tabData.accept(MurmolModItems.KOMAINU_SOUL.get());
 			tabData.accept(MurmolModItems.WENYAO_SOUL.get());
 			tabData.accept(MurmolModItems.FEROCIOUS_SOUL.get());
+			tabData.accept(MurmolModItems.DARK_FURY_SOUL.get());
 			tabData.accept(MurmolModItems.SOUL_BOTTLE.get());
-			// 石化药水全家（酿造：地狱疣+石头）：普通/喷溅/滞留
-			for (net.minecraft.world.item.Item potionItem : new net.minecraft.world.item.Item[] {
-					net.minecraft.world.item.Items.POTION,
-					net.minecraft.world.item.Items.SPLASH_POTION,
-					net.minecraft.world.item.Items.LINGERING_POTION }) {
-				net.minecraft.world.item.ItemStack petrifyPotion = new net.minecraft.world.item.ItemStack(potionItem);
-				petrifyPotion.set(net.minecraft.core.component.DataComponents.POTION_CONTENTS,
-						new net.minecraft.world.item.alchemy.PotionContents(MurmolModPotions.PETRIFY));
-				tabData.accept(petrifyPotion);
-			}
-			// 显形药水全家（酿造：地狱疣+摩摩尔之魂；延长版+红石）：1 分钟 / 5 分钟
-			for (net.minecraft.world.item.Item potionItem : new net.minecraft.world.item.Item[] {
-					net.minecraft.world.item.Items.POTION,
-					net.minecraft.world.item.Items.SPLASH_POTION,
-					net.minecraft.world.item.Items.LINGERING_POTION }) {
-				net.minecraft.world.item.ItemStack revealPotion = new net.minecraft.world.item.ItemStack(potionItem);
-				revealPotion.set(net.minecraft.core.component.DataComponents.POTION_CONTENTS,
-						new net.minecraft.world.item.alchemy.PotionContents(MurmolModPotions.REVEAL));
-				tabData.accept(revealPotion);
-				net.minecraft.world.item.ItemStack revealLongPotion = new net.minecraft.world.item.ItemStack(potionItem);
-				revealLongPotion.set(net.minecraft.core.component.DataComponents.POTION_CONTENTS,
-						new net.minecraft.world.item.alchemy.PotionContents(MurmolModPotions.REVEAL_LONG));
-				tabData.accept(revealLongPotion);
+			// 药水（仅喷溅式，酿造见 MurmolModPotions）：
+			// 石化（地狱疣+石头）、显形 1 分钟（+摩摩尔之魂）/5 分钟（+红石）、
+			// 星幻感染（+幻星矿碎片）、创造冲击（+紫颂果）
+			for (var potion : new net.minecraft.world.item.alchemy.Potion[] {
+					MurmolModPotions.PETRIFY.get(),
+					MurmolModPotions.REVEAL.get(),
+					MurmolModPotions.REVEAL_LONG.get(),
+					MurmolModPotions.ASTRAL_INFECTION.get(),
+					MurmolModPotions.CREATIVE_SHOCK.get() }) {
+				net.minecraft.world.item.ItemStack splash = new net.minecraft.world.item.ItemStack(net.minecraft.world.item.Items.SPLASH_POTION);
+				splash.set(net.minecraft.core.component.DataComponents.POTION_CONTENTS,
+						new net.minecraft.world.item.alchemy.PotionContents(net.minecraft.core.registries.BuiltInRegistries.POTION.wrapAsHolder(potion)));
+				tabData.accept(splash);
 			}
 			// 古代知识残页：每种形态各一份
 			tabData.accept(mcr.murmol.item.AncientKnowledgeScrapItem.forForm("luohong"));
@@ -65,6 +57,7 @@ public class MurmolModTabs {
 			tabData.accept(mcr.murmol.item.AncientKnowledgeScrapItem.forForm("komainu"));
 			tabData.accept(mcr.murmol.item.AncientKnowledgeScrapItem.forForm("wenyao"));
 			tabData.accept(mcr.murmol.item.AncientKnowledgeScrapItem.forForm("ferocious"));
+			tabData.accept(mcr.murmol.item.AncientKnowledgeScrapItem.forForm("dark_fury"));
 			// ===== 武器与装备 =====
 			// 绽花之刃 / 升级版：初始携带人类杀手附魔
 			tabData.accept(mcr.murmol.item.BloomingBladeItem.createEnchantedStack(parameters.holders()));
@@ -72,7 +65,6 @@ public class MurmolModTabs {
 			tabData.accept(MurmolModItems.ICE_AND_FIRE_SWORD.get());
 			tabData.accept(MurmolModItems.FROST_SWORD.get());
 			tabData.accept(MurmolModItems.FIRE_BLADE_CLAW.get());
-			tabData.accept(MurmolModItems.ICE_WAND.get());
 			tabData.accept(MurmolModItems.FROST_PICKAXE.get());
 			tabData.accept(MurmolModItems.ASTRAL_PICKAXE.get());
 			tabData.accept(MurmolModItems.ASTRAL_SHOVEL.get());
@@ -85,6 +77,7 @@ public class MurmolModTabs {
 			tabData.accept(MurmolModItems.FROST_ARMOR_CHESTPLATE.get());
 			tabData.accept(MurmolModItems.FROST_ARMOR_LEGGINGS.get());
 			tabData.accept(MurmolModItems.FROST_ARMOR_BOOTS.get());
+			tabData.accept(MurmolModItems.WATER_BUBBLE.get()); // 水泡头盔（头戴时眼睛被判定浸在水中）
 			// ===== 食物 =====
 			tabData.accept(MurmolModItems.MANGO.get());
 			tabData.accept(MurmolModItems.MANGO_GOLDEN.get());
@@ -130,7 +123,6 @@ public class MurmolModTabs {
 			tabData.accept(MurmolModItems.MAGIC_SHARD.get());
 			tabData.accept(MurmolModItems.FROST_INGOTM.get());
 			tabData.accept(MurmolModItems.ICE_SHARP.get());
-			tabData.accept(MurmolModItems.ICE_FISH.get());
 			tabData.accept(MurmolModItems.ASTRAL_ORE_SHARD.get());
 			tabData.accept(MurmolModItems.ASTRAL_INGOT.get());
 			tabData.accept(MurmolModItems.TREE_HEART.get());
@@ -141,12 +133,14 @@ public class MurmolModTabs {
 			tabData.accept(MurmolModItems.TOTEMOF_FALLEN.get());
 			// ===== 刷怪蛋 =====
 			tabData.accept(MurmolModItems.ALFAR_SPAWN_EGG.get());
-			tabData.accept(MurmolModItems.PEPPER_CH_SPAWN_EGG.get());
 			tabData.accept(MurmolModItems.ASTRAL_DRAKE_SPAWN_EGG.get());
-			tabData.accept(MurmolModItems.GLUTTONY_SLIME_SPAWN_EGG.get());
 			tabData.accept(MurmolModItems.MURMOL_NPC_SPAWN_EGG.get());
 			// ===== 音乐唱片 =====
 			tabData.accept(MurmolModItems.SNOWY_HILLS.get());
 			tabData.accept(MurmolModItems.GRACEFUL.get());
+			// ===== 幻星麻雀 =====
+			tabData.accept(mcr.richi.MahjongItems.FENG_PAN.get()); // 风盘（麻雀牌桌）
+			tabData.accept(mcr.richi.MahjongTileItem.create(-1)); // 未知牌（背面）
+			tabData.accept(mcr.richi.MahjongItems.ITEMS.get(0).get()); // 点棒 1000（立直宣言用）
 		}).build());
 }

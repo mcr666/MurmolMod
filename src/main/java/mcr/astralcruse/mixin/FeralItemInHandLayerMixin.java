@@ -43,6 +43,11 @@ public abstract class FeralItemInHandLayerMixin<T extends LivingEntity, M extend
 		PlayerModel<?> feralModel = FeralFormManager.getForm(entity).getBodyModel();
 		ModelPart headPart = feralModel != null ? feralModel.head : ((PlayerModel<?>) this.getParentModel()).head;
 		headPart.translateAndRotate(poseStack);
+		// 统一嘴部配置开启时，副手物品挪到嘴侧，避免与主手物品重叠
+		if (arm == HumanoidArm.LEFT
+				&& mcr.murmol.MurmolModConfig.FERAL_ITEMS_ALL_IN_MOUTH.get()) {
+			poseStack.translate(0.22F, 0.0F, 0.0F);
+		}
 		FeralBedrockPlayerAnimator.applyMouthItemTransform(entity, poseStack);
 		poseStack.mulPose(Axis.XP.rotationDegrees(-90.0F));
 		poseStack.mulPose(Axis.YP.rotationDegrees(180.0F));

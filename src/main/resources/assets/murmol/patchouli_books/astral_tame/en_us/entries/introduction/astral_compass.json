@@ -1,0 +1,19 @@
+{
+  "name": "Astral Compass",
+  "icon": "murmol:astral_compass",
+  "category": "murmol:materials",
+  "sortnum": 1,
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "murmol:astral_compass",
+      "title": "Astral Compass",
+      "text": "Forge a $(item)Magic Shard$(0) into an ordinary $(item)Compass$(0), and its needle will sense the aura of the $(thing)Astral Plague$(0). No longer pointing to your spawn, it now always aims at the nearest $(thing)Astral Lands$(0). $(br)The needle shimmers like an enchanted trinket; if no plague zone can be sensed nearby (nearby zones must already be explored and loaded), it loses its target and spins wildly."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Crafting",
+      "text": "Combine a $(item)Compass$(0) and a $(item)Magic Shard$(0) in any arrangement in a $(item)Crafting Table$(0) to transform it into an $(item)Astral Compass$(0). $(br)The plague still spreads — may this needle guide you to the traces of the divine beasts, rather than to your doom in the Astral Lands."
+    }
+  ]
+}

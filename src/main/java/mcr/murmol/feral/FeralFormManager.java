@@ -2,26 +2,55 @@ package mcr.murmol.feral;
 
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
+import net.neoforged.neoforge.event.entity.living.LivingEntityUseItemEvent;
 import net.neoforged.neoforge.event.entity.living.LivingEquipmentChangeEvent;
+import net.neoforged.neoforge.event.ModifyDefaultComponentsEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.bus.api.SubscribeEvent;
 
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.BambooStalkBlock;
+import net.minecraft.world.level.block.BigDripleafBlock;
+import net.minecraft.world.level.block.BigDripleafStemBlock;
+import net.minecraft.world.level.block.BushBlock;
+import net.minecraft.world.level.block.CactusBlock;
+import net.minecraft.world.level.block.ChorusFlowerBlock;
+import net.minecraft.world.level.block.ChorusPlantBlock;
+import net.minecraft.world.level.block.GlowLichenBlock;
+import net.minecraft.world.level.block.GrowingPlantBlock;
+import net.minecraft.world.level.block.HugeMushroomBlock;
+import net.minecraft.world.level.block.LeavesBlock;
+import net.minecraft.world.level.block.MossBlock;
+import net.minecraft.world.level.block.PumpkinBlock;
+import net.minecraft.world.level.block.SporeBlossomBlock;
+import net.minecraft.world.level.block.SugarCaneBlock;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemNameBlockItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.food.FoodProperties;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntitySelector;
+import net.minecraft.world.entity.ai.goal.AvoidEntityGoal;
+import net.minecraft.world.entity.monster.Creeper;
+import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.advancements.AdvancementProgress;
 import net.minecraft.advancements.AdvancementHolder;
 import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.tags.EntityTypeTags;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.sounds.SoundSource;
@@ -152,6 +181,12 @@ public class FeralFormManager {
 						form.getDisplayName()), true);
 			return false;
 		}
+		// 解锁限制：游戏规则 murmolRequireFormUnlocked 开启且形态未解锁（进度 murmol:unlock/<id> 未完成）→ 拦截；
+		// 管理操作 ignoreToggle 不受限
+		if (!ignoreToggle && entity instanceof ServerPlayer player && isUnlockLocked(player, form)) {
+			player.displayClientMessage(Component.translatable("message.murmol.transform.locked"), true);
+			return false;
+		}
 		playTransformSound(world, x, y, z);
 		setForm(entity, form);
 		awardAdvancement(entity, form);
@@ -161,6 +196,66 @@ public class FeralFormManager {
 		if (entity instanceof ServerPlayer player)
 			mcr.murmol.compat.NeoOriginsCompat.syncOrigin(player, form);
 		return true;
+	}
+
+	// ==================== 解锁限制 ====================
+
+	/**
+	 * 服务端判定：解锁检查规则开启且该形态存在解锁进度且未完成（如人类无进度则不限制）。
+	 */
+	private static boolean isUnlockLocked(ServerPlayer player, FeralForm form) {
+		if (form == FeralForms.HUMAN
+				|| !player.serverLevel().getGameRules().getBoolean(mcr.murmol.init.MurmolModGameRules.REQUIRE_FORM_UNLOCKED))
+			return false;
+		AdvancementHolder unlock = player.server.getAdvancements().get(
+				ResourceLocation.fromNamespaceAndPath(mcr.murmol.MurmolMod.MODID, "unlock/" + form.getId()));
+		return unlock != null && !player.getAdvancements().getOrStartProgress(unlock).isDone();
+	}
+
+	/**
+	 * 灵魂物品使用入口的统一拦截（两侧行为一致）：显形药效期间，或解锁检查开启且形态未解锁时不可使用。
+	 * 返回 fail 结果表示拦截（已发送提示），null = 放行。
+	 */
+	public static InteractionResultHolder<ItemStack> checkSoulItemUse(Level world, Player player, ItemStack stack, FeralForm form) {
+		// 显形药效期间禁止变形（药水效果两侧可见）
+		if (mcr.murmol.potion.RevealManager.isLocked(player)) {
+			if (!world.isClientSide())
+				player.displayClientMessage(Component.translatable("message.murmol.reveal.blocked"), true);
+			return InteractionResultHolder.fail(stack);
+		}
+		// 解锁检查开启且形态未解锁：服务端以进度为准，客户端以同步的已解锁集合为准
+		boolean locked = player instanceof ServerPlayer serverPlayer ? isUnlockLocked(serverPlayer, form)
+				: !player.getData(MurmolModVariables.PLAYER_VARIABLES).unlockedForms.contains(form.getId());
+		if (locked) {
+			if (!world.isClientSide())
+				player.displayClientMessage(Component.translatable("message.murmol.transform.locked"), true);
+			return InteractionResultHolder.fail(stack);
+		}
+		return null;
+	}
+
+	/**
+	 * 服务端：按当前解锁进度与游戏规则刷新玩家的已解锁形态集合，并标记同步（客户端拦截判定依赖）。
+	 * 解锁规则关闭时写入全部形态 id。
+	 */
+	public static void syncUnlockState(ServerPlayer player) {
+		var data = player.getData(MurmolModVariables.PLAYER_VARIABLES);
+		data.unlockedForms.clear();
+		boolean ruleOn = player.serverLevel().getGameRules()
+				.getBoolean(mcr.murmol.init.MurmolModGameRules.REQUIRE_FORM_UNLOCKED);
+		for (FeralForm form : FeralForms.all()) {
+			if (form == FeralForms.HUMAN)
+				continue;
+			if (!ruleOn) {
+				data.unlockedForms.add(form.getId());
+				continue;
+			}
+			AdvancementHolder unlock = player.server.getAdvancements().get(
+					ResourceLocation.fromNamespaceAndPath(mcr.murmol.MurmolMod.MODID, "unlock/" + form.getId()));
+			if (unlock == null || player.getAdvancements().getOrStartProgress(unlock).isDone())
+				data.unlockedForms.add(form.getId());
+		}
+		data.markSyncDirty();
 	}
 
 	private static void playTransformSound(LevelAccessor world, double x, double y, double z) {
@@ -189,7 +284,7 @@ public class FeralFormManager {
 
 	private static void addTransformEffects(Entity entity) {
 		if (entity instanceof LivingEntity le && !le.level().isClientSide()) {
-			le.addEffect(new MobEffectInstance(MobEffects.BLINDNESS, 60, 1));
+			le.addEffect(new MobEffectInstance(MobEffects.DARKNESS, 60, 1));
 			le.addEffect(new MobEffectInstance(MurmolModMobEffects.CREATIVE_SHOCK, 60, 1));
 			le.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 60, 2));
 		}
@@ -302,10 +397,84 @@ public class FeralFormManager {
 		updateSilkmothEnvironmentModifiers(entity, form);
 		updateKomainuStatueState(entity, form);
 		updateWenyaoEnvironmentModifiers(entity, form);
-		// 悬停飞行形态免疫摔落伤害（每 tick 清零累计摔落距离）
-		if (form.isFeral() && form.canHoverFlight() && entity.fallDistance > 0) {
+		// 悬停飞行模式免疫摔落伤害（每 tick 清零累计摔落距离）；
+		// 鞘翅规则模式等同真鞘翅：滑翔中原版免伤，未展开滑翔的坠落保留原版风险
+		if (form.isFeral() && form.canHoverFlight() && !useElytraFlight(entity) && entity.fallDistance > 0) {
 			entity.fallDistance = 0;
 		}
+		// 飞行机制游戏规则无变更事件：服务端每秒轮询，变化时向全体玩家同步
+		if (!entity.level().isClientSide && entity.tickCount % 20 == 0) {
+			boolean now = entity.level().getGameRules().getBoolean(mcr.murmol.init.MurmolModGameRules.FERAL_ELYTRA_FLIGHT);
+			if (now != elytraRuleSynced) {
+				elytraRuleSynced = now;
+				mcr.murmol.network.FeralFlightPayloads.syncToAll(entity.level().getServer());
+			}
+		}
+	}
+
+	/** 最近一次已向客户端广播的飞行规则值（初始默认 false，玩家登录时另有单玩家同步） */
+	private static boolean elytraRuleSynced = false;
+
+	/**
+	 * 该实体当前是否走"虚拟鞘翅"飞行模式：形态本身具备飞行能力（canHoverFlight），
+	 * 且游戏规则 murmolFeralElytraFlight 开启。
+	 * 客户端读服务端下发的规则缓存（GameRules 运行时变更不会自动同步）。
+	 */
+	public static boolean useElytraFlight(net.minecraft.world.entity.LivingEntity entity) {
+		FeralForm form = getForm(entity);
+		if (!form.isFeral() || !form.canHoverFlight())
+			return false;
+		if (entity.level().isClientSide)
+			return mcr.murmol.network.FeralFlightPayloads.CLIENT_ELYTRA;
+		return entity.level().getGameRules().getBoolean(mcr.murmol.init.MurmolModGameRules.FERAL_ELYTRA_FLIGHT);
+	}
+
+	// ==================== 怪物躲避变形玩家 ====================
+
+	/** 规避参数与原版 Creeper 躲猫一致（1.21.1 Creeper.registerGoals：距离 6、走速 1.0、逃速 1.2） */
+	private static final float FLEE_DISTANCE = 6.0F;
+	private static final double FLEE_WALK_SPEED = 1.0D;
+	private static final double FLEE_SPRINT_SPEED = 1.2D;
+	/** 苦力怕规避优先级：与原版躲猫 goal 同为 3；addGoal 累加不覆盖原 goal，同一时刻 MOVE 由先启动者持有（与原版躲猫/躲豹猫两个 goal 的共存方式相同） */
+	private static final int CREEPER_FLEE_GOAL_PRIORITY = 3;
+	/** 亡灵规避优先级：须低于僵尸/骷髅等 2 号攻击 goal 才能抢占运行中的攻击移动（GoalSelector 只允许优先级数值更小的 goal 抢占），否则存在攻击目标时永远无法逃离 */
+	private static final int UNDEAD_FLEE_GOAL_PRIORITY = 1;
+
+	/**
+	 * 实体加入世界时挂载"躲避变形玩家"AI（AI 仅服务端运行）：
+	 * - 苦力怕：躲避已变形玩家（文鳐、月蛾除外），参数与原版躲猫相同；
+	 * - 亡灵敌对生物（Monster 且属于 minecraft:undead 实体标签）：躲避狰形态玩家，或处于石像状态的狛犬形态玩家。
+	 *
+	 * 不会重复挂载：区块重载/跨维度/重登等"重新加入"场景中实体均为反序列化或新构建的全新实例，
+	 * goalSelector 已由 registerGoals 重建清空，故每次事件挂载的都是新实例的一次性初始化。
+	 */
+	@SubscribeEvent
+	public static void onEntityJoinLevel(net.neoforged.neoforge.event.entity.EntityJoinLevelEvent event) {
+		if (event.getLevel().isClientSide())
+			return;
+		if (event.getEntity() instanceof Creeper creeper) {
+			creeper.goalSelector.addGoal(CREEPER_FLEE_GOAL_PRIORITY, new AvoidEntityGoal<>(creeper, Player.class,
+					FLEE_DISTANCE, FLEE_WALK_SPEED, FLEE_SPRINT_SPEED, FeralFormManager::scaresCreeper));
+		}
+		if (event.getEntity() instanceof Monster monster && monster.getType().is(EntityTypeTags.UNDEAD)) {
+			monster.goalSelector.addGoal(UNDEAD_FLEE_GOAL_PRIORITY, new AvoidEntityGoal<>(monster, Player.class,
+					FLEE_DISTANCE, FLEE_WALK_SPEED, FLEE_SPRINT_SPEED, FeralFormManager::scaresUndead));
+		}
+	}
+
+	/** 该玩家是否会吓到苦力怕：非创造/旁观（同原版躲猫过滤），且已变形、非文鳐、非月蛾 */
+	private static boolean scaresCreeper(LivingEntity entity) {
+		if (!EntitySelector.NO_CREATIVE_OR_SPECTATOR.test(entity))
+			return false;
+		FeralForm form = getForm(entity);
+		return form.isFeral() && form != FeralForms.WENYAO && form != FeralForms.SILKMOTH;
+	}
+
+	/** 该玩家是否会吓跑亡灵：非创造/旁观，且为狰形态，或石像状态下的狛犬形态（isInStatue 内部已校验形态具备石像状态） */
+	private static boolean scaresUndead(LivingEntity entity) {
+		if (!EntitySelector.NO_CREATIVE_OR_SPECTATOR.test(entity))
+			return false;
+		return getForm(entity) == FeralForms.FEROCIOUS || isInStatue(entity);
 	}
 
 	/**
@@ -577,7 +746,7 @@ public class FeralFormManager {
 		 * 长按跳跃键（空格）缓慢上升，松手自然下落。
 		 */
 	public static void hoverFlightClientTick(Player player, FeralForm form) {
-		if (!form.isFeral() || !form.canHoverFlight())
+		if (!form.isFeral() || !form.canHoverFlight() || useElytraFlight(player))
 			return;
 		// 仅在按下跳跃键（空格）时缓慢上升，松手自然下落
 		if (!net.minecraft.client.Minecraft.getInstance().options.keyJump.isDown())
@@ -679,6 +848,73 @@ public class FeralFormManager {
 				|| target instanceof net.minecraft.world.entity.monster.piglin.AbstractPiglin;
 		if (isHumanoid) {
 			target.hurt(target.damageSources().generic(), level * 2);
+		}
+	}
+
+	// ==================== 形态专属进食 ====================
+
+	/** 苔叶兽可食用植物方块物品的食物属性：与原版胡萝卜相同（饱食 3、饱和 0.6） */
+	private static final FoodProperties PLANT_FOOD = new FoodProperties.Builder()
+			.nutrition(3).saturationModifier(0.6F).build();
+
+	/** 被追加了食物属性的植物方块物品（用于食用开始时判定是否仅限苔叶兽） */
+	private static final java.util.Set<Item> PLANT_FOOD_ITEMS = java.util.Collections.newSetFromMap(new java.util.IdentityHashMap<>());
+
+	/**
+	 * 给植物类方块的物品形式追加胡萝卜属性的 FOOD 组件（MOD 事件总线，由主类注册）。
+	 * 已有食物组件的物品（发光浆果等）保持原样；种子类（ItemNameBlockItem）不追加。
+	 */
+	public static void onModifyDefaultComponents(ModifyDefaultComponentsEvent event) {
+		for (Item item : BuiltInRegistries.ITEM) {
+			if (!(item instanceof BlockItem blockItem) || item instanceof ItemNameBlockItem)
+				continue;
+			if (item.components().has(DataComponents.FOOD))
+				continue;
+			if (!isPlantBlock(blockItem.getBlock()))
+				continue;
+			event.modify(item, builder -> builder.set(DataComponents.FOOD, PLANT_FOOD));
+			PLANT_FOOD_ITEMS.add(item);
+		}
+	}
+
+	/** 植物类方块判定：花草/树苗/蕨类等 BushBlock、藤蔓海带等 GrowingPlantBlock、树叶，
+	 * 以及苔藓、孢子花、甘蔗、竹子、仙人掌、紫颂、巨型蘑菇、发光地衣、南瓜/西瓜、大垂滴叶 */
+	private static boolean isPlantBlock(Block block) {
+		return block instanceof BushBlock
+				|| block instanceof GrowingPlantBlock
+				|| block instanceof LeavesBlock
+				|| block instanceof MossBlock
+				|| block == net.minecraft.world.level.block.Blocks.MOSS_CARPET
+				|| block instanceof SporeBlossomBlock
+				|| block instanceof SugarCaneBlock
+				|| block instanceof BambooStalkBlock
+				|| block instanceof CactusBlock
+				|| block instanceof ChorusFlowerBlock
+				|| block instanceof ChorusPlantBlock
+				|| block instanceof HugeMushroomBlock
+				|| block instanceof GlowLichenBlock
+				|| block instanceof PumpkinBlock
+				|| block == net.minecraft.world.level.block.Blocks.MELON
+				|| block instanceof BigDripleafBlock
+				|| block instanceof BigDripleafStemBlock;
+	}
+
+	/** 非苔叶兽形态不能食用追加的植物方块物品（物品的放置等正常使用不受影响，仅进食被取消） */
+	@SubscribeEvent
+	public static void onUseItemStart(LivingEntityUseItemEvent.Start event) {
+		if (PLANT_FOOD_ITEMS.contains(event.getItem().getItem())
+				&& getForm(event.getEntity()) != FeralForms.MOSS_BEAST) {
+			event.setCanceled(true);
+		}
+	}
+
+	/** 文鳐饮用任意药水/水瓶完成后回满氧气，并清零陆上缺氧计数 */
+	@SubscribeEvent
+	public static void onUseItemFinish(LivingEntityUseItemEvent.Finish event) {
+		LivingEntity entity = event.getEntity();
+		if (getForm(entity) == FeralForms.WENYAO && event.getItem().is(Items.POTION)) {
+			WENYAO_AIR_DEFICIT.remove(entity);
+			entity.setAirSupply(entity.getMaxAirSupply());
 		}
 	}
 }

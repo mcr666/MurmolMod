@@ -48,7 +48,16 @@ public final class FeralFormRecipes {
 			for (ItemStack material : form.getTransformMaterials())
 				ingredients.add(Ingredient.of(material.getItem()));
 			ShapelessRecipe recipe = new ShapelessRecipe("", CraftingBookCategory.MISC,
-					form.getSoulItem().copy(), ingredients);
+					form.getSoulItem().copy(), ingredients) {
+				/** 游戏规则 murmolAllowScrapSoulRecipe 关闭时，残页合成灵魂物品配方不生效 */
+				@Override
+				public boolean matches(net.minecraft.world.item.crafting.CraftingInput input,
+						net.minecraft.world.level.Level level) {
+					return level.getGameRules()
+							.getBoolean(mcr.murmol.init.MurmolModGameRules.ALLOW_SCRAP_SOUL_RECIPE)
+							&& super.matches(input, level);
+				}
+			};
 			ResourceLocation id = ResourceLocation.fromNamespaceAndPath(MurmolMod.MODID, "scrap_" + form.getId() + "_soul");
 			recipes.add(new RecipeHolder<>(id, recipe));
 		}

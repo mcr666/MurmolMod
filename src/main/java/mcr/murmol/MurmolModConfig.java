@@ -15,6 +15,10 @@ public class MurmolModConfig {
 	public static final ModConfigSpec.BooleanValue RENDER_BIOME_PARTICLES;
 	/** 麻雀观战者视角：把四家手牌全部平摊面朝上显示（默认关闭，观战时手牌立放） */
 	public static final ModConfigSpec.BooleanValue SPECTATOR_OPEN_HANDS;
+	/** 麻雀对局 AI 形象姿态：true=站立（默认站立动画），false=骑乘坐姿（现有潜行动作，默认） */
+	public static final ModConfigSpec.BooleanValue MAHJONG_AVATAR_STANDING;
+	/** 兽形变形时手持物品位置：true=全部统一叼在嘴部，false=按类别（非工具叼嘴、工具绑手臂，默认） */
+	public static final ModConfigSpec.BooleanValue FERAL_ITEMS_ALL_IN_MOUTH;
 
 	public static final ModConfigSpec SPEC;
 
@@ -33,6 +37,12 @@ public class MurmolModConfig {
 		SPECTATOR_OPEN_HANDS = builder
 				.comment("Mahjong spectator view: display all four players' hands face-up (flat). Default: false")
 				.define("spectatorOpenHands", false);
+		MAHJONG_AVATAR_STANDING = builder
+				.comment("Mahjong AI avatar pose: true = standing (default standing animation), false = riding crouch pose. Default: false")
+				.define("mahjongAvatarStanding", false);
+		FERAL_ITEMS_ALL_IN_MOUTH = builder
+				.comment("Feral form held-item rendering: true = all held items rendered in the mouth, false = by category (non-tools in mouth, tools bound to arms). Default: false")
+				.define("feralItemsAllInMouth", false);
 		builder.pop();
 		SPEC = builder.build();
 	}

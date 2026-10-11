@@ -46,6 +46,18 @@ public abstract class FeralArmorLayerMixin {
         if (!FeralBedrockPlayerAnimator.shouldAnimate(entity)) {
             return;
         }
+        // 石像状态：兽身渲染使用进入石像时冻结的 body yaw，而原版渲染空间（盔甲层所在）
+        // 仍是实时 body yaw（站立不动时原版身体也会自动回正到头部朝向），
+        // 头部件快照只能冻结相对头部姿态，父级空间转动会带着头盔转。
+        // 这里把图层空间从实时 yaw 补偿旋转到冻结 yaw：R(180-live)·R(live-frozen)=R(180-frozen)。
+        if (FeralFormManager.isInStatue(entity)) {
+            Float frozenBodyYaw = mcr.murmol.feral.client.FeralFormRenderer.frozenStatueBodyYaw(entity.getUUID());
+            if (frozenBodyYaw != null) {
+                float liveBodyYaw = net.minecraft.util.Mth.rotLerp(partialTick, entity.yBodyRotO, entity.yBodyRot);
+                poseStack.mulPose(com.mojang.math.Axis.YP.rotationDegrees(
+                    net.minecraft.util.Mth.wrapDegrees(liveBodyYaw - frozenBodyYaw)));
+            }
+        }
         if (slot == EquipmentSlot.CHEST || slot == EquipmentSlot.LEGS || slot == EquipmentSlot.FEET) {
             ci.cancel();
         }

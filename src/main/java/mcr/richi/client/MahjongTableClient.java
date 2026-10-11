@@ -86,9 +86,10 @@ public final class MahjongTableClient {
 		return mcr.murmol.feral.FeralForm.HUMAN_ID.equals(form) ? 0.0D : SEAT_LIFT;
 	}
 
-	/** AI 座位假玩家记录：实体 + 隐形骑乘载具（提供原版 riding 坐姿）+ 形态 id + 档案 UUID */
-	private record Avatar(RemotePlayer player, net.minecraft.world.entity.decoration.ArmorStand seat,
-			String form, UUID profileUuid) {
+	/** AI 座位假玩家记录：实体 + 隐形骑乘载具（站姿模式为 null，直接钉位）+ 形态 id + 档案 UUID + 是否站姿 */
+	private record Avatar(RemotePlayer player,
+			net.minecraft.world.entity.decoration.ArmorStand seat,
+			String form, UUID profileUuid, boolean standing) {
 	}
 
 	/** 待执行的动画任务（发牌 stagger / 倒牌级联），按桌分组 */
@@ -374,7 +375,8 @@ public final class MahjongTableClient {
 			if (name.isEmpty())
 				name = Component.translatable("gui.richi.lobby.av_" + form).getString();
 			if (cur == null || cur.player().isRemoved() || !cur.form().equals(form)
-					|| !cur.profileUuid().equals(uuid)) {
+					|| !cur.profileUuid().equals(uuid)
+					|| cur.standing() != mcr.murmol.MurmolModConfig.MAHJONG_AVATAR_STANDING.get()) {
 				if (cur != null) {
 					avatars.remove(seat);
 					removeAvatar(cur);
@@ -401,28 +403,32 @@ public final class MahjongTableClient {
 
 	/**
 	 * 创建客户端-only 假玩家：注入 PlayerInfo（渲染/皮肤查询）→ 本地写形态附件 → 加入 ClientLevel。
-	 * 玩家 tick 置空（无物理/无 AI），位置完全由原版骑乘定位驱动（rideTick 挂点跟随载具），
-	 * 与载具抬升天然一致，杜绝位置打架造成的沉地/弹跳。
-	 * 坐姿用原版骑乘机制：挂一个隐形 marker 盔甲架作载具，isPassenger → 原版 riding 姿势（坐矿车同款）。
+	 * 玩家 tick 置空（无物理/无 AI）。坐姿模式（默认）：隐形 marker 盔甲架作载具，isPassenger → riding 坐姿；
+	 * 站姿模式（配置开启）：无载具，由 pinAvatar 每包直接钉位，实体为默认站立姿态。
 	 */
 	private static Avatar createAvatar(ClientLevel level, String form, UUID uuid, String name,
 			Vec3 pos, float yaw) {
+		boolean standing = mcr.murmol.MurmolModConfig.MAHJONG_AVATAR_STANDING.get();
 		GameProfile profile = new GameProfile(uuid, name);
 		Minecraft mc = Minecraft.getInstance();
 		if (mc.getConnection() != null)
 			mc.getConnection().playerInfoMap.put(uuid, new PlayerInfo(profile, false));
-		var seat = new net.minecraft.world.entity.decoration.ArmorStand(
-				net.minecraft.world.entity.EntityType.ARMOR_STAND, level);
-		seat.setId(--nextAvatarEntityId); // 客户端唯一负数 id
-		seat.setInvisible(true);
-		byte flags = seat.getEntityData().get(net.minecraft.world.entity.decoration.ArmorStand.DATA_CLIENT_FLAGS);
-		seat.getEntityData().set(net.minecraft.world.entity.decoration.ArmorStand.DATA_CLIENT_FLAGS,
-				(byte) (flags | 0x10)); // marker 位：无碰撞箱不渲染
-		seat.setSilent(true);
-		seat.noPhysics = true;
-		seat.moveTo(pos.x, pos.y + seatLift(form), pos.z, yaw, 0.0f);
-		seat.setOldPosAndRot();
-		level.addEntity(seat);
+		net.minecraft.world.entity.decoration.ArmorStand seat = null;
+		double rideY = pos.y + seatLift(form);
+		if (!standing) {
+			seat = new net.minecraft.world.entity.decoration.ArmorStand(
+					net.minecraft.world.entity.EntityType.ARMOR_STAND, level);
+			seat.setId(--nextAvatarEntityId); // 客户端唯一负数 id
+			seat.setInvisible(true);
+			byte flags = seat.getEntityData().get(net.minecraft.world.entity.decoration.ArmorStand.DATA_CLIENT_FLAGS);
+			seat.getEntityData().set(net.minecraft.world.entity.decoration.ArmorStand.DATA_CLIENT_FLAGS,
+					(byte) (flags | 0x10)); // marker 位：无碰撞箱不渲染
+			seat.setSilent(true);
+			seat.noPhysics = true;
+			seat.moveTo(pos.x, rideY, pos.z, yaw, 0.0f);
+			seat.setOldPosAndRot();
+			level.addEntity(seat);
+		}
 		RemotePlayer player = new RemotePlayer(level, profile) {
 			@Override
 			public void tick() {
@@ -438,26 +444,40 @@ public final class MahjongTableClient {
 		};
 		player.setId(--nextAvatarEntityId); // 客户端唯一负数 id
 		player.noPhysics = true;
-		player.startRiding(seat, true);
-		// 出生即在载具挂点，避免首帧闪现原点；此后位置由 rideTick 维护
-		player.setPos(pos.x, pos.y + seatLift(form), pos.z);
+		if (!standing) {
+			player.startRiding(seat, true);
+			// 出生即在载具挂点，避免首帧闪现原点；此后位置由 rideTick 维护
+			player.setPos(pos.x, rideY, pos.z);
+		} else {
+			// 站姿：直接放在站位（pinAvatar 对局中持续钉位）
+			player.setPos(pos.x, pos.y, pos.z);
+		}
 		player.setOldPosAndRot();
 		// 形态写入本地玩家附件（不 sync）：feral 形态走 FeralFormRenderer 玩家渲染路径，
 		// villager 用约定哨兵 id（VillagerAvatarHandler 拦截渲染），human = 原版玩家 + 档案皮肤
 		player.getData(MurmolModVariables.PLAYER_VARIABLES).feralFormId =
 				"villager".equals(form) ? VillagerAvatarHandler.FORM_ID : form;
 		level.addEntity(player);
-		return new Avatar(player, seat, form, uuid);
+		return new Avatar(player, seat, form, uuid, standing);
 	}
 
 	/**
-	 * 钉住隐形载具在座位站位（外侧 3.5 格、面朝桌心，抬升 SEAT_LIFT），玩家朝向同步钉死。
-	 * 玩家坐标不在此设置——由 rideTick 挂点跟随载具，两边不再打架。
+	 * 钉住形象在座位站位（面朝桌心）：坐姿模式更新隐形载具（抬升 SEAT_LIFT），坐标由 rideTick 挂点跟随；
+	 * 站姿模式每包直接把假玩家钉到站位（无载具，y=baseY）。两种模式均同步头身朝向。
 	 */
 	private static void pinAvatar(double baseY, Vec3 pos, float yaw, Avatar avatar) {
 		RemotePlayer player = avatar.player();
 		if (player.isRemoved())
 			return;
+		if (avatar.standing()) {
+			player.moveTo(pos.x, baseY, pos.z, yaw, 0.0f);
+			player.setOldPosAndRot();
+			player.yBodyRot = yaw;
+			player.yBodyRotO = yaw;
+			player.yHeadRot = yaw;
+			player.yHeadRotO = yaw;
+			return;
+		}
 		net.minecraft.world.entity.decoration.ArmorStand st = avatar.seat();
 		st.moveTo(pos.x, baseY + seatLift(avatar.form()), pos.z, yaw, 0.0f);
 		st.setOldPosAndRot();
@@ -472,7 +492,8 @@ public final class MahjongTableClient {
 
 	/** 删除假玩家实体（含隐形骑乘载具）；无其他假玩家引用同一档案时清理注入的 PlayerInfo（防标签页/皮肤缓存残留） */
 	private static void removeAvatar(Avatar avatar) {
-		avatar.seat().discard();
+		if (avatar.seat() != null)
+			avatar.seat().discard();
 		avatar.player().discard();
 		boolean inUse = AVATARS.values().stream().flatMap(m -> m.values().stream())
 				.anyMatch(a -> a.profileUuid().equals(avatar.profileUuid()));

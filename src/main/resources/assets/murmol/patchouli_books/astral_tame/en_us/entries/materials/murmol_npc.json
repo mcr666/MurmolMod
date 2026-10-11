@@ -2,7 +2,7 @@
   "name": "Murmol",
   "icon": "minecraft:heart_of_the_sea",
   "category": "murmol:materials",
-  "sortnum": 11,
+  "sortnum": 12,
   "pages": [
     {
       "type": "patchouli:spotlight",

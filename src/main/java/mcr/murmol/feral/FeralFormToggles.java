@@ -70,10 +70,10 @@ public class FeralFormToggles extends SavedData {
 		return tag;
 	}
 
-	/** 全部形态 id 列表（GUI 与同步用，顺序固定），不含人类 */
+	/** 全部形态 id 列表（GUI 与同步用，顺序固定），不含人类与测试形态 */
 	public static java.util.List<String> formIds() {
 		return FeralForms.all().stream()
-				.filter(f -> f != FeralForms.HUMAN)
+				.filter(f -> f != FeralForms.HUMAN && !f.isTestForm())
 				.map(FeralForm::getId)
 				.toList();
 	}
