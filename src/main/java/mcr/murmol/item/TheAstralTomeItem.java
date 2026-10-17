@@ -39,7 +39,10 @@ public class TheAstralTomeItem extends Item {
 	@Override
 	public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
 		ItemStack stack = player.getItemInHand(hand);
-		// Patchouli 为必要前置（mods.toml type=required），无需再检查 ModList
+		// Patchouli 为软依赖：未安装时不打开手册
+		if (!net.neoforged.fml.ModList.get().isLoaded("patchouli")) {
+			return InteractionResultHolder.sidedSuccess(stack, level.isClientSide());
+		}
 		if (!level.isClientSide() && player instanceof ServerPlayer serverPlayer) {
 			PatchouliAPI.get().openBookGUI(serverPlayer, BOOK_ID);
 		}

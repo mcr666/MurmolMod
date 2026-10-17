@@ -244,6 +244,8 @@
   "gamerule.murmolAstralInfectionRange.description": "1-10: climate range of the Astral Infection biome; larger means wider spread (new worlds only, default 2)",
   "gamerule.murmolRetainFormOnDeath": "Retain form on death",
   "gamerule.murmolRetainFormOnDeath.description": "When disabled, players revert to human on death and drop 3/4 of their form's recipe materials (random, no duplicates); soulbound players are unaffected",
+  "gamerule.murmolStrictDiet": "Strict diet",
+  "gamerule.murmolStrictDiet.description": "When on, meat/vegetable diet restrictions apply (wrong food becomes bad food); the Moss Beast is unaffected and always eats vegetables and plant blocks",
   "message.murmol.transform.locked": "§cThis form is not yet recorded in the Astral Codex",
   "message.murmol.spirit_table.xp_needed": "§cSpirit altar transformation requires %s XP levels",
   "enchantment.murmol.schrodinger": "Schrodinger",

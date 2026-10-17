@@ -50,4 +50,7 @@ public class MahjongItems {
 				return new Item(props);
 			}))
 			.toList();
+
+	/** 立直棒（1000 点棒，立直宣言用） */
+	public static final DeferredHolder<Item, Item> STICK_1000 = ITEMS.get(0);
 }

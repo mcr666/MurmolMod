@@ -39,7 +39,7 @@ description="Murmol & Maocry"
 
 [[dependencies.murmol]]
     modId="patchouli"
-    type="required"
+    type="optional"
     ordering="AFTER"
     side="BOTH"
 

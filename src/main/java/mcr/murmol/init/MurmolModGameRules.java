@@ -9,6 +9,7 @@ import net.minecraft.world.level.GameRules;
  *   <li>{@link #SPIRIT_TABLE_XP_COST}：唤灵台变形消耗经验等级（默认开启；消耗 {@link #SPIRIT_TABLE_XP_AMOUNT} 级，创造免费）</li>
  *   <li>{@link #ALLOW_SCRAP_SOUL_RECIPE}：允许用古代知识残页在工作台合成形态灵魂物品（默认开启）</li>
  *   <li>{@link #FERAL_ELYTRA_FLIGHT}：会飞形态使用鞘翅式滑翔（等同隐形不占位鞘翅）替代按键悬停飞行（默认关闭）</li>
+ *   <li>{@link #STRICT_DIET}：苛刻食性——开启后普通食物的荤素食性限制生效（默认关闭；苔叶兽不受影响）</li>
  * </ul>
  * 类在 mod 构造期加载，GameRules 静态注册在世界创建前完成。
  */
@@ -44,6 +45,11 @@ public final class MurmolModGameRules {
 	public static final GameRules.Key<GameRules.BooleanValue> RETAIN_FORM_ON_DEATH =
 			GameRules.register("murmolRetainFormOnDeath", GameRules.Category.PLAYER,
 					GameRules.BooleanValue.create(true));
+
+	/** 苛刻食性：开启后普通食物的荤素食性限制生效（狰只吃肉、春花只吃素、吃错变坏食物）；苔叶兽不受此开关影响 */
+	public static final GameRules.Key<GameRules.BooleanValue> STRICT_DIET =
+			GameRules.register("murmolStrictDiet", GameRules.Category.PLAYER,
+					GameRules.BooleanValue.create(false));
 
 	/**
 	 * 幻星瘟疫（astral_infection_biome）生成噪声气候范围等级 1~10：

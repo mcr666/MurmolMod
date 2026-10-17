@@ -244,6 +244,8 @@
   "gamerule.murmolAstralInfectionRange.description": "1~10：幻星瘟疫群系的生成气候范围，越大分布越广（仅对新建世界生效，默认 2）",
   "gamerule.murmolRetainFormOnDeath": "死亡后保留形态",
   "gamerule.murmolRetainFormOnDeath.description": "关闭后玩家死亡会解除当前变形，并随机掉落形态配方中的 3/4 个材料（不重复）；已缔结塑魂之约的玩家不受影响",
+  "gamerule.murmolStrictDiet": "苛刻食性",
+  "gamerule.murmolStrictDiet.description": "开启：肉食/素食形态的荤素食性限制生效（吃错食物变坏食物）；苔叶兽不受此开关影响，始终可吃素与植物方块",
   "message.murmol.transform.locked": "§c该形态尚未记录于《幻星秘典》，无法变形",
   "message.murmol.spirit_table.xp_needed": "§c唤灵台变形需要 %s 级经验",
   "enchantment.murmol.schrodinger": "薛定谔",

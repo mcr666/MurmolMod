@@ -3,6 +3,7 @@ package mcr.murmol.mixin;
 import mcr.murmol.feral.FeralForm;
 import mcr.murmol.feral.FeralFormManager;
 import mcr.murmol.feral.FormDiet;
+import mcr.murmol.init.MurmolModGameRules;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.food.FoodProperties;
@@ -48,6 +49,13 @@ public abstract class ItemFoodPropertiesMixin {
 		// 植物方块物品：仅苔叶兽可食（PLANT），按胡萝卜属性进食
 		if (FormDiet.isPlantFood(food)) {
 			cir.setReturnValue(((LivingEntity) (Object) this).eat(level, food, FormDiet.plantFood()));
+			return;
+		}
+
+		// 普通食物：苔叶兽的素食食性始终生效；其它形态的荤素限制仅当「苛刻食性」开启
+		boolean dietEnforced = form.getDiet() == FormDiet.PLANT
+				|| player.level().getGameRules().getBoolean(MurmolModGameRules.STRICT_DIET);
+		if (!dietEnforced) {
 			return;
 		}
 

@@ -1711,6 +1711,17 @@ public class RiichiGame {
 			rankUuids[i] = st.aiSeat[i] ? null : st.players[i];
 		double[][] uma = mcr.richi.game.MahjongRankStore.recordEnd(level, seatNames(), rankUuids, st.points,
 				st.gameType);
+
+		// 女仆/NPC 参牌者：按本场天凤 pt 增量结算好感度（与 pt 量成正比，见 MahjongParticipant.onGameSettled）
+		for (int seat = 0; seat < 4; seat++) {
+			String u = st.players[seat];
+			if (u == null || !st.npcUuids.contains(u))
+				continue;
+			Entity e = level.getEntity(java.util.UUID.fromString(u));
+			mcr.richi.game.MahjongParticipant p = e == null ? null : mcr.richi.game.MahjongParticipantRegistry.of(e);
+			if (p != null)
+				p.onGameSettled(uma[seat][2]);
+		}
 		// 聊天框播报（全场玩家）：顺位 + 点数 + 马 + pt
 		var header = Component.translatable("message.richi.gameover");
 		for (ServerPlayer p : level.getServer().getPlayerList().getPlayers()) {

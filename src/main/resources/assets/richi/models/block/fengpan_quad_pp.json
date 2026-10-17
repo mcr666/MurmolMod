@@ -1,6 +1,5 @@
 {
 	"parent": "minecraft:block/block",
-	"render_type": "minecraft:cutout",
 	"textures": {
 		"0": "richi:item/fengpan",
 		"particle": "richi:item/fengpan"
@@ -10,12 +9,12 @@
 			"from": [0, 0, 0],
 			"to": [16, 1, 16],
 			"faces": {
-				"down": { "texture": "#0", "uv": [8, 8, 16, 0] },
-				"up": { "texture": "#0", "uv": [16, 8, 8, 0] },
-				"north": { "texture": "#0", "uv": [8, 0, 16, 1] },
-				"south": { "texture": "#0", "uv": [8, 7, 16, 8] },
-				"west": { "texture": "#0", "uv": [8, 0, 9, 8] },
-				"east": { "texture": "#0", "uv": [15, 0, 16, 8] }
+				"down": { "texture": "#0", "uv": [0, 0, 8, 8] },
+				"up": { "texture": "#0", "uv": [0, 0, 8, 8] },
+				"north": { "texture": "#0", "uv": [0, 0, 16, 1] },
+				"south": { "texture": "#0", "uv": [0, 0, 16, 1] },
+				"west": { "texture": "#0", "uv": [0, 0, 1, 16] },
+				"east": { "texture": "#0", "uv": [0, 0, 1, 16] }
 			}
 		}
 	]

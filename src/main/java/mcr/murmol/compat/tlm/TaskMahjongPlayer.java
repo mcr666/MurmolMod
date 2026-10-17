@@ -34,7 +34,7 @@ public class TaskMahjongPlayer implements IMaidTask {
 
 	@Override
 	public ItemStack getIcon() {
-		return MahjongItems.FENG_PAN.get().getDefaultInstance();
+		return MahjongItems.STICK_1000.get().getDefaultInstance();
 	}
 
 	@Override

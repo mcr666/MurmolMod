@@ -203,4 +203,16 @@ public final class TlmMaidParticipant implements MahjongParticipant {
 	public static void clear(EntityMaid maid) {
 		PIN_STATES.remove(maid);
 	}
+
+	/** 好感度与天凤 pt 增量的换算比例（pt × 该系数 = 好感度；赢正加、输负减，可调） */
+	private static final double FAVOR_SCALE = 1.0;
+
+	@Override
+	public void onGameSettled(double pt) {
+		int delta = (int) Math.round(pt * FAVOR_SCALE);
+		if (delta == 0)
+			return;
+		// 走 TLM FavorabilityManager.add：上限钳制 + 爱心粒子 + 等级升级触发
+		maid.getFavorabilityManager().add(delta);
+	}
 }

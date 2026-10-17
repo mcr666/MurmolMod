@@ -36,4 +36,9 @@ public interface MahjongParticipant {
 	 */
 	default void tickPin() {
 	}
+
+
+	/** 对局结算回调：pt 为本场天凤 pt 增量（可为负）。默认不处理；实现方（如女仆）可借此加好感度等 */
+	default void onGameSettled(double pt) {
+	}
 }
