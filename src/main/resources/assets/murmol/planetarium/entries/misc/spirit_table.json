@@ -1,0 +1,9 @@
+{
+  "id": "spirit_table",
+  "type": "page",
+  "title": "唤灵台",
+  "icon": "murmol:spirit_table",
+  "category": "misc",
+  "sort": 0,
+  "text": "**唤灵台**是变形的核心方块。$(br)$(li)在台面上摆放对应形态的**祭品**（最多 4 件）。$(li)手持**摩摩尔之魂**右键唤灵台，消耗祭品与摩摩尔之魂，完成变形。$(li)手持**魂之瓶**右键收取对应形态的灵魂物品。$(br)$(br)若游戏规则 `murmolSpiritTableXpCost` 开启，唤灵台变形会额外消耗 5 级经验（创造模式免费）。"
+}

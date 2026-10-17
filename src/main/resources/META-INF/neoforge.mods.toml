@@ -4,7 +4,7 @@ license="Not specified"
 
 [[mods]]
 modId="murmol"
-version="2.2.3"
+version="2.2.4"
 displayName="Murmol"
 displayURL="https://bilibili.com"
 logoFile="logo.png"
@@ -47,6 +47,20 @@ description="Murmol & Maocry"
 # NeoOrigins 联动（软依赖）：未安装时全部联动逻辑静默跳过
 [[dependencies.murmol]]
     modId="neoorigins"
+    type="optional"
+    versionRange="*"
+    ordering="AFTER"
+    side="BOTH"
+# FirstPersonModel 联动（软依赖）：第一人称渲染本地玩家时，兽身隐藏头部并做 X 位移校正（FeralFormRenderer/WenyaoPlayerRenderer）
+[[dependencies.murmol]]
+    modId="firstperson"
+    type="optional"
+    versionRange="*"
+    ordering="AFTER"
+    side="BOTH"
+# TLM（Touhou Little Maid）联动（软依赖）：女仆可参与麻雀牌局；未安装时全部联动逻辑静默跳过
+[[dependencies.murmol]]
+    modId="touhou_little_maid"
     type="optional"
     versionRange="*"
     ordering="AFTER"

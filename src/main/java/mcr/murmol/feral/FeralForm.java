@@ -64,6 +64,9 @@ public abstract class FeralForm {
 	/** 是否允许穿戴胸甲（变形掉落护甲逻辑豁免胸部槽位，如月蛾），默认不允许 */
 	private boolean canWearChestArmor = false;
 
+	/** 形态食性偏好（默认杂食无限制），决定吃不符合食性的食物时是否触发「坏食物」 */
+	private FormDiet diet = FormDiet.OMNIVORE;
+
 	protected FeralForm(String id, ResourceLocation texture, ResourceLocation tailTexture,
 			ResourceLocation bodyLayer, ResourceLocation tailLayer,
 			Supplier<ItemStack> soulItem, ResourceLocation advancement,
@@ -116,6 +119,15 @@ public abstract class FeralForm {
 
 	public boolean canWearChestArmor() {
 		return canWearChestArmor;
+	}
+
+	/** 设置该形态的食性偏好（默认杂食无限制） */
+	protected void setDiet(FormDiet diet) {
+		this.diet = diet;
+	}
+
+	public FormDiet getDiet() {
+		return diet;
 	}
 
 	/** 设置碰撞箱水平四周扩展宽度（每侧格数，覆盖默认的 1/8 格） */

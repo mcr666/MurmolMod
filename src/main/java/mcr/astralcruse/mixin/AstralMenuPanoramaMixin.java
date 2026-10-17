@@ -30,6 +30,7 @@ public abstract class AstralMenuPanoramaMixin {
         String prefix = "textures/gui/title/background/panorama";
         if (original.getNamespace().equals("minecraft")
             && original.getPath().startsWith(prefix)
+            && mcr.murmol.MurmolModConfig.SPEC.isLoaded()
             && mcr.murmol.MurmolModConfig.MODIFY_TITLE_SCREEN.get()) {
             // 保留 _0.._5 面序号后缀，否则贴图路径不存在会渲染成紫黑格
             return ResourceLocation.fromNamespaceAndPath(

@@ -34,13 +34,14 @@ public class SpiritTableRenderer implements BlockEntityRenderer<SpiritTableBlock
 			if (stack.isEmpty())
 				continue;
 			poseStack.pushPose();
-			// 同原版营火：四件物品朝四个方向外沿摆放，外边缘与方块边缘齐平。
+			// 同原版营火：四件物品分占四个象限（两个水平分量同为 0.21875=3.5 像素，
+			// 比营火原版的 0.3125=5 像素整体内收 1.5 像素），绕中心对称。
 			// 台面位于 y=0.75，加 0.0117 间隙避免 Z-fighting（营火同款 0.44921875 思路）。
 			poseStack.translate(0.5, 0.7617, 0.5);
 			Direction direction = Direction.from2DDataValue(i);
 			poseStack.mulPose(Axis.YP.rotationDegrees(-direction.toYRot()));
 			poseStack.mulPose(Axis.XP.rotationDegrees(90.0F));
-			poseStack.translate(-0.3125, -0.3125, 0.0);
+			poseStack.translate(-0.21875, -0.21875, 0.0);
 			poseStack.scale(0.375F, 0.375F, 0.375F);
 			Minecraft.getInstance().getItemRenderer().renderStatic(stack, ItemDisplayContext.FIXED, lightColor, OverlayTexture.NO_OVERLAY, poseStack, bufferSource, level, i);
 			poseStack.popPose();

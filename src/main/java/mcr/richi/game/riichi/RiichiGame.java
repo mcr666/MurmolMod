@@ -9,6 +9,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
 
@@ -98,18 +99,6 @@ public class RiichiGame {
 	/** 吃的组合缓存：选项 "chi:<idx>" → 手牌两张 code */
 	private final List<int[]> chiCombos = new ArrayList<>();
 
-	// ---- future 预排队列（/murmol mahjong future）：各家接下来摸牌的强制顺序 ----
-	/** 各家预排摸牌队列（null = 无；摸牌时优先取队首并从牌山移除一张同牌，其他玩家摸不到） */
-	@SuppressWarnings("unchecked")
-	private final List<Integer>[] futureDraws = new List[4];
-
-	/** 追加某家的预排摸牌序列（按参数顺序依次摸到；每次摸牌同时从牌山移除一张同牌） */
-	public void addFutureDraws(int seat, List<Integer> codes) {
-		if (this.futureDraws[seat] == null)
-			this.futureDraws[seat] = new ArrayList<>();
-		this.futureDraws[seat].addAll(codes);
-	}
-
 	// ---- 延迟任务（多条并存：结算轮播 / AI 荣和延迟宣言 / 10s 续局） ----
 	private record DelayedTask(long at, Runnable run) {
 	}
@@ -142,7 +131,9 @@ public class RiichiGame {
 		for (int seat = 0; seat < 4; seat++) {
 			boolean ai = st.aiSeat[seat];
 			String uuid = st.players[seat] == null ? RiichiBot.aiUuid(seat) : st.players[seat];
-			ps[seat] = new RiichiPlayer(seat, uuid, ai ? aiSeatName(seat) : nameOf(uuid), ai, st.points[seat]);
+			String pname = (st.players[seat] != null && st.npcUuids.contains(st.players[seat]))
+				? participantNameOf(uuid) : (ai ? aiSeatName(seat) : nameOf(uuid));
+			ps[seat] = new RiichiPlayer(seat, uuid, pname, ai, st.points[seat]);
 		}
 	}
 
@@ -160,6 +151,13 @@ public class RiichiGame {
 		} catch (IllegalArgumentException ignored) {
 		}
 		return uuid.length() > 8 ? uuid.substring(0, 8) : uuid;
+	}
+
+	/** 参牌者（女仆/NPC）结算名：经注册表取参牌者名（而非 AI 名） */
+	private String participantNameOf(String uuid) {
+		Entity e = level.getEntity(java.util.UUID.fromString(uuid));
+		mcr.richi.game.MahjongParticipant p = e == null ? null : mcr.richi.game.MahjongParticipantRegistry.of(e);
+		return p != null ? p.participantName() : (uuid.length() > 8 ? uuid.substring(0, 8) : uuid);
 	}
 
 	/** NPC 座位动作反馈：Murmol NPC 执行操作（打牌/鸣牌/和牌等）时挥手 */
@@ -190,7 +188,7 @@ public class RiichiGame {
 		FengPanBlock.resolveAvatars(level, st); // 形象解析同时分配各 AI 流派（客户端按同步包渲染假玩家）
 		// 形象重解析后刷新 AI 结算名——否则名字停留在构造时的旧形态（随机模式重掷后错位）
 		for (int s = 0; s < 4; s++)
-			if (ps[s].ai)
+			if (ps[s].ai && !(st.players[s] != null && st.npcUuids.contains(st.players[s])))
 				ps[s].name = aiSeatName(s);
 		String[] names = new String[4];
 		for (int i = 0; i < 4; i++)
@@ -286,18 +284,10 @@ public class RiichiGame {
 
 	/** 摸牌回合开始：牌尾摸一张，短考重置，检查九种九牌/自摸/立直/杠选项 */
 	private void beginTurn(int seat) {
-		int drawn;
-		List<Integer> queued = this.futureDraws[seat];
-		if (queued != null && !queued.isEmpty()) {
-			// future 预排：直接发队首牌，并从牌山移除一张同牌（其他玩家摸不到）
-			drawn = queued.remove(0);
-			wall.removeTile(drawn);
-		} else {
-			drawn = wall.draw();
-			if (drawn < 0) {
-				ryuukyoku();
-				return;
-			}
+		int drawn = wall.draw();
+		if (drawn < 0) {
+			ryuukyoku();
+			return;
 		}
 		lastTileHand = wall.isEmpty(); // 海底判定：摸进的是最后一张
 		rinshanFlag = false;
@@ -1566,13 +1556,14 @@ public class RiichiGame {
 		return false;
 	}
 
-	/** 向对局四家（人类）推送结算界面 */
+	/** 向对局四家（人类）推送结算界面；规则开启时 8 格内观战者也会被打开 */
 	private void sendSettlementToAll(MahjongSettlementPayload.Settlement s) {
 		for (int seat = 0; seat < 4; seat++) {
 			ServerPlayer p = st.playerOf(level, seat);
 			if (p != null)
 				MahjongSettlementPayload.sendTo(p, s);
 		}
+		sendToSpectators(p -> MahjongSettlementPayload.sendTo(p, s));
 	}
 
 	/** 结算阶段 1 结束 → 推送点数变化界面（阶段 2，5s 自动确认） */
@@ -1589,6 +1580,8 @@ public class RiichiGame {
 				mcr.richi.network.MahjongPointDeltaPayload.sendTo(p, origin.asLong(), seatNames(),
 						pointsBeforeRound, st.points);
 		}
+		sendToSpectators(p -> mcr.richi.network.MahjongPointDeltaPayload.sendTo(p, origin.asLong(), seatNames(),
+				pointsBeforeRound, st.points));
 		schedule(5 * 20, settleTask);
 	}
 
@@ -1606,6 +1599,10 @@ public class RiichiGame {
 				mcr.richi.network.MahjongPointDeltaPayload.sendClose(p);
 			}
 		}
+		sendToSpectators(p -> {
+			MahjongSettlementPayload.sendClose(p);
+			mcr.richi.network.MahjongPointDeltaPayload.sendClose(p);
+		});
 		// 聊天播报在结算界面全部消失后发出
 		if (!pendingChat.isEmpty()) {
 			broadcast(pendingChat);
@@ -1689,14 +1686,15 @@ public class RiichiGame {
 		for (int seat = 0; seat < 4; seat++)
 			if (!st.aiSeat[seat] && st.players[seat] != null && !st.queue.contains(st.players[seat]))
 				st.queue.add(st.players[seat]);
-		// NPC 参战者终局回到等候队列：保留排队资格并原地钉定（在座位上等待下一局，不乱走）
+		// NPC 参战者终局回到等候队列：保留排队资格并解除钉位（对局结束即可动弹，下一局开局重新入座）
 		for (int seat = 0; seat < 4; seat++) {
 			String u = st.players[seat];
-			if (u != null && st.npcUuids.contains(u)
-					&& level.getEntity(java.util.UUID.fromString(u)) instanceof mcr.murmol.entity.MurmolNpcEntity npc) {
+			Entity e = level.getEntity(java.util.UUID.fromString(u));
+			mcr.richi.game.MahjongParticipant p = e == null ? null : mcr.richi.game.MahjongParticipantRegistry.of(e);
+			if (u != null && st.npcUuids.contains(u) && p != null) {
 				if (!st.queue.contains(u))
 					st.queue.add(u);
-				npc.pinAt(npc.position(), npc.getYRot()); // 继续排队等候，原地停驻
+				p.unpin(); // 解除钉位：女仆恢复自由，可走动/被击退；保留排队资格
 			}
 		}
 		st.turnSeat = -1;
@@ -1737,6 +1735,7 @@ public class RiichiGame {
 			if (p != null)
 				MahjongSettlementPayload.sendTo(p, finalS);
 		}
+		sendToSpectators(p -> MahjongSettlementPayload.sendTo(p, finalS));
 	}
 
 	// ---- 结算数据工具 ----
@@ -2584,13 +2583,35 @@ public class RiichiGame {
 		FengPanBlock.messageTable(level, st, key, args);
 	}
 
-	/** 聊天框向桌心 16 格内所有玩家播报（副露/立直/和牌/流局等每次操作实时通知；个人提示走动作栏不受影响） */
+	/** 聊天框向桌心 16 格内所有玩家播报（副露/立直/和牌/流局等每次操作实时通知；个人提示走动作栏不受影响）。
+	 *  观战者是否收到桌况聊天跟随"观战显示牌局内容"规则（关闭时观战者收不到牌局聊天，参战四家始终可见） */
 	private void broadcast(String text) {
 		Vec3 c = FengPanBlock.tableCenter(level, origin);
 		var box = new net.minecraft.world.phys.AABB(c.x - 16, c.y - 16, c.z - 16,
 				c.x + 16, c.y + 16, c.z + 16);
 		for (ServerPlayer p : level.getEntitiesOfClass(ServerPlayer.class, box))
-			p.sendSystemMessage(Component.literal("§6<幻星麻雀>§r " + text));
+			if (isGamePlayer(p) || st.spectatorShow)
+				p.sendSystemMessage(Component.literal("§6<幻星麻雀>§r " + text));
+	}
+
+	/** 该玩家是否为本桌参战雀士（4 家中任一家） */
+	private boolean isGamePlayer(ServerPlayer p) {
+		String u = p.getUUID().toString();
+		for (int s = 0; s < 4; s++)
+			if (u.equals(st.players[s]))
+				return true;
+		return false;
+	}
+
+	/** 规则开启时，向桌心 8 格内观战者（非参战玩家）执行 action（和牌/结算界面同步用） */
+	private void sendToSpectators(java.util.function.Consumer<ServerPlayer> action) {
+		if (!st.spectatorShow)
+			return;
+		Vec3 c = FengPanBlock.tableCenter(level, origin);
+		var box = new net.minecraft.world.phys.AABB(c.x - 8, c.y - 8, c.z - 8, c.x + 8, c.y + 8, c.z + 8);
+		for (ServerPlayer p : level.getEntitiesOfClass(ServerPlayer.class, box))
+			if (!isGamePlayer(p))
+				action.accept(p);
 	}
 
 	/** 牌面显示名（播报用） */
@@ -2598,3 +2619,4 @@ public class RiichiGame {
 		return mcr.richi.MahjongTileItem.create(code).getHoverName().getString();
 	}
 }
+

@@ -80,9 +80,9 @@ public final class RiichiBot {
 			return 7;
 		int f = switch (form == null ? "" : form) {
 			case "chen_huang" -> 0;
-			case "luohong" -> 1;
+			case "spring_flower" -> 1;
 			case "moss_beast" -> 2;
-			case "wenyao" -> 3;
+			case "wen_yao" -> 3;
 			case "komainu" -> 4;
 			case "ferocious" -> 4; // 凶兽 = 魂天流
 			case "dark_fury" -> 4; // 黯忿 = 魂天流

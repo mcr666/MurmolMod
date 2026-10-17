@@ -9,7 +9,6 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.api.distmarker.Dist;
 
 import mcr.murmol.client.particle.SpiteffectParticle;
-import mcr.murmol.client.particle.MurIceParticle;
 import mcr.murmol.client.particle.EightparticleParticle;
 import mcr.murmol.client.particle.AstralEffectParticle;
 import mcr.murmol.client.particle.AstralBurstParticle;
@@ -21,7 +20,6 @@ public class MurmolModParticles {
 	@SubscribeEvent
 	public static void registerParticles(RegisterParticleProvidersEvent event) {
 		event.registerSpriteSet(MurmolModParticleTypes.EIGHTPARTICLE.get(), EightparticleParticle::provider);
-		event.registerSpriteSet(MurmolModParticleTypes.MUR_ICE.get(), MurIceParticle::provider);
 		event.registerSpriteSet(MurmolModParticleTypes.ASTRAL_EFFECT.get(), AstralEffectParticle::provider);
 		event.registerSpriteSet(MurmolModParticleTypes.SPITEFFECT.get(), SpiteffectParticle::provider);
 		event.registerSpriteSet(MurmolModParticleTypes.ASTRAL_BURST.get(), AstralBurstParticle::provider);

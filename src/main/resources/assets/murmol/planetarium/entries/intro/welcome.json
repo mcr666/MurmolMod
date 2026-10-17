@@ -1,0 +1,9 @@
+{
+  "id": "welcome",
+  "type": "page",
+  "title": "欢迎",
+  "icon": "murmol:planetarium",
+  "category": "intro",
+  "sort": 0,
+  "text": "欢迎使用**星象仪**系统。$(br)本界面左侧为目录，右侧为文章。"
+}

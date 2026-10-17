@@ -20,13 +20,15 @@ import net.minecraft.world.phys.Vec3;
 import java.util.List;
 
 import mcr.richi.game.MahjongLobby;
+import mcr.richi.game.MahjongParticipant;
 
 /**
  * Murmol NPC：友好型 AI（不攻击、不反击），艾利克斯模型 + Murmol 皮肤（见 MurmolNpcRenderer）。
  * 右键弹出对话叠加层（NpcDialogueHud，数字键选择）：确认后加入 16 格内最近的麻雀桌等候队列（占据方式同玩家，可被移出）；
  * 等候与对局期间钉在位置上（对局中取代 AI 假玩家形象打牌，动作时挥手）；终局/移出解除固定。
+ * 实现 {@link MahjongParticipant}：作为麻雀牌局的参牌者，钉位由自身 tick() 完成。
  */
-public class MurmolNpcEntity extends PathfinderMob {
+public class MurmolNpcEntity extends PathfinderMob implements MahjongParticipant {
 	public MurmolNpcEntity(EntityType<? extends PathfinderMob> type, Level world) {
 		super(type, world);
 		setPersistenceRequired(); // 刷怪蛋放置后不消失
@@ -146,6 +148,20 @@ public class MurmolNpcEntity extends PathfinderMob {
 		return queuedTable;
 	}
 
+	/** 对局钉位期间看向牌桌中心点的俯角（度；中心低于视线为正 = 向下看） */
+	private float lookPitchAtTableCenter() {
+		long qt = this.queuedTable;
+		if (qt == -1 || !(level() instanceof net.minecraft.server.level.ServerLevel sl))
+			return 0.0f;
+		net.minecraft.core.BlockPos origin = net.minecraft.core.BlockPos.of(qt);
+		if (!(sl.getBlockState(origin).getBlock() instanceof mcr.richi.block.FengPanBlock))
+			return 0.0f;
+		Vec3 c = mcr.richi.block.FengPanBlock.tableCenter(sl, origin);
+		double dy = this.getY() + this.getEyeHeight() - c.y;
+		double dist = Math.max(1.0E-4, Math.hypot(c.x - this.getX(), c.z - this.getZ()));
+		return (float) Math.toDegrees(Math.atan2(dy, dist));
+	}
+
 	public void setQueuedTable(long origin) {
 		this.queuedTable = origin;
 	}
@@ -171,6 +187,21 @@ public class MurmolNpcEntity extends PathfinderMob {
 		this.queuedTable = -1;
 	}
 
+	// ==================================================================
+	// MahjongParticipant（参牌者）：钉位由自身 tick() 完成，tickPin() 留空
+	// ==================================================================
+
+	@Override
+	public String participantName() {
+		return getCustomName() != null ? getCustomName().getString() : "Murmol";
+	}
+
+	/** 等候钉位：原地停驻（同 pinAt） */
+	@Override
+	public void pinWaiting(Vec3 pos, float yaw) {
+		pinAt(pos, yaw);
+	}
+
 	@Override
 	public void tick() {
 		super.tick();
@@ -188,11 +219,11 @@ public class MurmolNpcEntity extends PathfinderMob {
 				this.teleportTo((ServerLevel) level(), pinPos.x, pinPos.y, pinPos.z, java.util.Set.of(), pinYaw, 0.0f);
 				this.setYRot(pinYaw);
 			} else if (pinGame) {
-				// 对局中：锁朝向为桌心方向，覆盖注视/环顾 AI 的转头
+				// 对局中：锁朝向为桌心方向，覆盖注视/环顾 AI 的转头；并始终俯视牌桌中心点
 				//（tick 顺序在目标 AI 之后，直接覆写头/身转向即可，无需动 LookControl）
 				this.setYRot(pinYaw);
 				this.setYHeadRot(pinYaw);
-				this.setXRot(0.0f);
+				this.setXRot(lookPitchAtTableCenter());
 			} else
 				this.setYRot(pinYaw);
 		}

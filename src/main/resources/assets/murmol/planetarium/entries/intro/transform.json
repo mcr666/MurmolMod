@@ -1,0 +1,9 @@
+{
+  "id": "transform",
+  "type": "page",
+  "title": "与神兽建立沟通",
+  "icon": "murmol:murmol_soul",
+  "category": "intro",
+  "sort": 1,
+  "text": "唤星学会提供了现有的两种途径来与神话生物建立连接：$(br)$(li)**形态之魂**：寻找或制作形态之魂，使用。$(li)**唤灵台**：在唤灵台上摆放祭品 + 手持摩摩尔之魂触碰。"
+}

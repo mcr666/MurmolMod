@@ -58,6 +58,8 @@ public class RichiTableState {
 	public final int[] aiFlows = new int[4];
 	/** 明牌（默认关）：关时参战雀士看不到他人手牌牌面（打出/推倒后可见），显示未知牌面；观战者始终可见全部 */
 	public boolean openHand = false;
+	/** 观战是否显示牌局内容（默认开）：开时 8 格内观战者也被打开和牌/结算界面并收到聊天播报 */
+	public boolean spectatorShow = true;
 	/** 当前回合截止时刻（游戏刻，0 = 无计时）；超时自动摸切 */
 	public long turnDeadline;
 	/** 当前回合限时长（刻）：短考 5s（每回合重置）；进入长考后 = 长考银行剩余 */
@@ -74,6 +76,8 @@ public class RichiTableState {
 	/** NPC 参战者 UUID（Murmol NPC 经右键确认加入队列/对局）：开局视作 AI 座位，
 	 *  客户端跳过其假玩家（form=npc），真实 NPC 实体钉在座位站位；终局/移出时解除 */
 	public final java.util.Set<String> npcUuids = new java.util.HashSet<>();
+	/** 每桌可容纳的参牌者（NPC/女仆等）上限：放开多女仆，默认最多 3，至少留 1 个真人座位（可调整） */
+	public static final int MAX_NPC_SEATS = 3;
 	/** 服务端 Marker 代理实体：每个 AI 座位对应一个 Marker，可被选择器选中/tp；key=座位 0..3，value=实体 UUID */
 	public final java.util.Map<Integer, java.util.UUID> aiMarkerUuids = new java.util.HashMap<>();
 	/** 管理界面预约的 AI 座位（等待阶段设置，开局时该座位固定安排 AI） */

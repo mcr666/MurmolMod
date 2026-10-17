@@ -73,8 +73,12 @@ public class NpcDialoguePayloads {
 		public static void handleData(final SelectMessage message, final IPayloadContext context) {
 			if (context.flow() == PacketFlow.SERVERBOUND) {
 				context.enqueueWork(() -> {
-					if (context.player() instanceof net.minecraft.server.level.ServerPlayer sp)
-						mcr.murmol.entity.MurmolNpcEntity.handleDialogueSelect(sp, message.npcId(), message.index());
+					if (context.player() instanceof net.minecraft.server.level.ServerPlayer sp) {
+						net.minecraft.world.entity.Entity e = sp.serverLevel().getEntity(message.npcId());
+						if (e instanceof mcr.murmol.entity.MurmolNpcEntity) {
+							mcr.murmol.entity.MurmolNpcEntity.handleDialogueSelect(sp, message.npcId(), message.index());
+						}
+					}
 				});
 			}
 		}

@@ -64,8 +64,11 @@ public static RichiTableState reset(ServerLevel level, BlockPos origin) {
 	BlockPos key = origin.immutable();
 	RichiTableState old = TABLES.get(key);
 	RichiTableState fresh = new RichiTableState();
-	if (old != null)
+	if (old != null) {
 		fresh.queue.addAll(old.queue);
+		// 保留参牌者（NPC/女仆）身份：清桌后它们仍留队，缺了 npcUuids 会让队列名落到 uuid 前缀显示成乱码
+		fresh.npcUuids.addAll(old.npcUuids);
+	}
 	TABLES.put(key, fresh);
 	GAMES.remove(key);
 	LEVELS.put(key, level);

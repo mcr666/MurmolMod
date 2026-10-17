@@ -4,37 +4,14 @@ import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
 import net.neoforged.neoforge.event.entity.living.LivingEntityUseItemEvent;
 import net.neoforged.neoforge.event.entity.living.LivingEquipmentChangeEvent;
-import net.neoforged.neoforge.event.ModifyDefaultComponentsEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.bus.api.SubscribeEvent;
 
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.BambooStalkBlock;
-import net.minecraft.world.level.block.BigDripleafBlock;
-import net.minecraft.world.level.block.BigDripleafStemBlock;
-import net.minecraft.world.level.block.BushBlock;
-import net.minecraft.world.level.block.CactusBlock;
-import net.minecraft.world.level.block.ChorusFlowerBlock;
-import net.minecraft.world.level.block.ChorusPlantBlock;
-import net.minecraft.world.level.block.GlowLichenBlock;
-import net.minecraft.world.level.block.GrowingPlantBlock;
-import net.minecraft.world.level.block.HugeMushroomBlock;
-import net.minecraft.world.level.block.LeavesBlock;
-import net.minecraft.world.level.block.MossBlock;
-import net.minecraft.world.level.block.PumpkinBlock;
-import net.minecraft.world.level.block.SporeBlossomBlock;
-import net.minecraft.world.level.block.SugarCaneBlock;
-import net.minecraft.world.item.BlockItem;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemNameBlockItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.InteractionResultHolder;
-import net.minecraft.world.food.FoodProperties;
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.LivingEntity;
@@ -110,6 +87,42 @@ public class FeralFormManager {
 		applyModifiers(player, form);
 	}
 
+	// ==================== 塑魂之约（形态绑定） ====================
+
+	/** 该实体是否已缔结塑魂之约（绑定到某形态） */
+	public static boolean isSoulbound(Entity entity) {
+		return entity instanceof Player player
+				&& player.hasData(MurmolModVariables.PLAYER_VARIABLES)
+				&& !player.getData(MurmolModVariables.PLAYER_VARIABLES).soulboundFormId.isEmpty();
+	}
+
+	/** 该实体绑定的形态（未绑定时返回 null） */
+	public static FeralForm getBoundForm(Entity entity) {
+		if (!(entity instanceof Player player) || !player.hasData(MurmolModVariables.PLAYER_VARIABLES))
+			return null;
+		String id = player.getData(MurmolModVariables.PLAYER_VARIABLES).soulboundFormId;
+		return id.isEmpty() ? null : FeralForms.byId(id);
+	}
+
+	/** 服务端：把玩家绑定到当前形态（须为野性形态、且未绑定）。 */
+	public static boolean bindSoul(ServerPlayer player, FeralForm form) {
+		if (form == null || !form.isFeral() || isSoulbound(player))
+			return false;
+		player.getData(MurmolModVariables.PLAYER_VARIABLES).soulboundFormId = form.getId();
+		player.getData(MurmolModVariables.PLAYER_VARIABLES).markSyncDirty();
+		// 绑定即锁定当前形态（防止绑定瞬间正处于被显形临时替换等异常态）
+		setForm(player, form);
+		return true;
+	}
+
+	/** 服务端：解除玩家的塑魂之约绑定。 */
+	public static void unbindSoul(ServerPlayer player) {
+		if (!player.hasData(MurmolModVariables.PLAYER_VARIABLES))
+			return;
+		player.getData(MurmolModVariables.PLAYER_VARIABLES).soulboundFormId = "";
+		player.getData(MurmolModVariables.PLAYER_VARIABLES).markSyncDirty();
+	}
+
 	// ==================== 属性修饰符 ====================
 
 	public static void applyModifiers(LivingEntity entity, FeralForm form) {
@@ -174,6 +187,15 @@ public class FeralFormManager {
 			return false;
 		if (getForm(entity) == form)
 			return true;
+		// 塑魂之约：已绑定形态的玩家无法以非作弊手段变形为其他形态或人类（/murmol 等管理指令 ignoreToggle 不受限）
+		if (!ignoreToggle && isSoulbound(entity)) {
+			FeralForm bound = getBoundForm(entity);
+			if (bound != null && bound != form) {
+				if (entity instanceof Player player && !world.isClientSide())
+					player.displayClientMessage(Component.translatable("message.murmol.soulbind.blocked", bound.getDisplayName()), true);
+				return false;
+			}
+		}
 		// 两仪开关：禁用的形态无法变形，给予失败提示，调用方不消耗物品（指令可忽略）
 		if (!ignoreToggle && !FeralFormToggles.isEnabled(form, world.isClientSide())) {
 			if (entity instanceof Player player && !world.isClientSide())
@@ -217,6 +239,15 @@ public class FeralFormManager {
 	 * 返回 fail 结果表示拦截（已发送提示），null = 放行。
 	 */
 	public static InteractionResultHolder<ItemStack> checkSoulItemUse(Level world, Player player, ItemStack stack, FeralForm form) {
+		// 塑魂之约：已绑定形态时，绑定形态以外的形态灵魂物品不可用
+		if (isSoulbound(player)) {
+			FeralForm bound = getBoundForm(player);
+			if (bound != null && bound != form) {
+				if (!world.isClientSide())
+					player.displayClientMessage(Component.translatable("message.murmol.soulbind.blocked", bound.getDisplayName()), true);
+				return InteractionResultHolder.fail(stack);
+			}
+		}
 		// 显形药效期间禁止变形（药水效果两侧可见）
 		if (mcr.murmol.potion.RevealManager.isLocked(player)) {
 			if (!world.isClientSide())
@@ -313,6 +344,39 @@ public class FeralFormManager {
 	// ==================== 材料匹配 ====================
 
 	/**
+	 * 「死亡后保留形态」规则关闭时的死亡掉落：从当前形态配方的固定材料中，
+	 * 随机选取 3/4（向下取整，至少 1 个）个**不重复**的材料类型，在死亡处各掉落 1 个。
+	 * 只统计 getTransformMaterials() 里的具体物品（标签类祭品如"任意鱼"不参与，无法确定掉落实体）。
+	 */
+	public static void dropPartialTransformMaterials(Entity deadEntity) {
+		if (deadEntity == null || !(deadEntity.level() instanceof ServerLevel serverLevel))
+			return;
+		FeralForm form = getForm(deadEntity);
+		if (form == null || !form.isFeral())
+			return;
+		java.util.LinkedHashSet<net.minecraft.world.item.Item> pool = new java.util.LinkedHashSet<>();
+		for (ItemStack stack : form.getTransformMaterials())
+			if (stack != null && !stack.isEmpty())
+				pool.add(stack.getItem());
+		if (pool.isEmpty())
+			return;
+		int total = pool.size();
+		int dropCount = Math.min(total, Math.max(1, (int) Math.floor(total * 3.0 / 4.0)));
+		java.util.List<net.minecraft.world.item.Item> shuffled = new java.util.ArrayList<>(pool);
+		net.minecraft.util.RandomSource rng = serverLevel.getRandom();
+		for (int i = shuffled.size() - 1; i > 0; i--) // Fisher-Yates：RandomSource 不兼容 Collections.shuffle
+			java.util.Collections.swap(shuffled, i, rng.nextInt(i + 1));
+		double x = deadEntity.getX(), y = deadEntity.getY(), z = deadEntity.getZ();
+		for (int i = 0; i < dropCount; i++) {
+			net.minecraft.world.entity.item.ItemEntity drop = new net.minecraft.world.entity.item.ItemEntity(
+					serverLevel, x, y + 0.5D, z, new ItemStack(shuffled.get(i)));
+			drop.setDeltaMovement((serverLevel.getRandom().nextDouble() - 0.5) * 0.2, 0.2D,
+					(serverLevel.getRandom().nextDouble() - 0.5) * 0.2);
+			serverLevel.addFreshEntity(drop);
+		}
+	}
+
+	/**
 	 * 无序材料匹配：传入 4 个槽位的物品列表（可含 EMPTY），按物品 id 计数后与配方材料计数比对
 	 * （每种材料出现次数相同即可），返回匹配到的形态，未匹配返回 null。
 	 * 人类形态（变回人类）：水桶 + 不死图腾 + 绿宝石 + 任意船 特判在前。
@@ -397,6 +461,9 @@ public class FeralFormManager {
 		updateSilkmothEnvironmentModifiers(entity, form);
 		updateKomainuStatueState(entity, form);
 		updateWenyaoEnvironmentModifiers(entity, form);
+		updateFerociousFearAura(entity, form);
+		updateLuohongNatureAura(entity, form);
+		updateChenHuangRiderBuffs(entity, form);
 		// 悬停飞行模式免疫摔落伤害（每 tick 清零累计摔落距离）；
 		// 鞘翅规则模式等同真鞘翅：滑翔中原版免伤，未展开滑翔的坠落保留原版风险
 		if (form.isFeral() && form.canHoverFlight() && !useElytraFlight(entity) && entity.fallDistance > 0) {
@@ -409,6 +476,11 @@ public class FeralFormManager {
 				elytraRuleSynced = now;
 				mcr.murmol.network.FeralFlightPayloads.syncToAll(entity.level().getServer());
 			}
+		}
+		// 可飞行形态（canHoverFlight）每 10s 消耗半格饥饿值（服务端，仅玩家）
+		if (!entity.level().isClientSide && form.isFeral() && form.canHoverFlight() && entity.tickCount % 200 == 0
+				&& entity instanceof Player player) {
+			player.getFoodData().setFoodLevel(Math.max(0, player.getFoodData().getFoodLevel() - 1));
 		}
 	}
 
@@ -721,6 +793,89 @@ public class FeralFormManager {
 		}
 	}
 
+	// ==================== 狰：恐惧光环 ====================
+
+	/** 狰形态：每 20 tick（1 秒）对周围 6 格内敌对生物施加虚弱 I（2 秒），它们本就会因 AvoidEntityGoal 逃离 */
+	private static void updateFerociousFearAura(LivingEntity entity, FeralForm form) {
+		if (form != FeralForms.FEROCIOUS || entity.level().isClientSide() || entity.tickCount % 20 != 0)
+			return;
+		var mobs = entity.level().getEntitiesOfClass(net.minecraft.world.entity.monster.Monster.class,
+				entity.getBoundingBox().inflate(6.0D));
+		for (var mob : mobs) {
+			mob.addEffect(new MobEffectInstance(MobEffects.WEAKNESS, 40, 0, true, false));
+		}
+	}
+
+	// ==================== 春花狐龙：自然光环 ====================
+
+	/** 春花狐龙：每 20 tick 随机催熟周围 5 格内作物（骨粉效果），每 100 tick 让周围动物进入繁殖状态 */
+	private static void updateLuohongNatureAura(LivingEntity entity, FeralForm form) {
+		if (form != FeralForms.LUOHONG || entity.level().isClientSide())
+			return;
+		var level = entity.level();
+		// 催熟作物：每 20 tick 随机选一个周围作物方块催熟
+		if (entity.tickCount % 20 == 0) {
+			var random = level.random;
+			for (int i = 0; i < 3; i++) {
+				int dx = random.nextInt(11) - 5;
+				int dz = random.nextInt(11) - 5;
+				int dy = random.nextInt(3) - 1;
+				var pos = entity.blockPosition().offset(dx, dy, dz);
+				var state = level.getBlockState(pos);
+				if (level instanceof net.minecraft.server.level.ServerLevel serverLevel
+						&& state.getBlock() instanceof net.minecraft.world.level.block.BonemealableBlock mealable
+						&& mealable.isValidBonemealTarget(level, pos, state)
+						&& mealable.isBonemealSuccess(serverLevel, random, pos, state)) {
+					mealable.performBonemeal(serverLevel, random, pos, state);
+					level.levelEvent(1505, pos, 0); // 骨粉粒子
+				}
+			}
+		}
+		// 动物繁殖：每 100 tick 让周围 6 格内成年动物进入"爱"模式
+		if (entity.tickCount % 100 == 0) {
+			var animals = level.getEntitiesOfClass(net.minecraft.world.entity.animal.Animal.class,
+					entity.getBoundingBox().inflate(6.0D));
+			for (var animal : animals) {
+				if (animal.isAlive() && !animal.isBaby() && animal.getLoveCause() == null) {
+					animal.setInLove(null);
+				}
+			}
+		}
+	}
+
+	// ==================== 乘黄：骑乘增益 ====================
+
+	/** 乘黄形态：附近 2.5 格内的其他玩家持续获得抗性提升 I 与生命恢复 I（模拟骑乘增益） */
+	private static void updateChenHuangRiderBuffs(LivingEntity entity, FeralForm form) {
+		if (form != FeralForms.CHEN_HUANG || entity.level().isClientSide())
+			return;
+		// 先处理真正的乘客（若有）
+		for (var passenger : entity.getPassengers()) {
+			if (passenger instanceof LivingEntity living) {
+				living.addEffect(new MobEffectInstance(MobEffects.DAMAGE_RESISTANCE, 40, 0, true, false));
+				living.addEffect(new MobEffectInstance(MobEffects.REGENERATION, 40, 0, true, false));
+			}
+		}
+		// 附近玩家（2.5 格内）也获得骑乘增益
+		var nearby = entity.level().getEntitiesOfClass(Player.class,
+				entity.getBoundingBox().inflate(2.5D), p -> p != entity && p.isAlive());
+		for (var player : nearby) {
+			player.addEffect(new MobEffectInstance(MobEffects.DAMAGE_RESISTANCE, 40, 0, true, false));
+			player.addEffect(new MobEffectInstance(MobEffects.REGENERATION, 40, 0, true, false));
+		}
+	}
+
+	// ==================== 月蛾：受伤吐丝 ====================
+
+	@SubscribeEvent
+	public static void onLivingDamage(LivingDamageEvent.Post event) {
+		LivingEntity victim = event.getEntity();
+		if (victim.level().isClientSide() || getForm(victim) != FeralForms.SILKMOTH)
+			return;
+		// 月蛾受伤：获得盘丝（WEAVING）5 秒
+		victim.addEffect(new MobEffectInstance(MobEffects.WEAVING, 100, 0, true, false));
+	}
+
 	private static void setTransientModifier(LivingEntity entity, net.minecraft.core.Holder<net.minecraft.world.entity.ai.attributes.Attribute> attr,
 			ResourceLocation id, double amount) {
 		var instance = entity.getAttribute(attr);
@@ -778,8 +933,8 @@ public class FeralFormManager {
 			return;
 		if (!stack.is(armorTag))
 			return;
-		// 量子态附魔：装备在变形时不会自动脱落
-		if (hasQuantumState(stack, entity))
+		// 薛定谔附魔：装备在变形时不会自动脱落
+		if (hasSchrodinger(stack, entity))
 			return;
 		// 原版丢弃机制：直接从实体身上掉落（保留 NBT、随机散布），而非销毁后再造掉落物
 		if (entity instanceof Player player) {
@@ -805,14 +960,14 @@ public class FeralFormManager {
 		}
 	}
 
-	/** 量子态附魔检查：该装备是否附有 murmol:quantum_state */
-	private static boolean hasQuantumState(ItemStack stack, LivingEntity entity) {
-		var key = ResourceKey.create(Registries.ENCHANTMENT, ResourceLocation.parse("murmol:quantum_state"));
+	/** 薛定谔附魔检查：该装备是否附有 murmol:schrodinger */
+	private static boolean hasSchrodinger(ItemStack stack, LivingEntity entity) {
+		var key = ResourceKey.create(Registries.ENCHANTMENT, ResourceLocation.parse("murmol:schrodinger"));
 		return stack.getEnchantmentLevel(entity.level().registryAccess().lookupOrThrow(Registries.ENCHANTMENT).getOrThrow(key)) > 0;
 	}
 
 	/**
-	 * 量子态附魔获取途径：图书管理员村民 4 级（专家）出售附魔书（12 绿宝石）。
+	 * 薛定谔附魔获取途径：图书管理员村民 4 级（专家）出售附魔书（12 绿宝石）。
 	 */
 	@SubscribeEvent
 	public static void onVillagerTrades(net.neoforged.neoforge.event.village.VillagerTradesEvent event) {
@@ -820,7 +975,7 @@ public class FeralFormManager {
 			return;
 		event.getTrades().computeIfAbsent(4, k -> new java.util.ArrayList<>()).add((trader, rand) -> {
 			ItemStack book = new ItemStack(Items.ENCHANTED_BOOK);
-			var key = ResourceKey.create(Registries.ENCHANTMENT, ResourceLocation.parse("murmol:quantum_state"));
+			var key = ResourceKey.create(Registries.ENCHANTMENT, ResourceLocation.parse("murmol:schrodinger"));
 			var holder = trader.level().registryAccess().lookupOrThrow(Registries.ENCHANTMENT).getOrThrow(key);
 			book.enchant(holder, 1);
 			return new net.minecraft.world.item.trading.MerchantOffer(
@@ -839,72 +994,12 @@ public class FeralFormManager {
 		int level = weapon.getEnchantmentLevel(target.level().registryAccess().lookupOrThrow(Registries.ENCHANTMENT).getOrThrow(enchantmentKey));
 		if (level <= 0)
 			return;
-		// 人类杀手附魔：对人型生物（玩家、僵尸、骷髅、村民、灾厄村民、猪灵等）造成额外伤害
-		boolean isHumanoid = target instanceof net.minecraft.world.entity.player.Player
-				|| target instanceof net.minecraft.world.entity.monster.Zombie
-				|| target instanceof net.minecraft.world.entity.monster.AbstractSkeleton
-				|| target instanceof net.minecraft.world.entity.npc.AbstractVillager
-				|| target instanceof net.minecraft.world.entity.monster.AbstractIllager
-				|| target instanceof net.minecraft.world.entity.monster.piglin.AbstractPiglin;
+		// 人类杀手附魔：仅对掠夺者系列（灾厄村民）、村民和未变形（人类形态）玩家造成额外伤害
+		boolean isHumanoid = target instanceof net.minecraft.world.entity.monster.AbstractIllager
+				|| target instanceof net.minecraft.world.entity.npc.Villager
+				|| (target instanceof net.minecraft.world.entity.player.Player p && !getForm(p).isFeral());
 		if (isHumanoid) {
 			target.hurt(target.damageSources().generic(), level * 2);
-		}
-	}
-
-	// ==================== 形态专属进食 ====================
-
-	/** 苔叶兽可食用植物方块物品的食物属性：与原版胡萝卜相同（饱食 3、饱和 0.6） */
-	private static final FoodProperties PLANT_FOOD = new FoodProperties.Builder()
-			.nutrition(3).saturationModifier(0.6F).build();
-
-	/** 被追加了食物属性的植物方块物品（用于食用开始时判定是否仅限苔叶兽） */
-	private static final java.util.Set<Item> PLANT_FOOD_ITEMS = java.util.Collections.newSetFromMap(new java.util.IdentityHashMap<>());
-
-	/**
-	 * 给植物类方块的物品形式追加胡萝卜属性的 FOOD 组件（MOD 事件总线，由主类注册）。
-	 * 已有食物组件的物品（发光浆果等）保持原样；种子类（ItemNameBlockItem）不追加。
-	 */
-	public static void onModifyDefaultComponents(ModifyDefaultComponentsEvent event) {
-		for (Item item : BuiltInRegistries.ITEM) {
-			if (!(item instanceof BlockItem blockItem) || item instanceof ItemNameBlockItem)
-				continue;
-			if (item.components().has(DataComponents.FOOD))
-				continue;
-			if (!isPlantBlock(blockItem.getBlock()))
-				continue;
-			event.modify(item, builder -> builder.set(DataComponents.FOOD, PLANT_FOOD));
-			PLANT_FOOD_ITEMS.add(item);
-		}
-	}
-
-	/** 植物类方块判定：花草/树苗/蕨类等 BushBlock、藤蔓海带等 GrowingPlantBlock、树叶，
-	 * 以及苔藓、孢子花、甘蔗、竹子、仙人掌、紫颂、巨型蘑菇、发光地衣、南瓜/西瓜、大垂滴叶 */
-	private static boolean isPlantBlock(Block block) {
-		return block instanceof BushBlock
-				|| block instanceof GrowingPlantBlock
-				|| block instanceof LeavesBlock
-				|| block instanceof MossBlock
-				|| block == net.minecraft.world.level.block.Blocks.MOSS_CARPET
-				|| block instanceof SporeBlossomBlock
-				|| block instanceof SugarCaneBlock
-				|| block instanceof BambooStalkBlock
-				|| block instanceof CactusBlock
-				|| block instanceof ChorusFlowerBlock
-				|| block instanceof ChorusPlantBlock
-				|| block instanceof HugeMushroomBlock
-				|| block instanceof GlowLichenBlock
-				|| block instanceof PumpkinBlock
-				|| block == net.minecraft.world.level.block.Blocks.MELON
-				|| block instanceof BigDripleafBlock
-				|| block instanceof BigDripleafStemBlock;
-	}
-
-	/** 非苔叶兽形态不能食用追加的植物方块物品（物品的放置等正常使用不受影响，仅进食被取消） */
-	@SubscribeEvent
-	public static void onUseItemStart(LivingEntityUseItemEvent.Start event) {
-		if (PLANT_FOOD_ITEMS.contains(event.getItem().getItem())
-				&& getForm(event.getEntity()) != FeralForms.MOSS_BEAST) {
-			event.setCanceled(true);
 		}
 	}
 

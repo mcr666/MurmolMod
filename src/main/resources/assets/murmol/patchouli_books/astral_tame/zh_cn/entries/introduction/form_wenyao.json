@@ -7,14 +7,14 @@
   "pages": [
     {
       "type": "patchouli:spotlight",
-      "item": "murmol:wenyao_soul",
+      "item": "murmol:form_soul",
       "title": "文鳐",
       "text": "《山海经》有载：状如鲤鱼，鱼身而鸟翼，苍文而白首赤喙。夜飞而游西海，游于东海，以水为息。"
     },
     {
       "type": "patchouli:crafting",
       "title": "传颂之物",
-      "recipe": "murmol:scrap_wenyao_soul",
+      "recipe": "murmol:scrap_wen_yao_soul",
       "text": "结缘之祭物。"
     },
     {

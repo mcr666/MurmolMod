@@ -53,6 +53,9 @@ public final class RevealManager {
 
 	/** 记录原形态并临时替换（变形者→人类，人类→随机形态）。药水路径与方块路径共用。 */
 	static void beginReveal(Player player) {
+		// 塑魂之约：已绑定形态的玩家不受显形临时替换影响（其形态无法以非作弊手段改变）
+		if (FeralFormManager.isSoulbound(player))
+			return;
 		FeralForm original = FeralFormManager.getForm(player);
 		player.getData(MurmolModVariables.PLAYER_VARIABLES).revealOriginalFormId = original.getId();
 		player.getData(MurmolModVariables.PLAYER_VARIABLES).markSyncDirty();

@@ -3,6 +3,6 @@
 	"event": "chosen",
 	"entity_action": {
 		"type": "neoorigins:execute_command",
-		"command": "murmol tf @s luohong"
+		"command": "murmol tf @s spring_flower"
 	}
 }

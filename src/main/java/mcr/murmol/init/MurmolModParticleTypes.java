@@ -15,7 +15,6 @@ import mcr.murmol.MurmolMod;
 public class MurmolModParticleTypes {
 	public static final DeferredRegister<ParticleType<?>> REGISTRY = DeferredRegister.create(Registries.PARTICLE_TYPE, MurmolMod.MODID);
 	public static final DeferredHolder<ParticleType<?>, SimpleParticleType> EIGHTPARTICLE = REGISTRY.register("eightparticle", () -> new SimpleParticleType(true));
-	public static final DeferredHolder<ParticleType<?>, SimpleParticleType> MUR_ICE = REGISTRY.register("mur_ice", () -> new SimpleParticleType(false));
 	public static final DeferredHolder<ParticleType<?>, SimpleParticleType> ASTRAL_EFFECT = REGISTRY.register("astral_effect", () -> new SimpleParticleType(true));
 	public static final DeferredHolder<ParticleType<?>, SimpleParticleType> SPITEFFECT = REGISTRY.register("spiteffect", () -> new SimpleParticleType(true));
 	public static final DeferredHolder<ParticleType<?>, SimpleParticleType> ASTRAL_BURST = REGISTRY.register("astral_burst", () -> new SimpleParticleType(false));

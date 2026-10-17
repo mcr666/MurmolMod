@@ -138,5 +138,16 @@ public class MurmolNpcModel extends HierarchicalModel<MurmolNpcEntity> {
 		this.TailSecondary.yRot = Mth.sin(tailPhase) * -2.5F * Mth.DEG_TO_RAD;
 		this.TailTertiary.yRot = Mth.sin(tailPhase) * -5.0F * Mth.DEG_TO_RAD;
 		this.TailQuaternary.yRot = Mth.sin(tailPhase) * -5.0F * Mth.DEG_TO_RAD;
+
+		// 挥手/挥臂（打牌、鸣牌、和牌等动作反馈）：attackTime 由渲染器经 entity.getAttackAnim 注入，
+		// 1→0 为一帧挥动——主臂抬起再回落，叠加小幅横向挥舞（MobRenderer 已置 this.attackTime）
+		if (this.attackTime > 0.0F) {
+			float p = this.attackTime;
+			float raise = Mth.sin(p * Mth.PI) * 1.3F;          // 抬臂曲线
+			float sweep = Mth.sin(p * Mth.PI * 2.0F) * 0.35F; // 横向挥舞
+			this.rightArm.xRot -= raise;
+			this.rightArm.zRot -= sweep;
+			this.leftArm.xRot -= raise * 0.3F;
+		}
 	}
 }

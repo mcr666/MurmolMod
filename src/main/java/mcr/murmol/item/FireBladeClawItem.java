@@ -16,7 +16,6 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.tags.TagKey;
 import net.minecraft.tags.BlockTags;
 
-import mcr.murmol.procedures.GivefireProcedure;
 import mcr.murmol.feral.FeralFormManager;
 import mcr.murmol.feral.FeralForms;
 
@@ -60,7 +59,9 @@ public class FireBladeClawItem extends SwordItem {
 	@Override
 	public boolean hurtEnemy(ItemStack itemstack, LivingEntity entity, LivingEntity sourceentity) {
 		boolean retval = super.hurtEnemy(itemstack, entity, sourceentity);
-		GivefireProcedure.execute(entity);
+		if (entity != null) {
+			entity.igniteForSeconds(3);
+		}
 		return retval;
 	}
 

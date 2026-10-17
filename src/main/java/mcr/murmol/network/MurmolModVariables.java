@@ -97,9 +97,22 @@ public class MurmolModVariables {
 		if (!event.isWasDeath()) {
 			clone.alfarspatt = original.alfarspatt;
 		}
-		clone.feralFormId = original.feralFormId;
+		// 死亡保留形态规则：关闭且玩家未魂绑时，死亡解除变形并掉落 3/4 配方材料；
+		// 魂绑玩家永久绑定，形态跨死亡保留（不受此规则影响）；规则开启则沿用现行"死亡保留形态"行为。
+		boolean keepForm = true;
+		if (event.isWasDeath() && event.getEntity().level() instanceof ServerLevel serverLevel) {
+			keepForm = serverLevel.getGameRules().getBoolean(mcr.murmol.init.MurmolModGameRules.RETAIN_FORM_ON_DEATH);
+		}
+		if (event.isWasDeath() && !keepForm && original.soulboundFormId.isEmpty()) {
+			// 解除变形：不复制 feralFormId → 重生为人类；并在死亡处掉落材料
+			mcr.murmol.feral.FeralFormManager.dropPartialTransformMaterials(event.getOriginal());
+		} else {
+			clone.feralFormId = original.feralFormId;
+		}
 		clone.revealOriginalFormId = original.revealOriginalFormId;
 		clone.unlockedForms.addAll(original.unlockedForms);
+		// 塑魂之约绑定为永久约定，跨死亡保留
+		clone.soulboundFormId = original.soulboundFormId;
 		event.getEntity().setData(PLAYER_VARIABLES, clone);
 	}
 
@@ -116,6 +129,8 @@ public class MurmolModVariables {
 		public String revealOriginalFormId = "";
 		/** 已解锁形态 id 集合（客户端拦截判定用，由服务端 syncUnlockState 刷新；解锁规则关闭时包含全部形态） */
 		public java.util.HashSet<String> unlockedForms = new java.util.HashSet<>();
+		/** 塑魂之约绑定的形态 id（非空 = 已与该形态永久绑定；无法以非作弊手段变形为其他形态或人类，指令除外） */
+		public String soulboundFormId = "";
 
 		@Override
 		public CompoundTag serializeNBT(HolderLookup.Provider lookupProvider) {
@@ -125,6 +140,7 @@ public class MurmolModVariables {
 		nbt.putBoolean("statueBanza", statueBanza);
 		nbt.putString("feralFormId", feralFormId);
 		nbt.putString("revealOriginalFormId", revealOriginalFormId);
+		nbt.putString("soulboundFormId", soulboundFormId);
 		net.minecraft.nbt.ListTag unlockList = new net.minecraft.nbt.ListTag();
 		for (String id : unlockedForms)
 			unlockList.add(net.minecraft.nbt.StringTag.valueOf(id));
@@ -142,7 +158,7 @@ public class MurmolModVariables {
 				feralFormId = nbt.getString("feralFormId");
 			} else if (nbt.contains("feralFormId", net.minecraft.nbt.Tag.TAG_INT)) {
 				feralFormId = switch (nbt.getInt("feralFormId")) {
-					case 1 -> "luohong";
+					case 1 -> "spring_flower";
 					case 2 -> "chen_huang";
 					case 3 -> "moss_beast";
 					default -> FeralForm.HUMAN_ID;
@@ -151,6 +167,7 @@ public class MurmolModVariables {
 				feralFormId = FeralForm.HUMAN_ID;
 			}
 			revealOriginalFormId = nbt.getString("revealOriginalFormId");
+			soulboundFormId = nbt.getString("soulboundFormId");
 			unlockedForms.clear();
 			net.minecraft.nbt.ListTag unlockList = nbt.getList("unlockedForms", net.minecraft.nbt.Tag.TAG_STRING);
 			for (int i = 0; i < unlockList.size(); i++)

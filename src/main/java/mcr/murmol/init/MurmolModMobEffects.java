@@ -14,8 +14,6 @@ import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.core.registries.Registries;
 
-import mcr.murmol.procedures.CreativeShockZhuangTaiXiaoGuoJieShuShiProcedure;
-import mcr.murmol.potion.FrozenedMobEffect;
 import mcr.murmol.potion.CreativeShockMobEffect;
 import mcr.murmol.potion.AstralInfectionMobEffect;
 import mcr.murmol.potion.PetrifyMobEffect;
@@ -26,7 +24,6 @@ import mcr.murmol.MurmolMod;
 @EventBusSubscriber
 public class MurmolModMobEffects {
 	public static final DeferredRegister<MobEffect> REGISTRY = DeferredRegister.create(Registries.MOB_EFFECT, MurmolMod.MODID);
-	public static final DeferredHolder<MobEffect, MobEffect> FROZENED = REGISTRY.register("frozened", FrozenedMobEffect::new);
 	public static final DeferredHolder<MobEffect, MobEffect> ASTRAL_INFECTION = REGISTRY.register("astral_infection", AstralInfectionMobEffect::new);
 	public static final DeferredHolder<MobEffect, MobEffect> CREATIVE_SHOCK = REGISTRY.register("creative_shock", CreativeShockMobEffect::new);
 	public static final DeferredHolder<MobEffect, MobEffect> PETRIFY = REGISTRY.register("petrify", PetrifyMobEffect::new);
@@ -50,7 +47,8 @@ public class MurmolModMobEffects {
 
 	private static void expireEffects(Entity entity, MobEffectInstance effectInstance) {
 		if (effectInstance.getEffect().is(CREATIVE_SHOCK)) {
-			CreativeShockZhuangTaiXiaoGuoJieShuShiProcedure.execute(entity);
+			// 原实现在此恢复 mayBuild=true，但因客户端 handlePlayerAbilities 不同步 mayBuild，
+			// 该恢复路径失效并造成轮廓永久消失；交互禁用已改由 PetrifyLockHandlers 实现，此过程保留为空。
 		}
 		// 显形结束：复原原形态
 		if (effectInstance.getEffect().is(REVEAL)) {

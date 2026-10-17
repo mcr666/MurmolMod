@@ -1,7 +1,6 @@
 {
   "replace": false,
   "values": [
-    "murmol:astral_armor_chestplate",
-    "murmol:frost_armor_chestplate"
+    "murmol:astral_armor_chestplate"
   ]
 }

@@ -90,10 +90,17 @@ public class WenyaoPlayerRenderer extends PlayerRenderer {
 			poseStack.translate(0.0D, CROUCH_LIFT / 16.0D, 0.0D);
 		}
 
+		ModelPart firstPersonHead = null;
+		if (FeralFormRenderer.isFirstPersonLocalPlayer(entity)) {
+			// 第一人称隐藏鱼头（相机位于头部位置）
+			firstPersonHead = FeralBedrockPlayerAnimator.findBone(root, "head");
+			if (firstPersonHead != null) firstPersonHead.visible = false;
+		}
 		ResourceLocation texture = getTextureLocation(entity);
 		poseStack.pushPose();
 		root.render(poseStack, buffers.getBuffer(RenderType.armorCutoutNoCull(texture)),
 				packedLight, LivingEntityRenderer.getOverlayCoords(entity, 0), -1);
+		if (firstPersonHead != null) firstPersonHead.visible = true;
 
 		// 文鳐形态不展示第三人称手持物品（隐藏挂点手持渲染）
 		poseStack.popPose();

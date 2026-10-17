@@ -41,20 +41,6 @@
         },
         {
           "type": "minecraft:item",
-          "name": "murmol:ice_sharp_ore",
-          "weight": 2,
-          "functions": [
-            {
-              "function": "minecraft:set_count",
-              "count": {
-                "min": 1,
-                "max": 2
-              }
-            }
-          ]
-        },
-        {
-          "type": "minecraft:item",
           "name": "minecraft:iron_nugget",
           "weight": 5,
           "functions": [
@@ -323,7 +309,7 @@
             {
               "function": "minecraft:set_custom_data",
               "tag": {
-                "FormId": "luohong"
+                "FormId": "spring_flower"
               }
             }
           ]
@@ -373,7 +359,7 @@
             {
               "function": "minecraft:set_enchantments",
               "enchantments": {
-                "murmol:quantum_state": 1
+                "murmol:schrodinger": 1
               }
             }
           ]

@@ -15,7 +15,6 @@ import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 
-import mcr.murmol.entity.MurmolNpcEntity;
 import mcr.richi.block.FengPanBlock;
 import mcr.richi.game.MahjongLobby;
 import mcr.richi.game.MahjongTileNotation;
@@ -28,7 +27,6 @@ import net.minecraft.commands.SharedSuggestionProvider;
  * 麻雀指令：
  * /murmol mahjong refresh —— 按服务端牌局状态重建所有桌面渲染（实时渲染的兜底手段）；
  * /murmol mahjong clean   —— 清理最近的风盘（对局中不可清，清除状态与桌面渲染）；
- * /murmol mahjong future <hand> —— 预排自己接下来摸到的牌顺序（4 级权限，牌谱记法）；
  * /murmol npc join <id>   —— Murmol NPC 加入 16 格内最近牌桌等候队列（右键[接受]触发）；
  * /murmol npc decline     —— 右键[拒绝]。
  */
@@ -94,52 +92,6 @@ public class MahjongCommands {
 													.suggests((c, b) -> SharedSuggestionProvider.suggest(
 															new String[] { "e", "s", "w", "n" }, b))
 													.executes(ctx -> replaceHand(ctx, seatFromArg(ctx))))))
-						.then(Commands.literal("future")
-								// 预排自己接下来摸到的牌（4 级权限）：hand=牌谱记法（如 1s2s2p2m2z），
-								// 按顺序依次摸到；每次摸牌从牌山移除一张同牌，其他玩家摸不到这些牌
-								.requires(src -> src.hasPermission(4))
-								.then(Commands.argument("hand", StringArgumentType.string())
-										.executes(ctx -> {
-											ServerLevel level = ctx.getSource().getLevel();
-											var player = ctx.getSource().getPlayerOrException();
-											BlockPos nearest = RichiTableManager.nearest(level, player.position(), 16);
-											if (nearest == null) {
-												ctx.getSource().sendFailure(Component.literal("§c16 格内没有牌桌"));
-												return 0;
-											}
-											RichiTableState st = RichiTableManager.get(nearest);
-											var game = RichiTableManager.getGame(nearest);
-											if (st == null || game == null
-													|| st.phase != RichiTableState.PHASE_PLAYING) {
-												ctx.getSource().sendFailure(
-														Component.literal("§c该牌桌当前没有进行中的对局"));
-												return 0;
-											}
-											int seat = -1;
-											for (int i = 0; i < 4; i++)
-												if (player.getStringUUID().equals(st.players[i]))
-													seat = i;
-											if (seat < 0) {
-												ctx.getSource().sendFailure(
-														Component.literal("§c你不在这场对局中"));
-												return 0;
-											}
-											final int mySeat = seat;
-											java.util.List<Integer> codes;
-											try {
-												codes = MahjongTileNotation.parse(
-														StringArgumentType.getString(ctx, "hand"));
-											} catch (IllegalArgumentException e) {
-												ctx.getSource().sendFailure(
-														Component.literal("§c牌谱记法无效: " + e.getMessage()));
-												return 0;
-											}
-											game.addFutureDraws(mySeat, codes);
-											ctx.getSource().sendSuccess(
-													() -> Component.literal("§6<幻星麻雀>§r 已预排 " + seatName(mySeat)
-															+ " 家接下来 " + codes.size() + " 次摸牌"), true);
-											return 1;
-										})))
 							.then(Commands.literal("rank")
 									// 段位排行榜（天凤 pt）：无参 = 前 10 位；带玩家名 = 查询该玩家 pt 与总排名（离线可查）
 									.executes(ctx -> {
@@ -183,20 +135,22 @@ public class MahjongCommands {
 											.executes(ctx -> {
 												ServerPlayer player = ctx.getSource().getPlayerOrException();
 												int id = IntegerArgumentType.getInteger(ctx, "npcId");
-												if (!(player.level().getEntity(id) instanceof MurmolNpcEntity npc)) {
-													ctx.getSource().sendFailure(Component.literal("§c找不到该 Murmol"));
+												net.minecraft.world.entity.Entity target = player.level().getEntity(id);
+												if (target == null
+														|| mcr.richi.game.MahjongParticipantRegistry.of(target) == null) {
+													ctx.getSource().sendFailure(Component.literal("§c找不到可加入牌局的参牌者"));
 													return 0;
 												}
 												ServerLevel level = player.serverLevel();
-												BlockPos nearest = RichiTableManager.nearest(level, npc.position(), 16);
+												BlockPos nearest = RichiTableManager.nearest(level, target.position(), 16);
 												if (nearest == null
-														|| !MahjongLobby.npcJoinTable(level, npc, nearest)) {
+														|| !MahjongLobby.npcJoinTable(level, target, nearest)) {
 													ctx.getSource().sendFailure(
 															Component.literal("§c16 格内没有可加入的牌桌等候队列"));
 													return 0;
 												}
 												ctx.getSource().sendSuccess(
-														() -> Component.literal("§6<幻星麻雀>§r Murmol 已加入等候队列"), false);
+														() -> Component.literal("§6<幻星麻雀>§r 参牌者已加入等候队列"), false);
 												return 1;
 											})))
 							.then(Commands.literal("decline")
@@ -272,3 +226,4 @@ public class MahjongCommands {
 		return new String[] { "東", "南", "西", "北" }[seat];
 	}
 }
+

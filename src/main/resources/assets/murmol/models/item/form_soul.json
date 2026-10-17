@@ -1,0 +1,16 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "murmol:item/forms/murmol_soul_anim"
+  },
+  "overrides": [
+    { "predicate": { "custom_model_data": 1 }, "model": "murmol:item/luohong_soul" },
+    { "predicate": { "custom_model_data": 2 }, "model": "murmol:item/chen_huang_soul" },
+    { "predicate": { "custom_model_data": 3 }, "model": "murmol:item/moss_beast_soul" },
+    { "predicate": { "custom_model_data": 4 }, "model": "murmol:item/silkmoth_soul" },
+    { "predicate": { "custom_model_data": 5 }, "model": "murmol:item/komainu_soul" },
+    { "predicate": { "custom_model_data": 6 }, "model": "murmol:item/wenyao_soul" },
+    { "predicate": { "custom_model_data": 7 }, "model": "murmol:item/ferocious_soul" },
+    { "predicate": { "custom_model_data": 8 }, "model": "murmol:item/dark_fury_soul" }
+  ]
+}

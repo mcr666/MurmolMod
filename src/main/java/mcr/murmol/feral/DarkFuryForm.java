@@ -26,7 +26,7 @@ public class DarkFuryForm extends FeralForm {
 				null,
 				ResourceLocation.fromNamespaceAndPath("murmol", "dark_fury"),
 				null,
-				() -> new ItemStack(MurmolModItems.DARK_FURY_SOUL.get()),
+				() -> mcr.murmol.item.FormSoulItem.forForm("dark_fury"),
 				ResourceLocation.fromNamespaceAndPath("murmol", "get_dark_fury"),
 				Map.of(
 							Attributes.MAX_HEALTH, new AttributeModifier(ResourceLocation.fromNamespaceAndPath("murmol", "tf"), 10, AttributeModifier.Operation.ADD_VALUE),

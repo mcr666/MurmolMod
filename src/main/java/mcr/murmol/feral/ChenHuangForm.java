@@ -25,7 +25,7 @@ public class ChenHuangForm extends FeralForm {
 				null,
 				ResourceLocation.fromNamespaceAndPath("murmol", "chen_huang"),
 				ResourceLocation.fromNamespaceAndPath("murmol", "chen_huang_tail"),
-				() -> new ItemStack(MurmolModItems.CHEN_HUANG_SOUL.get()),
+				() -> mcr.murmol.item.FormSoulItem.forForm("chen_huang"),
 				ResourceLocation.fromNamespaceAndPath("murmol", "get_chenhuang"),
 				Map.of(
 							Attributes.MAX_HEALTH, new AttributeModifier(ResourceLocation.fromNamespaceAndPath("murmol", "tf"), 4, AttributeModifier.Operation.ADD_VALUE),

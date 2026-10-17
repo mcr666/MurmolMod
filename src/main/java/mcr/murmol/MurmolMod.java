@@ -49,6 +49,8 @@ public class MurmolMod {
 		mcr.murmol.init.MurmolModGameRules.class.getName();
 		NeoForge.EVENT_BUS.register(this);
 		modEventBus.addListener(this::registerNetworking);
+		// TLM 联动延后到 CommonSetup：构造阶段触碰 TLM 实体类会在注册表冻结前后竞态崩溃
+		modEventBus.addListener(this::onCommonSetup);
 		MurmolModSounds.REGISTRY.register(modEventBus);
 		MurmolModBlocks.REGISTRY.register(modEventBus);
 		MurmolModBlockEntities.REGISTRY.register(modEventBus);
@@ -61,6 +63,7 @@ public class MurmolMod {
 		MurmolModMenus.REGISTRY.register(modEventBus);
 		MurmolModParticleTypes.REGISTRY.register(modEventBus);
 		MurmolModAttributes.REGISTRY.register(modEventBus);
+		MurmolModRecipeSerializers.REGISTRY.register(modEventBus);
 		// 麻雀内容（移植测试，注册在 mcr.mahjong 包）
 		mcr.richi.MahjongItems.REGISTRY.register(modEventBus);
 		mcr.richi.MahjongBlocks.REGISTRY.register(modEventBus);
@@ -88,12 +91,21 @@ public class MurmolMod {
 		mcr.murmol.network.FeralFlightPayloads.register();
 		// 两仪「游戏规则」设置界面（请求/切换/同步）
 		mcr.murmol.network.MurmolGameRulePayloads.register();
-		// 苔叶兽可食用植物方块物品（给原版植物物品追加 FOOD 默认组件）
-		modEventBus.addListener(mcr.murmol.feral.FeralFormManager::onModifyDefaultComponents);
+		// 塑魂之约确认对话（打开/确认绑定）
+		mcr.murmol.network.SoulbindPayloads.register();
 		// Start of user code block mod init
 		// NeoOrigins 联动：起源 ↔ 形态双向同步（软依赖，未安装时跳过注册）
 		mcr.murmol.compat.NeoOriginsCompat.register();
+		// FirstPersonModel 联动（客户端，软依赖）：第一人称兽身头部隐藏 + 后向偏移 0.5 格
+		if (net.neoforged.fml.loading.FMLEnvironment.dist.isClient())
+			mcr.murmol.compat.FPMCompat.register();
+		// TouhouLittleMaid 联动（软依赖）：女仆可参与麻雀牌局；未安装时全部联动逻辑静默跳过
+		// 改为在 CommonSetup 阶段执行（见 onCommonSetup），构造阶段不能触碰 TLM 实体类
 		// End of user code block mod init
+	}
+
+	private void onCommonSetup(net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent event) {
+		event.enqueueWork(mcr.murmol.compat.TlmCompatBridge::init);
 	}
 
 	// Start of user code block mod methods

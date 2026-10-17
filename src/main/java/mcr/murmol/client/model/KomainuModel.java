@@ -17,30 +17,78 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 
 /**
  * 狛犬（Komainu）形态模型。层位置与 KomainuForm 的 bodyLayer（murmol/komainu）一致。
- * 核心骨骼（torso/head/arms/legs）由通用 feral 动画驱动（与乘黄/落瓣春花一致），
+ * 由 Blockbench 5.1.4 导出（Mojang mappings），已适配 mod 命名空间与 1.21.1 渲染签名。
+ * 核心骨骼（head/torso/left_arm/right_arm/left_leg/right_leg）由通用 feral 动画驱动，
  * 尾巴骨骼链（Tail → TailPrimary → TailSecondary → TailTertiary → TailQuaternary）由 tail_idle/tail_walk 驱动。
  */
 public class KomainuModel<T extends Entity> extends EntityModel<T> {
 
 	public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(
 			ResourceLocation.fromNamespaceAndPath("murmol", "komainu"), "main");
-
 	private final ModelPart body;
 	private final ModelPart torso;
+	private final ModelPart Tail;
+	private final ModelPart TailPrimary;
+	private final ModelPart TailSecondary;
+	private final ModelPart TailTertiary;
+	private final ModelPart TailQuaternary;
 	private final ModelPart head;
+	private final ModelPart Head2;
+	private final ModelPart LeftEar;
+	private final ModelPart RightEar;
+	private final ModelPart Hair;
+	private final ModelPart jiao;
 	private final ModelPart right_arm;
+	private final ModelPart right_item;
+	private final ModelPart RightArm;
+	private final ModelPart RightPawBeans;
 	private final ModelPart left_arm;
+	private final ModelPart left_item;
+	private final ModelPart LeftArm;
+	private final ModelPart LeftPawBeans;
 	private final ModelPart right_leg;
+	private final ModelPart RightLowerLeg;
+	private final ModelPart RightFoot;
+	private final ModelPart RightPad;
+	private final ModelPart RightFootPawBeans;
 	private final ModelPart left_leg;
+	private final ModelPart LeftLowerLeg;
+	private final ModelPart LeftFoot;
+	private final ModelPart LeftPad;
+	private final ModelPart LeftFootPawBeans;
 
 	public KomainuModel(ModelPart root) {
 		this.body = root.getChild("body");
 		this.torso = this.body.getChild("torso");
+		this.Tail = this.torso.getChild("Tail");
+		this.TailPrimary = this.Tail.getChild("TailPrimary");
+		this.TailSecondary = this.TailPrimary.getChild("TailSecondary");
+		this.TailTertiary = this.TailSecondary.getChild("TailTertiary");
+		this.TailQuaternary = this.TailTertiary.getChild("TailQuaternary");
 		this.head = this.body.getChild("head");
+		this.Head2 = this.head.getChild("Head2");
+		this.LeftEar = this.Head2.getChild("LeftEar");
+		this.RightEar = this.Head2.getChild("RightEar");
+		this.Hair = this.Head2.getChild("Hair");
+		this.jiao = this.Head2.getChild("jiao");
 		this.right_arm = this.body.getChild("right_arm");
+		this.right_item = this.right_arm.getChild("right_item");
+		this.RightArm = this.right_arm.getChild("RightArm");
+		this.RightPawBeans = this.RightArm.getChild("RightPawBeans");
 		this.left_arm = this.body.getChild("left_arm");
+		this.left_item = this.left_arm.getChild("left_item");
+		this.LeftArm = this.left_arm.getChild("LeftArm");
+		this.LeftPawBeans = this.LeftArm.getChild("LeftPawBeans");
 		this.right_leg = this.body.getChild("right_leg");
+		this.RightLowerLeg = this.right_leg.getChild("RightLowerLeg");
+		this.RightFoot = this.RightLowerLeg.getChild("RightFoot");
+		this.RightPad = this.RightFoot.getChild("RightPad");
+		this.RightFootPawBeans = this.RightPad.getChild("RightFootPawBeans");
 		this.left_leg = this.body.getChild("left_leg");
+		this.LeftLowerLeg = this.left_leg.getChild("LeftLowerLeg");
+		this.LeftFoot = this.LeftLowerLeg.getChild("LeftFoot");
+		this.LeftPad = this.LeftFoot.getChild("LeftPad");
+		this.LeftFootPawBeans = this.LeftPad.getChild("LeftFootPawBeans");
 	}
 
 	public static LayerDefinition createBodyLayer() {
@@ -99,6 +147,14 @@ public class KomainuModel<T extends Entity> extends EntityModel<T> {
 
 		PartDefinition Hair = Head2.addOrReplaceChild("Hair", CubeListBuilder.create().texOffs(0, 0).addBox(-4.5F, -34.0F, -4.0F, 8.0F, 8.0F, 8.0F, new CubeDeformation(0.2F))
 		.texOffs(24, 8).addBox(-4.5F, -34.0F, -4.0F, 8.0F, 6.0F, 8.0F, new CubeDeformation(0.3F)), PartPose.offset(0.5F, 26.0F, 0.0F));
+
+		PartDefinition jiao = Head2.addOrReplaceChild("jiao", CubeListBuilder.create(), PartPose.offsetAndRotation(0.0F, -10.367F, -5.308F, 1.0036F, 0.0F, 0.0F));
+
+		PartDefinition cube_r1 = jiao.addOrReplaceChild("cube_r1", CubeListBuilder.create().texOffs(90, 38).addBox(1.575F, -0.5F, -0.5F, 1.0F, 1.0F, 1.0F, new CubeDeformation(-0.15F)), PartPose.offsetAndRotation(-2.0F, 0.0F, 0.0F, 0.8552F, 0.0F, 0.0F));
+
+		PartDefinition cube_r2 = jiao.addOrReplaceChild("cube_r2", CubeListBuilder.create().texOffs(74, 36).addBox(-1.0F, -2.0F, -1.0F, 2.0F, 2.0F, 4.0F, new CubeDeformation(-0.5F)), PartPose.offsetAndRotation(0.05F, 2.817F, -0.492F, 1.0472F, 0.0F, 0.0F));
+
+		PartDefinition cube_r3 = jiao.addOrReplaceChild("cube_r3", CubeListBuilder.create().texOffs(87, 44).addBox(-1.0F, -2.0F, -1.0F, 2.0F, 2.0F, 2.0F, new CubeDeformation(-0.3F)), PartPose.offsetAndRotation(0.05F, 2.817F, -0.392F, 1.1345F, 0.0F, 0.0F));
 
 		PartDefinition right_arm = body.addOrReplaceChild("right_arm", CubeListBuilder.create().texOffs(25, 1).addBox(-3.0F, 7.8757F, -2.3076F, 4.0F, 2.0F, 4.0F, new CubeDeformation(0.1F))
 		.texOffs(25, 1).addBox(-2.99F, 7.8757F, -1.7576F, 4.0F, 2.0F, 4.0F, new CubeDeformation(0.1F))

@@ -7,14 +7,14 @@
   "pages": [
     {
       "type": "patchouli:spotlight",
-      "item": "murmol:luohong_soul",
+      "item": "murmol:form_soul",
       "title": "Petalfall Vernal",
       "text": "Springs depart and return; petals fall and bloom again. Legend says the Petalfall Vernal was born of the wilderness's final longing for spring: whenever the first spring flower withers, its form blossoms anew. Petals swirl around it in an unending rain of flowers."
     },
     {
       "type": "patchouli:crafting",
       "title": "Keepsakes of Bond",
-      "recipe": "murmol:scrap_luohong_soul",
+      "recipe": "murmol:scrap_spring_flower_soul",
       "text": "Offerings of the bond."
     },
     {

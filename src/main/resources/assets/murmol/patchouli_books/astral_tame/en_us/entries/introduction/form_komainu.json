@@ -7,7 +7,7 @@
   "pages": [
     {
       "type": "patchouli:spotlight",
-      "item": "murmol:komainu_soul",
+      "item": "murmol:form_soul",
       "title": "Komainu",
       "text": "The incarnation of a guardian stone beast, possessing a $(thing)steadfast will as solid as bedrock$(0). It always watches over one place without moving — just like the komainu before a shrine, facing the same direction for centuries through wind, frost, rain and snow."
     },

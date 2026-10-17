@@ -64,53 +64,62 @@ public class MurmolCommands {
 					.then(Commands.argument("targets", EntityArgument.players())
 						.then(Commands.argument("entry", StringArgumentType.word())
 							.suggests(BOOK_ENTRY_SUGGESTIONS)
-							.executes(context -> executeBook(context, false)))))));
+							.executes(context -> executeBook(context, false))))))
+			.then(Commands.literal("soulbind")
+				.then(Commands.literal("true")
+					.then(Commands.argument("targets", EntityArgument.players())
+						.executes(context -> executeSoulbind(context, true))))
+				.then(Commands.literal("false")
+					.then(Commands.argument("targets", EntityArgument.players())
+						.executes(context -> executeSoulbind(context, false))))));
 	}
 
-	/** /murmol book unlock|lock <targets> <entry|all>：授予/撤销手册形态条目的解锁进度 */
+	/** /murmol book unlock|lock <targets> <form|all>：解锁/锁定指定玩家的形态条目（星象仪目录可见性） */
 	private static int executeBook(CommandContext<CommandSourceStack> context, boolean unlock) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
 		String entry = StringArgumentType.getString(context, "entry");
 		java.util.List<String> ids = new java.util.ArrayList<>();
 		if (entry.equals("all")) {
 			for (FeralForm form : FeralForms.all())
-				ids.add(form.getId());
+				if (form != FeralForms.HUMAN) ids.add(form.getId());
 		} else {
 			boolean known = false;
 			for (FeralForm form : FeralForms.all())
-				if (form.getId().equals(entry))
-					known = true;
+				if (form.getId().equals(entry)) known = true;
 			if (!known) {
-				context.getSource().sendFailure(Component.literal("unknown book entry: " + entry));
+				context.getSource().sendFailure(Component.literal("未知形态: " + entry));
 				return 0;
 			}
 			ids.add(entry);
 		}
 		Collection<ServerPlayer> targets = EntityArgument.getPlayers(context, "targets");
-		int[] changed = new int[1];
+		int changed = 0;
 		for (ServerPlayer player : targets) {
 			for (String id : ids) {
-				var holder = player.server.getAdvancements()
+				var advHolder = player.server.getAdvancements()
 						.get(net.minecraft.resources.ResourceLocation.fromNamespaceAndPath(mcr.murmol.MurmolMod.MODID, "unlock/" + id));
-				if (holder == null)
-					continue;
-				var progress = player.getAdvancements().getOrStartProgress(holder);
-				if (progress == null)
-					continue;
+				if (advHolder == null) continue;
+				var progress = player.getAdvancements().getOrStartProgress(advHolder);
 				if (unlock) {
-					if (!progress.isDone())
-						progress.grantProgress("impossible");
+					if (!progress.isDone()) {
+						for (String c : progress.getRemainingCriteria())
+							player.getAdvancements().award(advHolder, c);
+						changed++;
+					}
 				} else {
-					if (progress.isDone())
-						progress.revokeProgress("impossible");
+					if (progress.isDone()) {
+						for (String c : progress.getCompletedCriteria())
+							player.getAdvancements().revoke(advHolder, c);
+						changed++;
+					}
 				}
-				// 刷新客户端已解锁形态缓存（灵魂物品入口拦截依赖）
-				mcr.murmol.feral.FeralFormManager.syncUnlockState(player);
-				changed[0]++;
+				FeralFormManager.syncUnlockState(player);
 			}
 		}
-		context.getSource().sendSuccess(() -> Component.literal((unlock ? "unlocked " : "locked ") + changed[0]
-				+ " book entry(ies) for " + targets.size() + " player(s)"), true);
-		return changed[0];
+		final int c = changed;
+		final int pCount = targets.size();
+		context.getSource().sendSuccess(() -> Component.literal(
+				(unlock ? "已解锁 " : "已锁定 ") + c + " 个形态条目（" + pCount + " 名玩家）"), true);
+		return c;
 	}
 
 	/** /murmol tf <form>：对命令输入者自身变形 */
@@ -161,5 +170,37 @@ public class MurmolCommands {
 		}
 		context.getSource().sendSuccess(() -> Component.literal("transformed " + targets.size() + " player(s) to: " + target.getId()), true);
 		return targets.size();
+	}
+
+	/**
+	 * /murmol soulbind true|false <players>：
+	 * true = 把目标玩家绑定到其当前形态（须为野性形态、且未绑定；等同使用塑魂之约，但不消耗物品）；
+	 * false = 解除目标玩家的塑魂之约绑定。
+	 */
+	private static int executeSoulbind(CommandContext<CommandSourceStack> context, boolean bind) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
+		Collection<ServerPlayer> targets = EntityArgument.getPlayers(context, "targets");
+		int changed = 0;
+		for (ServerPlayer player : targets) {
+			if (bind) {
+				FeralForm form = FeralFormManager.getForm(player);
+				if (!form.isFeral() || FeralFormManager.isSoulbound(player))
+					continue;
+				if (FeralFormManager.bindSoul(player, form)) {
+					changed++;
+					player.displayClientMessage(Component.translatable("message.murmol.soulbind.bound_cmd",
+							player.getDisplayName(), form.getDisplayName()), false);
+				}
+			} else {
+				if (!FeralFormManager.isSoulbound(player))
+					continue;
+				FeralFormManager.unbindSoul(player);
+				changed++;
+				player.displayClientMessage(Component.translatable("message.murmol.soulbind.unbound_cmd",
+						player.getDisplayName()), false);
+			}
+		}
+		final int c = changed;
+		context.getSource().sendSuccess(() -> Component.literal((bind ? "soulbound " : "unbound ") + c + " player(s)"), true);
+		return changed;
 	}
 }

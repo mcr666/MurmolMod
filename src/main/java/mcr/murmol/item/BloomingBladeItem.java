@@ -17,8 +17,6 @@ import net.minecraft.tags.TagKey;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.network.chat.Component;
 
-import mcr.murmol.procedures.BloomingBladeWuPinBeiHeChengHuoRongLianShiProcedure;
-
 import java.util.List;
 
 public class BloomingBladeItem extends SwordItem {
@@ -78,6 +76,8 @@ public class BloomingBladeItem extends SwordItem {
 	@Override
 	public void onCraftedBy(ItemStack itemstack, Level world, Player entity) {
 		super.onCraftedBy(itemstack, world, entity);
-		BloomingBladeWuPinBeiHeChengHuoRongLianShiProcedure.execute(world, itemstack);
+		itemstack.enchant(world.registryAccess().lookupOrThrow(net.minecraft.core.registries.Registries.ENCHANTMENT)
+				.getOrThrow(net.minecraft.resources.ResourceKey.create(net.minecraft.core.registries.Registries.ENCHANTMENT,
+						net.minecraft.resources.ResourceLocation.parse("murmol:human_killer"))), 5);
 	}
 }

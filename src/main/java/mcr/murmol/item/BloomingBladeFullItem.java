@@ -8,15 +8,18 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.*;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.projectile.Projectile;
+import net.minecraft.world.entity.projectile.AbstractArrow;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.tags.TagKey;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.network.chat.Component;
 
-import mcr.murmol.procedures.BloomingBladeWuPinBeiHeChengHuoRongLianShiProcedure;
-import mcr.murmol.procedures.BloomingBladeFullShiTiHuiDongWuPinShiProcedure;
+import mcr.murmol.init.MurmolModEntities;
+import mcr.murmol.entity.PetalProjectileEntity;
 
 import java.util.List;
 
@@ -77,13 +80,42 @@ public class BloomingBladeFullItem extends SwordItem {
 	@Override
 	public void onCraftedBy(ItemStack itemstack, Level world, Player entity) {
 		super.onCraftedBy(itemstack, world, entity);
-		BloomingBladeWuPinBeiHeChengHuoRongLianShiProcedure.execute(world, itemstack);
+		itemstack.enchant(world.registryAccess().lookupOrThrow(net.minecraft.core.registries.Registries.ENCHANTMENT)
+				.getOrThrow(net.minecraft.resources.ResourceKey.create(net.minecraft.core.registries.Registries.ENCHANTMENT,
+						net.minecraft.resources.ResourceLocation.parse("murmol:human_killer"))), 5);
 	}
 
 	@Override
 	public boolean onEntitySwing(ItemStack itemstack, LivingEntity entity, InteractionHand hand) {
 		boolean retval = super.onEntitySwing(itemstack, entity, hand);
-		BloomingBladeFullShiTiHuiDongWuPinShiProcedure.execute(entity);
+		launchPetal(entity);
 		return retval;
+	}
+
+	/** 挥动时向前发射花瓣弹幕 */
+	private void launchPetal(LivingEntity entity) {
+		if (entity == null)
+			return;
+		Entity _shootFrom = entity;
+		Level projectileLevel = _shootFrom.level();
+		if (!projectileLevel.isClientSide()) {
+			Projectile _entityToSpawn = initArrowProjectile(new PetalProjectileEntity(MurmolModEntities.PETAL_PROJECTILE.get(), projectileLevel), entity, 1, true, false, false, AbstractArrow.Pickup.DISALLOWED);
+			_entityToSpawn.setPos(_shootFrom.getX(), _shootFrom.getEyeY() - 0.1, _shootFrom.getZ());
+			_entityToSpawn.shoot(_shootFrom.getLookAngle().x, _shootFrom.getLookAngle().y, _shootFrom.getLookAngle().z, 1, (float) 0.5);
+			projectileLevel.addFreshEntity(_entityToSpawn);
+		}
+	}
+
+	private static AbstractArrow initArrowProjectile(AbstractArrow entityToSpawn, Entity shooter, float damage, boolean silent, boolean fire, boolean particles, AbstractArrow.Pickup pickup) {
+		entityToSpawn.setOwner(shooter);
+		entityToSpawn.setBaseDamage(damage);
+		if (silent)
+			entityToSpawn.setSilent(true);
+		if (fire)
+			entityToSpawn.igniteForSeconds(100);
+		if (particles)
+			entityToSpawn.setCritArrow(true);
+		entityToSpawn.pickup = pickup;
+		return entityToSpawn;
 	}
 }

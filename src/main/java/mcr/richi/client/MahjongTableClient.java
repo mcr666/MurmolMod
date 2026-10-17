@@ -1,5 +1,6 @@
 package mcr.richi.client;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -8,6 +9,11 @@ import java.util.Map;
 import java.util.UUID;
 
 import com.mojang.authlib.GameProfile;
+import com.mojang.math.Transformation;
+
+import org.joml.Matrix4f;
+import org.joml.Quaternionf;
+import org.joml.Vector3f;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
@@ -19,7 +25,10 @@ import net.minecraft.nbt.DoubleTag;
 import net.minecraft.nbt.FloatTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.util.Mth;
+import net.minecraft.world.entity.Display;
 import net.minecraft.world.entity.Display.TextDisplay;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
@@ -99,14 +108,13 @@ public final class MahjongTableClient {
 	private record Scheduled(long at, Runnable run) {
 	}
 
-	/** 客户端 tick（MahjongClient 转发）：驱动发牌/倒牌动画 */
+	/** 客户端 tick（MahjongClient 转发）：驱动发牌/倒牌动画与推倒过渡 */
 	public static void tick() {
 		tickCounter++;
-		if (SCHEDULED.isEmpty())
-			return;
 		ClientLevel level = Minecraft.getInstance().level;
 		if (level == null) {
 			SCHEDULED.clear();
+			FALLS.clear();
 			return;
 		}
 		for (Map.Entry<Long, List<Scheduled>> entry : SCHEDULED.entrySet()) {
@@ -126,6 +134,26 @@ public final class MahjongTableClient {
 				due.forEach(Runnable::run);
 		}
 		SCHEDULED.entrySet().removeIf(e -> e.getValue().isEmpty());
+		// 局终推倒过渡动画：手牌立牌旋转倒下到平躺
+		FALLS.entrySet().removeIf(en -> advanceFall(level, en.getValue()));
+		// AI 假玩家挥手动画：实体 tick 为空，须在此逐 tick 驱动 swingTime 推进、播完复位
+		driveAvatarWaves();
+	}
+
+	/** 推进单个推倒动画；返回 true 表示动画结束（移出 FALLS） */
+	private static boolean advanceFall(ClientLevel level, Fall fall) {
+		float t = (tickCounter - fall.startTick()) / (float) fall.duration();
+		Entity e = level.getEntity(fall.entityId());
+		if (e == null || e.isRemoved())
+			return true; // 实体消失：结束
+		// 每帧先应用当前姿态（含 t≥1 时精确落定到平躺终点，避免停在 95% 处）
+		float k = easeInOut(Math.max(0f, Math.min(1f, t)));
+		applyTransform(e, fall.from().slerp(fall.to(), k));
+		e.setPos(fall.start().x + (fall.end().x - fall.start().x) * k,
+				fall.start().y + (fall.end().y - fall.start().y) * k,
+				fall.start().z + (fall.end().z - fall.start().z) * k);
+		e.setOldPosAndRot();
+		return t >= 1f; // 落定后移除
 	}
 
 	private static void schedule(long key, int delay, Runnable run) {
@@ -135,6 +163,78 @@ public final class MahjongTableClient {
 		}
 		// 发牌节流：计划延迟以半 tick 为单位（dealIndex*DEAL_INTERVAL_TICKS 的半粒度），隔 1 调度 1，实现两倍速
 		SCHEDULED.computeIfAbsent(key, k -> new ArrayList<>()).add(new Scheduled(tickCounter + delay / 2, run));
+	}
+
+	// ==================================================================
+	// 手牌推倒过渡动画：局终和牌/流局时，手牌从立牌绕底边旋转倒下到平躺（所有手牌同步）
+	// ==================================================================
+	/** 推倒动画时长（tick，≈0.4s） */
+	private static final int FALL_TICKS = 8;
+	/** 进行中的推倒动画，key = 被动画的显示实体 id（自清洁：实体消失即移除） */
+	private static final Map<Integer, Fall> FALLS = new HashMap<>();
+
+	/** 推倒动画：实体 id + 起止变换（站立纯缩放→平躺矩阵）+ 起止位置 + 起始 tick/时长 */
+	private record Fall(int entityId, Transformation from, Transformation to,
+			Vec3 start, Vec3 end, int startTick, int duration) {
+	}
+
+	/** Display 变换四件套 SynchedEntityData 访问器（Display 内为 private static final，反射取一次） */
+	private static final EntityDataAccessor<Vector3f> ACC_TRANSLATION = displayAccessor("DATA_TRANSLATION_ID");
+	private static final EntityDataAccessor<Vector3f> ACC_SCALE = displayAccessor("DATA_SCALE_ID");
+	private static final EntityDataAccessor<Quaternionf> ACC_LEFT_ROT = displayAccessor("DATA_LEFT_ROTATION_ID");
+	private static final EntityDataAccessor<Quaternionf> ACC_RIGHT_ROT = displayAccessor("DATA_RIGHT_ROTATION_ID");
+
+	@SuppressWarnings("unchecked")
+	private static <T> EntityDataAccessor<T> displayAccessor(String name) {
+		try {
+			Field f = Display.class.getDeclaredField(name);
+			f.setAccessible(true);
+			return (EntityDataAccessor<T>) f.get(null);
+		} catch (ReflectiveOperationException e) {
+			throw new ExceptionInInitializerError(e);
+		}
+	}
+
+	/** legacy 16-float 列主序矩阵 → JOML Matrix4f（行主序构造，索引转置） */
+	private static Matrix4f legacyMatrix(float[] m) {
+		return new Matrix4f(
+				m[0], m[4], m[8], m[12],
+				m[1], m[5], m[9], m[13],
+				m[2], m[6], m[10], m[14],
+				m[3], m[7], m[11], m[15]);
+	}
+
+	/** 立牌变换：纯缩放（entity yaw 保持立牌朝向） */
+	private static Transformation standingTransform(float s) {
+		return new Transformation(new Matrix4f().scale(s, s, s));
+	}
+
+	/** 平躺变换：目标矩阵即平躺矩阵本身（立牌 yaw == 平躺 yaw，故无 yaw 折叠） */
+	private static Transformation flatTransform(float s, boolean faceUp) {
+		return new Transformation(legacyMatrix(DisplayEntityNbt.flatMatrix(s, faceUp)));
+	}
+
+	/** smoothstep 缓动 */
+	private static float easeInOut(float t) {
+		return t * t * (3f - 2f * t);
+	}
+
+	/** 把动画变换写进显示实体的 SynchedEntityData（经反射访问器） */
+	private static void applyTransform(Entity e, Transformation t) {
+		SynchedEntityData data = e.getEntityData();
+		data.set(ACC_TRANSLATION, t.getTranslation());
+		data.set(ACC_SCALE, t.getScale());
+		data.set(ACC_LEFT_ROT, t.getLeftRotation());
+		data.set(ACC_RIGHT_ROT, t.getRightRotation());
+	}
+
+	/** 为一张立牌手牌注册推倒动画（保留实体，由 tick 驱动旋转倒下） */
+	private static void startFall(Entity e, TableLayout.Placement p) {
+		FALLS.put(e.getId(), new Fall(e.getId(),
+				standingTransform(TableLayout.TILE_SCALE),
+				flatTransform(TableLayout.TILE_SCALE, p.faceUp()),
+				new Vec3(e.getX(), e.getY(), e.getZ()), p.pos(),
+				tickCounter, FALL_TICKS));
 	}
 
 	/**
@@ -185,6 +285,7 @@ public final class MahjongTableClient {
 			return;
 		long key = msg.originPacked();
 		TableRender table = TABLES.get(key);
+		MahjongTablePayload.ViewMessage prev = table == null ? null : table.last; // 上一包（动作反馈用，此处须在 table.last 覆写前取）
 		// 仅选中状态变化（升降）且无在途动画：移动对应实体，不重建
 		if (!synthetic && table != null && table.last != null && table.last.dealAnim() == 0
 				&& !SCHEDULED.containsKey(key) && sameExceptSelection(table.last, msg)) {
@@ -300,6 +401,9 @@ public final class MahjongTableClient {
 		// AI 座位假玩家（回放合成包不驱动；回放结束后由最后真实包恢复）
 		if (!synthetic)
 			updateAvatars(level, key, origin, geom, msg);
+		// 动作反馈：AI 假玩家打牌/鸣牌/和牌时挥手（对比上一包，仅对局中、非发牌、非回放触发）
+		if (prev != null && prev.dealAnim() == 0 && msg.dealAnim() == 0 && !synthetic)
+			triggerAvatarWaves(key, prev, msg);
 	}
 
 	// ==================================================================
@@ -386,8 +490,10 @@ public final class MahjongTableClient {
 					avatars.put(seat, cur);
 			}
 			// 等待阶段不钉位（保持创建时的随机站位）；开局后钉到座位站位
-			if (cur != null && !waiting)
+			if (cur != null && !waiting) {
 				pinAvatar(origin.getY(), pos, yaw, cur);
+				lookAtTableCenter(cur, center, pos); // 对局中始终看向牌桌中心点
+			}
 		}
 		if (avatars.isEmpty())
 			AVATARS.remove(key);
@@ -516,6 +622,69 @@ public final class MahjongTableClient {
 				s.discard();
 	}
 
+	/** 动作反馈：对比上一包，座位有动作（打牌/鸣牌/和牌等）则让对应 AI 假玩家挥手 */
+	private static void triggerAvatarWaves(long key, MahjongTablePayload.ViewMessage prev,
+			MahjongTablePayload.ViewMessage msg) {
+		Map<Integer, Avatar> avatars = AVATARS.get(key);
+		if (avatars == null || avatars.isEmpty())
+			return;
+		for (int seat = 0; seat < 4; seat++) {
+			Avatar a = avatars.get(seat);
+			if (a == null || a.player().isRemoved())
+				continue;
+			boolean acted = !java.util.Objects.equals(prev.rivers()[seat], msg.rivers()[seat])
+					|| !java.util.Objects.equals(prev.melds()[seat], msg.melds()[seat])
+					|| prev.handsExposed()[seat] != msg.handsExposed()[seat];
+			if (!acted)
+				continue;
+			// 触发挥手：置 swinging，swingTime 由 driveAvatarWaves 逐 tick 推进（空手挥动 6 tick）
+			a.player().swinging = true;
+			a.player().swingTime = -1;
+			a.player().swingingArm = net.minecraft.world.InteractionHand.MAIN_HAND;
+		}
+	}
+
+	/** AI 假玩家挥手驱动：swinging 期间每 tick 推进 swingTime，播完（约 6 tick）复位 */
+	private static void driveAvatarWaves() {
+		for (Map<Integer, Avatar> seats : AVATARS.values()) {
+			for (Avatar a : seats.values()) {
+				net.minecraft.client.player.RemotePlayer p = a.player();
+				if (p.isRemoved() || !p.swinging)
+					continue;
+				p.swingTime++;
+				if (p.swingTime >= 6)
+					p.swinging = false;
+			}
+		}
+	}
+
+	/** 让假玩家头部朝向牌桌中心点（横向 yaw + 垂直俯角），对局中始终看向桌心 */
+	private static void lookAtTableCenter(Avatar a, Vec3 center, Vec3 pos) {
+		net.minecraft.client.player.RemotePlayer p = a.player();
+		if (p.isRemoved())
+			return;
+		float yaw = (float) Math.toDegrees(Math.atan2(-(center.x - pos.x), center.z - pos.z));
+		double dy = p.getY() + p.getEyeHeight() - center.y;
+		double dist = Math.max(1.0E-4, Math.hypot(center.x - pos.x, center.z - pos.z));
+		float pitch = (float) Math.toDegrees(Math.atan2(dy, dist)); // 中心低于视线 → 向下俯视（xRot 为正）
+		p.setYRot(yaw);
+		p.yBodyRot = yaw;
+		p.yHeadRot = yaw;
+		p.yRotO = yaw;
+		p.yBodyRotO = yaw;
+		p.yHeadRotO = yaw;
+		p.setXRot(pitch);
+		p.xRotO = pitch;
+		// 坐姿模式：载具随同朝向（身体 yaw 取自载具），头部已随上
+		if (!a.standing() && a.seat() != null) {
+			a.seat().setYRot(yaw);
+			a.seat().yBodyRot = yaw;
+			a.seat().yBodyRotO = yaw;
+			a.seat().setYHeadRot(yaw);
+			a.seat().yHeadRotO = yaw;
+		}
+	}
+
 	/** 假玩家档案 UUID：human 有皮肤 UUID 用之（拉取正版皮肤），否则按桌+座位派生稳定 UUID */
 	private static UUID profileUuidOf(long key, int seat, MahjongTablePayload.ViewMessage msg) {
 		String skin = orEmpty(msg.avatarSkins()[seat]);
@@ -585,6 +754,11 @@ public final class MahjongTableClient {
 		return p.kind() + ":" + p.code() + ":" + p.faceUp() + ":" + (p.axis() == null);
 	}
 
+	/** 该签名是否为立牌手牌（axis==null → 末位 ":true"；平躺/牌河等均为 ":false"） */
+	private static boolean isStandingHandSig(String sig) {
+		return sig.endsWith(":true");
+	}
+
 	/**
 	 * 增量 diff：签名未变 → 复用（位置/朝向变化走 display 自带插值 lerpTo 平滑移动）；
 	 * 签名变化/实体丢失 → 只重建该实体（同帧替换）；新 key → 生成；消失 key → 删除。
@@ -604,6 +778,16 @@ public final class MahjongTableClient {
 			Entity e = old == null ? null : level.getEntity(old.entityId());
 			if (e != null && e.isRemoved())
 				e = null;
+			// 局终推倒：手牌由立牌转平躺（和牌/流局）→ 保留实体走旋转倒下过渡动画（所有手牌同帧触发）
+			if (e != null && !old.sig().equals(slot.sig())
+					&& TableLayout.KIND_HAND.equals(p.kind()) && p.axis() != null
+					&& isStandingHandSig(old.sig())) {
+				startFall(e, p);
+				fresh.put(slot.slotKey(), new Entry(e.getId(), slot.sig()));
+				if (p.index() >= 0)
+					table.handIds.put((p.seat() << 8) | p.index(), e.getId());
+				continue;
+			}
 			if (e != null && !old.sig().equals(slot.sig())) {
 				e.discard(); // 外观变化：只重建该实体（同帧替换，不闪烁）
 				e = null;

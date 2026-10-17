@@ -7,14 +7,14 @@
   "pages": [
     {
       "type": "patchouli:spotlight",
-      "item": "murmol:wenyao_soul",
+      "item": "murmol:form_soul",
       "title": "Wenyao",
       "text": "The Fengyang Classic records: shaped like a carp, with a fish's body and a bird's wings, adorned in azure patterns, white-headed with a crimson beak. It flies by night, swimming from the Western Sea to the Eastern Sea, breathing water as its air."
     },
     {
       "type": "patchouli:crafting",
       "title": "Keepsakes of Bond",
-      "recipe": "murmol:scrap_wenyao_soul",
+      "recipe": "murmol:scrap_wen_yao_soul",
       "text": "Offerings of the bond."
     },
     {

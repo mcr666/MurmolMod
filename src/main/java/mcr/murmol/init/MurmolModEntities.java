@@ -23,8 +23,6 @@ public class MurmolModEntities {
 	public static final DeferredRegister<EntityType<?>> REGISTRY = DeferredRegister.create(Registries.ENTITY_TYPE, MurmolMod.MODID);
 	public static final DeferredHolder<EntityType<?>, EntityType<XiaoHuiProjectileEntity>> XIAO_HUI_PROJECTILE = register("xiao_hui_projectile",
 			EntityType.Builder.<XiaoHuiProjectileEntity>of(XiaoHuiProjectileEntity::new, MobCategory.MISC).setShouldReceiveVelocityUpdates(true).setTrackingRange(64).setUpdateInterval(1).sized(0.3f, 0.3f));
-	public static final DeferredHolder<EntityType<?>, EntityType<IceBoltEntity>> ICE_BOLT = register("ice_bolt",
-			EntityType.Builder.<IceBoltEntity>of(IceBoltEntity::new, MobCategory.MISC).setShouldReceiveVelocityUpdates(true).setTrackingRange(64).setUpdateInterval(1).sized(0.3f, 0.3f));
 	public static final DeferredHolder<EntityType<?>, EntityType<PetalProjectileEntity>> PETAL_PROJECTILE = register("petal_projectile",
 			EntityType.Builder.<PetalProjectileEntity>of(PetalProjectileEntity::new, MobCategory.MISC).setShouldReceiveVelocityUpdates(true).setTrackingRange(64).setUpdateInterval(1).sized(0.2f, 0.2f));
 	public static final DeferredHolder<EntityType<?>, EntityType<AlfarEntity>> ALFAR = register("alfar",

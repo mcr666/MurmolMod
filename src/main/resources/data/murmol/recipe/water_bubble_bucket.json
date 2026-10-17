@@ -11,7 +11,10 @@
     "W": { "item": "minecraft:water_bucket" }
   },
   "result": {
-    "id": "murmol:water_bubble",
-    "count": 1
+    "id": "murmol:fish_bubble",
+    "count": 1,
+    "components": {
+      "minecraft:damage": 900
+    }
   }
 }

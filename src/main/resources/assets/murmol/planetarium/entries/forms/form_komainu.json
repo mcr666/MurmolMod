@@ -1,0 +1,20 @@
+{
+  "id": "form_komainu",
+  "type": "form",
+  "title": "狛犬",
+  "icon": "murmol:form_soul#komainu",
+  "category": "forms",
+  "advancement": "murmol:unlock/komainu",
+  "sort": 4,
+  "attributes": [
+    "静止 5 秒后石化",
+    "磐座上持续回血",
+    "免疫石化效果"
+  ],
+  "offering": [
+    ["minecraft:stone", "minecraft:cherry_sapling"],
+    ["minecraft:bone", "minecraft:diamond"]
+  ],
+  "text": "神社门前的看门石兽，据称在无人时会离开磐座四处游荡。静止不动时会化为坚硬的石像，向其所祷的生灵会获得好运。",
+  "biography": "狛犬最初只是花果山上的一块覆苔的石头。但它拥有现在的形体，却是在北海道的一间工坊。老师傅赋予了它优美的外形，自己的容貌和气力却在逐日衰减。$(br)一天，老师傅终于倒下，不再起来。数年立于磐座的狛犬看见了地府使者的到来。「无亲无子的可怜鬼啊，请跟随我们回到冥界。」$(br)「不，他有亲人，我就是他的儿子。」狛犬抖落身上的尘埃，抬起了石质的四腿。"
+}

@@ -7,7 +7,7 @@
   "pages": [
     {
       "type": "patchouli:spotlight",
-      "item": "murmol:komainu_soul",
+      "item": "murmol:form_soul",
       "title": "狛犬",
       "text": "守护石兽的化身，拥有如磐石般$(thing)沉稳坚毅的意志$(0)。它总是一动不动地守望着一方天地——正如神社前的狛犬，千百年来风霜雨雪，始终朝向同一个方向。"
     },

@@ -17,15 +17,15 @@ import mcr.murmol.init.MurmolModItems;
  */
 public class WenyaoForm extends FeralForm {
 
-	public static final String ID = "wenyao";
+	public static final String ID = "wen_yao";
 
 	public WenyaoForm() {
 		super(ID,
-				ResourceLocation.fromNamespaceAndPath("murmol", "textures/entities/wenyao.png"),
+				ResourceLocation.fromNamespaceAndPath("murmol", "textures/entities/wen_yao.png"),
 				null,
 				null,
 				null,
-				() -> new ItemStack(MurmolModItems.WENYAO_SOUL.get()),
+				() -> mcr.murmol.item.FormSoulItem.forForm("wen_yao"),
 				ResourceLocation.fromNamespaceAndPath("murmol", "get_wenyao"),
 				null,
 				List.of(
@@ -41,7 +41,7 @@ public class WenyaoForm extends FeralForm {
 		// 碰撞箱高度固定 0.5 格（视角/眼高随尺寸自动降低），宽度保持野性形态默认扩展
 		setHitboxHeight(0.5F);
 		// 整体替换渲染：纯鱼形模型 + 专属 Bedrock 动画（fish_idle/fish_moving_land/fish_moving_swim/fish_flying）
-		setWholeModelLayer(ResourceLocation.fromNamespaceAndPath("murmol", "wenyao"));
-		setAnimationFile(ResourceLocation.fromNamespaceAndPath("murmol", "player_animations/wenyao_anim.json"));
+		setWholeModelLayer(ResourceLocation.fromNamespaceAndPath("murmol", "wen_yao"));
+		setAnimationFile(ResourceLocation.fromNamespaceAndPath("murmol", "player_animations/wen_yao_anim.json"));
 	}
 }

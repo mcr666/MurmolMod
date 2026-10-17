@@ -3,16 +3,7 @@
     "subtitle": "subtitles.cgamemode",
     "sounds": [
       {
-        "name": "murmol:clawing",
-        "stream": false
-      }
-    ]
-  },
-  "frozening": {
-    "subtitle": "subtitles.frozening",
-    "sounds": [
-      {
-        "name": "murmol:item_27.wav",
+        "name": "murmol:cgamemode",
         "stream": false
       }
     ]
@@ -22,24 +13,6 @@
     "sounds": [
       {
         "name": "murmol:astral_affection",
-        "stream": true
-      }
-    ]
-  },
-  "snowy_hills": {
-    "subtitle": "subtitles.snowy_hills",
-    "sounds": [
-      {
-        "name": "murmol:astral_affection",
-        "stream": true
-      }
-    ]
-  },
-  "graceful": {
-    "subtitle": "subtitles.graceful",
-    "sounds": [
-      {
-        "name": "murmol:graceful",
         "stream": true
       }
     ]

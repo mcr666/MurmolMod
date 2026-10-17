@@ -26,8 +26,6 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.core.Direction;
 import net.minecraft.core.BlockPos;
 
-import mcr.murmol.procedures.BrokenblockiProcedure;
-
 import com.mojang.serialization.MapCodec;
 
 public class MagicCrystalClusterBlock extends FallingBlock implements SimpleWaterloggedBlock {
@@ -95,11 +93,18 @@ public class MagicCrystalClusterBlock extends FallingBlock implements SimpleWate
 	@Override
 	public void entityInside(BlockState blockstate, Level world, BlockPos pos, Entity entity) {
 		super.entityInside(blockstate, world, pos, entity);
-		BrokenblockiProcedure.execute(world, pos.getX(), pos.getY(), pos.getZ());
+		breakCrystal(world, pos.getX(), pos.getY(), pos.getZ());
 	}
 
 	@Override
 	public void onProjectileHit(Level world, BlockState blockstate, BlockHitResult hit, Projectile entity) {
-		BrokenblockiProcedure.execute(world, hit.getBlockPos().getX(), hit.getBlockPos().getY(), hit.getBlockPos().getZ());
+		breakCrystal(world, hit.getBlockPos().getX(), hit.getBlockPos().getY(), hit.getBlockPos().getZ());
+	}
+
+	/** 破坏晶体并掉落其掉落物 */
+	private static void breakCrystal(LevelAccessor world, double x, double y, double z) {
+		BlockPos _pos = BlockPos.containing(x, y, z);
+		Block.dropResources(world.getBlockState(_pos), world, _pos, null);
+		world.destroyBlock(_pos, false);
 	}
 }

@@ -1,0 +1,9 @@
+{
+  "id": "forms_more",
+  "type": "page",
+  "title": "获取更多形态",
+  "icon": "murmol:ancient_knowledge_scrap",
+  "category": "forms",
+  "sort": -1,
+  "text": "**如何解锁新形态？**$(br)$(li)在幻星废墟与猫哭冢的宝箱中寻找**古代知识残页**。$(li)手持残页右键解读，即可解锁对应形态的知识。$(li)随后在**唤灵台**摆放祭品 + 摩摩尔之魂完成变形。$(br)$(br)更多形态将随 mod 更新陆续加入。"
+}

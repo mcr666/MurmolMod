@@ -15,6 +15,8 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.util.Mth;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.core.Direction;
+import net.minecraft.client.CameraType;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.player.AbstractClientPlayer;
@@ -28,6 +30,7 @@ import com.mojang.math.Axis;
 
 import mcr.murmol.feral.FeralForm;
 import mcr.murmol.feral.FeralFormManager;
+import mcr.murmol.compat.FPMCompat;
 import mcr.astralcruse.client.animation.FeralBedrockPlayerAnimator;
 
 import java.util.HashMap;
@@ -73,6 +76,12 @@ public class FeralFormRenderer {
 		for (net.minecraft.world.entity.Entity e : mc.level.entitiesForRendering()) {
 			if (e instanceof LivingEntity living
 					&& mcr.murmol.potion.PetrifyMobEffect.isPetrified(living)) {
+				// FPM 第一人称看自己且为狛犬形态：不钉死朝向，让身体/头跟随视角转动
+				if (living instanceof AbstractClientPlayer local
+						&& isFirstPersonLocalView(local)
+						&& FeralFormManager.getForm(local).hasStatueState()) {
+					continue;
+				}
 				living.yBodyRot = living.yBodyRotO;
 				living.yHeadRot = living.yHeadRotO;
 			}
@@ -89,6 +98,13 @@ public class FeralFormRenderer {
 
 	/** RenderPlayerEvent.Pre 调用：冻结石化玩家的头部俯仰 */
 	private static void applyPetrifyRenderFreeze(Player player) {
+		// FPM 第一人称看自己且为狛犬形态：不冻结头部俯仰，跟随鼠标视角
+		if (player instanceof AbstractClientPlayer local
+				&& isFirstPersonLocalPlayer(local)
+				&& FeralFormManager.getForm(local).hasStatueState()) {
+			PETRIFY_FROZEN_XROT.remove(player);
+			return;
+		}
 		if (!mcr.murmol.potion.PetrifyMobEffect.isPetrified(player)) {
 			PETRIFY_FROZEN_XROT.remove(player);
 			return;
@@ -295,6 +311,23 @@ public class FeralFormRenderer {
 		model.rightPants.offsetScale(offset);
 	}
 
+	/** 是否处于「第一人称观看本地玩家自身」的视角（不要求 FPM 正在渲染，tick 阶段用）。 */
+	public static boolean isFirstPersonLocalView(AbstractClientPlayer entity) {
+		Minecraft mc = Minecraft.getInstance();
+		return entity == mc.player
+				&& mc.options.getCameraType() == CameraType.FIRST_PERSON
+				&& entity == mc.getCameraEntity();
+	}
+
+	/**
+	 * 是否为「FPM 正在第一人称渲染本地玩家自身身体」。
+	 * 第三人称看自己 / 其他玩家均不满足；背包界面等 renderEntityInInventory 自绘
+	 * 玩家模型路径不满足 FPM 的 isRenderingPlayer() 状态，正常显示头部。
+	 */
+	public static boolean isFirstPersonLocalPlayer(AbstractClientPlayer entity) {
+		return isFirstPersonLocalView(entity) && FPMCompat.isRenderingPlayerFirstPerson();
+	}
+
 	/**
 	 * 原版 MCreator renderHumanoid 逻辑。
 	 * setupAnim 会被 AstralCruse 的 FeralPlayerModelMixin 注入，应用 Bedrock 动画。
@@ -329,15 +362,21 @@ public class FeralFormRenderer {
 		// 石像状态：身体与头部朝向全部冻结在进入石像那一刻，不跟随视角转动
 		float headPitch = Mth.lerp(partialTick, entity.xRotO, entity.getXRot());
 		float netHeadYaw;
+		boolean fpmFirstPerson = isFirstPersonLocalPlayer(entity);
 		if (mcr.murmol.feral.FeralFormManager.isInStatue(entity)) {
-			float currentBodyYaw = interpolatedBodyYaw;
-			float currentNetHeadYaw = interpolatedHeadYaw - currentBodyYaw;
-			float currentPitch = headPitch;
-			float[] frozen = STATUE_POSES.computeIfAbsent(entity.getUUID(),
-					k -> new float[] {currentBodyYaw, currentNetHeadYaw, currentPitch});
-			interpolatedBodyYaw = frozen[0];
-			netHeadYaw = frozen[1];
-			headPitch = frozen[2];
+			if (fpmFirstPerson) {
+				// FPM 第一人称（狛犬石像）：不锁定朝向，身体/头跟随视角转动；保留冻结值供他人第三人称渲染
+				netHeadYaw = interpolatedHeadYaw - interpolatedBodyYaw;
+			} else {
+				float currentBodyYaw = interpolatedBodyYaw;
+				float currentNetHeadYaw = interpolatedHeadYaw - currentBodyYaw;
+				float currentPitch = headPitch;
+				float[] frozen = STATUE_POSES.computeIfAbsent(entity.getUUID(),
+						k -> new float[] {currentBodyYaw, currentNetHeadYaw, currentPitch});
+				interpolatedBodyYaw = frozen[0];
+				netHeadYaw = frozen[1];
+				headPitch = frozen[2];
+			}
 		} else {
 			STATUE_POSES.remove(entity.getUUID());
 			netHeadYaw = interpolatedHeadYaw - interpolatedBodyYaw;
@@ -369,12 +408,20 @@ public class FeralFormRenderer {
 		for (ModelPart part : extraBodyParts(form).values()) {
 			part.offsetScale(offset);
 		}
+		boolean firstPerson = isFirstPersonLocalPlayer(entity);
+		if (firstPerson) {
+			// 第一人称看不到自己的头（相机位于头部位置），隐藏兽身头部
+			model.head.visible = false;
+		}
 		model.renderToBuffer(poseStack, vertexConsumer, event.getPackedLight(),
 				LivingEntityRenderer.getOverlayCoords(entity, 0));
 		// biped_* 附加骨骼额外渲染（不在包装模型内，与身体同变换、同纹理）
 		for (ModelPart part : extraBodyParts(form).values()) {
 			part.render(poseStack, vertexConsumer, event.getPackedLight(),
 					LivingEntityRenderer.getOverlayCoords(entity, 0), -1);
+		}
+		if (firstPerson) {
+			model.head.visible = true; // 恢复共享模型，避免影响第三人称
 		}
 		offset.negate();
 		offsetScale(model, offset);

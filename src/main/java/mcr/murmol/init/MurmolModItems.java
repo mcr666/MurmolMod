@@ -20,21 +20,8 @@ public class MurmolModItems {
 	public static final DeferredRegister.Items REGISTRY = DeferredRegister.createItems(MurmolMod.MODID);
 	public static final DeferredItem<Item> MAOCRY_BLESSING;
 	public static final DeferredItem<Item> XIAOHUI;
-	public static final DeferredItem<Item> ICE_FLOWER;
-	public static final DeferredItem<Item> ICE_BOLT_ITEM;
 	public static final DeferredItem<Item> MAGIC_CRYSTAL;
 	public static final DeferredItem<Item> MAGIC_CRYSTAL_CLUSTER;
-	public static final DeferredItem<Item> ICE_FLOWER_WILD;
-	public static final DeferredItem<Item> ICE_AND_FIRE_SWORD;
-	public static final DeferredItem<Item> FROST_INGOTM;
-	public static final DeferredItem<Item> ICE_SHARP;
-	public static final DeferredItem<Item> ICE_SHARP_ORE;
-	public static final DeferredItem<Item> FROST_ARMOR_HELMET;
-	public static final DeferredItem<Item> FROST_ARMOR_CHESTPLATE;
-	public static final DeferredItem<Item> FROST_ARMOR_LEGGINGS;
-	public static final DeferredItem<Item> FROST_ARMOR_BOOTS;
-	public static final DeferredItem<Item> FROST_SWORD;
-	public static final DeferredItem<Item> FROST_PICKAXE;
 	public static final DeferredItem<Item> SPIRIT_TABLE;
 	public static final DeferredItem<Item> BANZA;
 	public static final DeferredItem<Item> CURSED_STONE;
@@ -66,8 +53,7 @@ public class MurmolModItems {
 	public static final DeferredItem<Item> PETAL;
 	public static final DeferredItem<Item> BLOOMING_BLADE_FULL;
 	public static final DeferredItem<Item> FIRE_BLADE_CLAW;
-	public static final DeferredItem<Item> CHEN_HUANG_SOUL;
-	public static final DeferredItem<Item> LUOHONG_SOUL;
+	public static final DeferredItem<Item> FORM_SOUL;
 	public static final DeferredItem<Item> MAGIC_SHARD;
 	public static final DeferredItem<Item> TOTEMOF_FALLEN;
 	public static final DeferredItem<Item> MANGO;
@@ -88,40 +74,23 @@ public class MurmolModItems {
 	public static final DeferredItem<BlockItem> TWO_PRINCIPLES;
 	public static final DeferredItem<Item> FRAGRANT_CORSAGE;
 	public static final DeferredItem<Item> MURMOL;
-	public static final DeferredItem<Item> MOSS_BEAST_SOUL;
-	public static final DeferredItem<Item> SILKMOTH_SOUL;
-	public static final DeferredItem<Item> KOMAINU_SOUL;
-	public static final DeferredItem<Item> WENYAO_SOUL;
-	public static final DeferredItem<Item> FEROCIOUS_SOUL;
-	public static final DeferredItem<Item> DARK_FURY_SOUL;
 	public static final DeferredItem<Item> MANGO_GOLDEN_ENCHANT;
-	public static final DeferredItem<Item> ASTRAL_TORCH;
-	public static final DeferredItem<Item> ASTRAL_LANTERN;
+	// 星辉火把/灯笼已移除
+	// public static final DeferredItem<Item> ASTRAL_TORCH;
+	// public static final DeferredItem<Item> ASTRAL_LANTERN;
 	public static final DeferredItem<Item> ASTRAL_PLANKS_SLAB;
 	public static final DeferredItem<Item> ASTRAL_PLANKS_STAIRS;
 	public static final DeferredItem<Item> STRIPPED_ASTRAL_LOG;
 	public static final DeferredItem<Item> MURMOL_NPC_SPAWN_EGG;
-	public static final DeferredItem<Item> SNOWY_HILLS;
-	public static final DeferredItem<Item> GRACEFUL;
-	public static final DeferredItem<Item> WATER_BUBBLE;
+	public static final DeferredItem<Item> FISH_BUBBLE;
+	public static final DeferredItem<Item> RESHAPE_VOW;
+	public static final DeferredItem<Item> PLANETARIUM;
+	public static final DeferredItem<Item> STRANGE_LETTER;
 	static {
 		MAOCRY_BLESSING = REGISTRY.register("maocry_blessing", MaocryBlessingItem::new);
 		XIAOHUI = REGISTRY.register("xiaohui", XiaohuiItem::new);
-		ICE_FLOWER = REGISTRY.register("ice_flower", IceFlowerItem::new);
-		ICE_BOLT_ITEM = REGISTRY.register("ice_bolt_item", IceBoltItemItem::new);
 		MAGIC_CRYSTAL = REGISTRY.register("magic_crystal", MagicCrystalItem::new);
 		MAGIC_CRYSTAL_CLUSTER = block(MurmolModBlocks.MAGIC_CRYSTAL_CLUSTER, new Item.Properties().rarity(Rarity.UNCOMMON));
-		ICE_FLOWER_WILD = block(MurmolModBlocks.ICE_FLOWER_WILD);
-		ICE_AND_FIRE_SWORD = REGISTRY.register("ice_and_fire_sword", IceAndFireSwordItem::new);
-		FROST_INGOTM = REGISTRY.register("frost_ingotm", FrostIngotmItem::new);
-		ICE_SHARP = REGISTRY.register("ice_sharp", IceSharpItem::new);
-		ICE_SHARP_ORE = block(MurmolModBlocks.ICE_SHARP_ORE, new Item.Properties().rarity(Rarity.UNCOMMON));
-		FROST_ARMOR_HELMET = REGISTRY.register("frost_armor_helmet", FrostArmorItem.Helmet::new);
-		FROST_ARMOR_CHESTPLATE = REGISTRY.register("frost_armor_chestplate", FrostArmorItem.Chestplate::new);
-		FROST_ARMOR_LEGGINGS = REGISTRY.register("frost_armor_leggings", FrostArmorItem.Leggings::new);
-		FROST_ARMOR_BOOTS = REGISTRY.register("frost_armor_boots", FrostArmorItem.Boots::new);
-		FROST_SWORD = REGISTRY.register("frost_sword", FrostSwordItem::new);
-		FROST_PICKAXE = REGISTRY.register("frost_pickaxe", FrostPickaxeItem::new);
 		SPIRIT_TABLE = block(MurmolModBlocks.SPIRIT_TABLE);
 		BANZA = block(MurmolModBlocks.BANZA);
 		CURSED_STONE = block(MurmolModBlocks.CURSED_STONE);
@@ -153,8 +122,7 @@ public class MurmolModItems {
 		PETAL = REGISTRY.register("petal", PetalItem::new);
 		BLOOMING_BLADE_FULL = REGISTRY.register("blooming_blade_full", BloomingBladeFullItem::new);
 		FIRE_BLADE_CLAW = REGISTRY.register("fire_blade_claw", FireBladeClawItem::new);
-		CHEN_HUANG_SOUL = REGISTRY.register("chen_huang_soul", ChSoulItem::new);
-		LUOHONG_SOUL = REGISTRY.register("luohong_soul", PetalfallVernalSoulItem::new);
+		FORM_SOUL = REGISTRY.register("form_soul", FormSoulItem::new);
 		MAGIC_SHARD = REGISTRY.register("magic_shard", MagicShardItem::new);
 		TOTEMOF_FALLEN = REGISTRY.register("truth_mirror", TruthMirrorItem::new);
 		MANGO = REGISTRY.register("mango", MangoItem::new);
@@ -174,33 +142,19 @@ public class MurmolModItems {
 		TREE_HEART = REGISTRY.register("tree_heart", TreeHeartItem::new);
 		FRAGRANT_CORSAGE = REGISTRY.register("fragrant_corsage", FragrantCorsageItem::new);
 		MURMOL = REGISTRY.register("murmol", MurmolItem::new);
-		MOSS_BEAST_SOUL = REGISTRY.register("moss_beast_soul", LeafSoulItem::new);
-		SILKMOTH_SOUL = REGISTRY.register("silkmoth_soul", SilkmothSoulItem::new);
-		KOMAINU_SOUL = REGISTRY.register("komainu_soul", KomainuSoulItem::new);
-		WENYAO_SOUL = REGISTRY.register("wenyao_soul", WenyaoSoulItem::new);
-		FEROCIOUS_SOUL = REGISTRY.register("ferocious_soul", FerociousSoulItem::new);
-		DARK_FURY_SOUL = REGISTRY.register("dark_fury_soul", DarkFurySoulItem::new);
 		MANGO_GOLDEN_ENCHANT = REGISTRY.register("mango_golden_enchant", MangoGoldenEnchantItem::new);
 		TWO_PRINCIPLES = REGISTRY.registerSimpleBlockItem("two_principles", MurmolModBlocks.TWO_PRINCIPLES);
-		ASTRAL_TORCH = REGISTRY.register("astral_torch",
-				() -> new net.minecraft.world.item.StandingAndWallBlockItem(MurmolModBlocks.ASTRAL_TORCH.get(),
-							MurmolModBlocks.ASTRAL_WALL_TORCH.get(), new Item.Properties(), net.minecraft.core.Direction.DOWN));
-		ASTRAL_LANTERN = block(MurmolModBlocks.ASTRAL_LANTERN);
+		// 星辉火把/灯笼已移除
+		// ASTRAL_TORCH = REGISTRY.register("astral_torch", ...
+		// ASTRAL_LANTERN = block(MurmolModBlocks.ASTRAL_LANTERN);
 		MURMOL_NPC_SPAWN_EGG = REGISTRY.register("murmol_npc_spawn_egg", () -> new DeferredSpawnEggItem(MurmolModEntities.MURMOL_NPC, 9062847, 15257586, new Item.Properties()));
 		ASTRAL_PLANKS_SLAB = block(MurmolModBlocks.ASTRAL_PLANKS_SLAB);
 		ASTRAL_PLANKS_STAIRS = block(MurmolModBlocks.ASTRAL_PLANKS_STAIRS);
 		STRIPPED_ASTRAL_LOG = block(MurmolModBlocks.STRIPPED_ASTRAL_LOG);
-		SNOWY_HILLS = REGISTRY.register("snowy_hills",
-				() -> new Item(new Item.Properties().rarity(Rarity.RARE).stacksTo(1).jukeboxPlayable(songKey("snowy_hills"))));
-		GRACEFUL = REGISTRY.register("graceful",
-				() -> new Item(new Item.Properties().rarity(Rarity.RARE).stacksTo(1).jukeboxPlayable(songKey("graceful"))));
-		WATER_BUBBLE = REGISTRY.register("water_bubble", WaterBubbleHelmetItem::new);
-	}
-
-	/** 点唱机曲目 key（曲目本体为数据包 jukebox_song JSON） */
-	private static net.minecraft.resources.ResourceKey<net.minecraft.world.item.JukeboxSong> songKey(String path) {
-		return net.minecraft.resources.ResourceKey.create(net.minecraft.core.registries.Registries.JUKEBOX_SONG,
-				net.minecraft.resources.ResourceLocation.fromNamespaceAndPath(MurmolMod.MODID, path));
+		FISH_BUBBLE = REGISTRY.register("fish_bubble", WaterBubbleHelmetItem::new);
+		RESHAPE_VOW = REGISTRY.register("reshape_vow", ReshapeVowItem::new);
+		PLANETARIUM = REGISTRY.register("planetarium", () -> new mcr.murmol.planetarium.PlanetariumItem(new Item.Properties().rarity(Rarity.UNCOMMON)));
+		STRANGE_LETTER = REGISTRY.register("strange_letter", () -> new mcr.murmol.item.StrangeLetterItem(new Item.Properties().rarity(Rarity.UNCOMMON)));
 	}
 
 	// Start of user code block custom items

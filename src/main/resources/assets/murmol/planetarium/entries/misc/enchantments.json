@@ -1,0 +1,8 @@
+{
+  "id": "enchantments",
+  "type": "page",
+  "title": "附魔",
+  "icon": "minecraft:enchanted_book",
+  "category": "misc",
+  "sort": 3,
+  "text": "唤星学会在对超自然现象的研究中开发了两种附魔：$(br)$(li)**人类杀手**：攻击人类时每级造成额外 2 点伤害。方便清理'反动派'。$(br)$(li)**薛定谔**：使装备进入量子态：存在的是它的坚韧，虚无的是它的表层"。

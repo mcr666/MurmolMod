@@ -19,7 +19,8 @@ public abstract class AstralMainMenuMusicMixin {
     @Inject(method = "getSituationalMusic", at = @At("HEAD"), cancellable = true)
     private void astralCruse$useCustomMainMenuMusic(CallbackInfoReturnable<Music> cir) {
         // 配置关闭时保留原版音乐（与标题界面共用同一选项）
-        if (!mcr.murmol.MurmolModConfig.MODIFY_TITLE_SCREEN.get()) {
+        // 主菜单 tick 可能早于客户端配置加载完成，未加载时直接走原版逻辑
+        if (!mcr.murmol.MurmolModConfig.SPEC.isLoaded() || !mcr.murmol.MurmolModConfig.MODIFY_TITLE_SCREEN.get()) {
             return;
         }
         Minecraft minecraft = (Minecraft) (Object) this;

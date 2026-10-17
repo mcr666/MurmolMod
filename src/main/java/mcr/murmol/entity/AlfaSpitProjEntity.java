@@ -23,8 +23,9 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.core.registries.BuiltInRegistries;
 
-import mcr.murmol.procedures.AlfarboomProcedure;
-import mcr.murmol.procedures.AlfaSpitProjDanSheWuFeiXingShiMeiKeFaShengProcedure;
+import net.minecraft.core.particles.SimpleParticleType;
+
+import mcr.murmol.init.MurmolModParticleTypes;
 import mcr.murmol.init.MurmolModItems;
 import mcr.murmol.init.MurmolModEntities;
 
@@ -88,27 +89,38 @@ public class AlfaSpitProjEntity extends AbstractArrow implements ItemSupplier {
 	@Override
 	public void playerTouch(Player entity) {
 		super.playerTouch(entity);
-		AlfarboomProcedure.execute(this.level(), this.getX(), this.getY(), this.getZ());
+		boom(this.getX(), this.getY(), this.getZ());
 	}
 
 	@Override
 	public void onHitEntity(EntityHitResult entityHitResult) {
 		super.onHitEntity(entityHitResult);
-		AlfarboomProcedure.execute(this.level(), this.getX(), this.getY(), this.getZ());
+		boom(this.getX(), this.getY(), this.getZ());
 	}
 
 	@Override
 	public void onHitBlock(BlockHitResult blockHitResult) {
 		super.onHitBlock(blockHitResult);
-		AlfarboomProcedure.execute(this.level(), blockHitResult.getBlockPos().getX(), blockHitResult.getBlockPos().getY(), blockHitResult.getBlockPos().getZ());
+		boom(blockHitResult.getBlockPos().getX(), blockHitResult.getBlockPos().getY(), blockHitResult.getBlockPos().getZ());
 	}
 
 	@Override
 	public void tick() {
 		super.tick();
-		AlfaSpitProjDanSheWuFeiXingShiMeiKeFaShengProcedure.execute(this.level(), this.getX(), this.getY(), this.getZ());
+		emitSpitParticle(this.getX(), this.getY(), this.getZ());
 		if (this.inGround)
 			this.discard();
+	}
+
+	/** 命中/触碰时产生半径 0.25 的实体爆炸 */
+	private void boom(double x, double y, double z) {
+		if (this.level() instanceof Level _level && !_level.isClientSide())
+			_level.explode(null, x, y, z, (float) 0.25, Level.ExplosionInteraction.MOB);
+	}
+
+	/** 飞行每刻散发吐息粒子 */
+	private void emitSpitParticle(double x, double y, double z) {
+		this.level().addParticle((SimpleParticleType) (MurmolModParticleTypes.SPITEFFECT.get()), x, y, z, 0.1, 0, 0.1);
 	}
 
 	public static AlfaSpitProjEntity shoot(Level world, LivingEntity entity, RandomSource source) {

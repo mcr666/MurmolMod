@@ -17,13 +17,13 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 
 /**
- * 落瓣春花狐龙模型。
+ * 春花狐龙模型。
  * 层位置与 LuohongForm.getBodyLayer() 一致。
  */
 public class LuohongModel<T extends Entity> extends EntityModel<T> {
 
 	public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(
-			ResourceLocation.fromNamespaceAndPath("murmol", "luohong"), "main");
+			ResourceLocation.fromNamespaceAndPath("murmol", "spring_flower"), "main");
 
 	private final ModelPart body;
 	private final ModelPart torso;

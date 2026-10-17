@@ -37,6 +37,15 @@ public final class MurmolModGameRules {
 					GameRules.BooleanValue.create(false));
 
 	/**
+	 * 死亡后保留形态：默认开启（死亡重生保留当前变形）。
+	 * 关闭后，玩家死亡会解除当前变形（重生为人类），并随机掉落形态配方中的 3/4 个材料（不重复）。
+	 * 已缔结「塑魂之约」的玩家不受影响（永久绑定，形态跨死亡保留）。
+	 */
+	public static final GameRules.Key<GameRules.BooleanValue> RETAIN_FORM_ON_DEATH =
+			GameRules.register("murmolRetainFormOnDeath", GameRules.Category.PLAYER,
+					GameRules.BooleanValue.create(true));
+
+	/**
 	 * 幻星瘟疫（astral_infection_biome）生成噪声气候范围等级 1~10：
 	 * 1=几乎不生成（气候区间收窄到约 10%），10=满气候范围，默认 2=当前减半效果。
 	 * 仅影响新世界的噪声预设构建（BiomeSourcePreset 初始化时读取默认值），

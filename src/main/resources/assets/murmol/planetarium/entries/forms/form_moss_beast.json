@@ -1,0 +1,20 @@
+{
+  "id": "form_moss_beast",
+  "type": "form",
+  "title": "苔叶兽",
+  "icon": "murmol:form_soul#moss_beast",
+  "category": "forms",
+  "advancement": "murmol:unlock/moss_beast",
+  "sort": 2,
+  "attributes": [
+    "洞穴内移动速度加成",
+    "洞穴内挖掘速度加成",
+    "地面移动速度降低"
+  ],
+  "offering": [
+    ["minecraft:moss_block", "minecraft:vine"],
+    ["minecraft:stone_shovel", "minecraft:dirt"]
+  ],
+  "text": "苔叶兽是大地深处的守护者，身披苔藓与藤蔓，在洞穴中行动迅捷如飞，却在地面上显得笨拙迟缓。",
+  "biography": "传说苔叶兽自大地初开时便已存在。它以泥土为食，以苔藓为衣，在幽深的洞穴中挖掘出纵横交错的通道。每当大地震颤，人们便说那是苔叶兽在翻身。"
+}

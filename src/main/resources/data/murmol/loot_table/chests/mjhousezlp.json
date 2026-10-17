@@ -105,7 +105,7 @@
           "functions": [
             {
               "function": "minecraft:set_custom_data",
-              "tag": "{FormId:\"luohong\"}"
+              "tag": "{FormId:\"spring_flower\"}"
             }
           ]
         },
@@ -155,7 +155,7 @@
           "functions": [
             {
               "function": "minecraft:set_custom_data",
-              "tag": "{FormId:\"wenyao\"}"
+              "tag": "{FormId:\"wen_yao\"}"
             }
           ]
         },
@@ -177,16 +177,6 @@
         {
           "type": "minecraft:empty",
           "weight": 6
-        },
-        {
-          "type": "minecraft:item",
-          "name": "murmol:snowy_hills",
-          "weight": 1
-        },
-        {
-          "type": "minecraft:item",
-          "name": "murmol:graceful",
-          "weight": 1
         }
       ]
     }

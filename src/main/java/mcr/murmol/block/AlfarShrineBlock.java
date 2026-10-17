@@ -8,14 +8,17 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.MobSpawnType;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.core.Direction;
 import net.minecraft.core.BlockPos;
 
-import mcr.murmol.procedures.SummonAlfarProcedure;
+import mcr.murmol.init.MurmolModEntities;
 
 public class AlfarShrineBlock extends Block {
 	public AlfarShrineBlock() {
@@ -48,7 +51,10 @@ public class AlfarShrineBlock extends Block {
 		double hitY = hit.getLocation().y;
 		double hitZ = hit.getLocation().z;
 		Direction direction = hit.getDirection();
-		SummonAlfarProcedure.execute(world, x, y, z);
+		world.setBlock(BlockPos.containing(x, y, z), Blocks.AIR.defaultBlockState(), 3);
+		if (world instanceof ServerLevel _level) {
+			MurmolModEntities.ALFAR.get().spawn(_level, BlockPos.containing(x, y, z), MobSpawnType.MOB_SUMMONED);
+		}
 		return InteractionResult.SUCCESS;
 	}
 }

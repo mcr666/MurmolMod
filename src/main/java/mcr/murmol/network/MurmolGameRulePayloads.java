@@ -42,6 +42,7 @@ public class MurmolGameRulePayloads {
 			new RuleDef("murmolAllowScrapSoulRecipe", Kind.BOOL, MurmolModGameRules.ALLOW_SCRAP_SOUL_RECIPE, 0, 0),
 			new RuleDef("murmolSpiritTableXpCost", Kind.BOOL, MurmolModGameRules.SPIRIT_TABLE_XP_COST, 0, 0),
 			new RuleDef("murmolFeralElytraFlight", Kind.BOOL, MurmolModGameRules.FERAL_ELYTRA_FLIGHT, 0, 0),
+			new RuleDef("murmolRetainFormOnDeath", Kind.BOOL, MurmolModGameRules.RETAIN_FORM_ON_DEATH, 0, 0),
 			new RuleDef("murmolAstralInfectionRange", Kind.INT, MurmolModGameRules.ASTRAL_INFECTION_RANGE,
 					MurmolModGameRules.ASTRAL_INFECTION_RANGE_MIN, MurmolModGameRules.ASTRAL_INFECTION_RANGE_MAX));
 

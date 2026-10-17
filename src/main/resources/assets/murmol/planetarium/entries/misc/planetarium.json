@@ -1,0 +1,11 @@
+{
+  "id": "planetarium",
+  "type": "item",
+  "title": "星象仪",
+  "icon": "murmol:planetarium",
+  "category": "misc",
+  "sort": 1,
+  "craftingPattern": "GGG\nIRI\n I ",
+  "craftingKey": "{\"G\":\"minecraft:glass_pane\",\"I\":\"minecraft:iron_ingot\",\"R\":\"minecraft:redstone\"}",
+  "text": "唤星学会研制的信息终端，记载了学会所留下的知识和你在旅途中的见闻。"
+}

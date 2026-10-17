@@ -25,7 +25,7 @@ public class MossBeastForm extends FeralForm {
 				ResourceLocation.fromNamespaceAndPath("murmol", "textures/entities/moss_beast_tail.png"),
 				ResourceLocation.fromNamespaceAndPath("murmol", "moss_beast"),
 				ResourceLocation.fromNamespaceAndPath("murmol", "moss_beast_tail"),
-				() -> new ItemStack(MurmolModItems.MOSS_BEAST_SOUL.get()),
+				() -> mcr.murmol.item.FormSoulItem.forForm("moss_beast"),
 				ResourceLocation.fromNamespaceAndPath("murmol", "stands_a_loquat_tree"),
 				Map.of(
 					// 仅保留无条件加成；移速/跳跃/挖掘为洞穴条件加成，由 FeralFormManager 按 tick 环境切换
@@ -39,5 +39,7 @@ public class MossBeastForm extends FeralForm {
 		// 该形态不显示第一人称手臂
 		enableFirstPersonArm();
 		setAnimationFile(ResourceLocation.fromNamespaceAndPath("murmol", "player_animations/moss_beast_anim.json"));
+		// 苔叶兽食性：只吃植物方块物品（苔藓/树叶/蘑菇等），吃其他食物按坏食物处理
+		setDiet(FormDiet.PLANT);
 	}
 }

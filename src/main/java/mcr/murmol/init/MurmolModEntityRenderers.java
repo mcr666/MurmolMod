@@ -19,7 +19,6 @@ public class MurmolModEntityRenderers {
 	@SubscribeEvent
 	public static void registerEntityRenderers(EntityRenderersEvent.RegisterRenderers event) {
 		event.registerEntityRenderer(MurmolModEntities.XIAO_HUI_PROJECTILE.get(), ThrownItemRenderer::new);
-		event.registerEntityRenderer(MurmolModEntities.ICE_BOLT.get(), ThrownItemRenderer::new);
 		event.registerEntityRenderer(MurmolModEntities.PETAL_PROJECTILE.get(), ThrownItemRenderer::new);
 		event.registerEntityRenderer(MurmolModEntities.ALFAR.get(), AlfarRenderer::new);
 		event.registerEntityRenderer(MurmolModEntities.ALFA_SPIT_PROJ.get(), ThrownItemRenderer::new);

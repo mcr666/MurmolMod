@@ -43,11 +43,6 @@ public class RiichiWall {
 		return wall.isEmpty() ? -1 : wall.remove(wall.size() - 1);
 	}
 
-	/** 从牌山移除一张指定牌（future 预排队列用，保证其他玩家摸不到该牌）；山里没有也不报错 */
-	public void removeTile(int code) {
-		wall.remove(Integer.valueOf(code));
-	}
-
 	/** 岭上摸牌（杠后补牌，从王牌区岭上段取，与普通牌山无关），耗尽返回 -1 */
 	public int rinshanDraw() {
 		return rinshanTiles.isEmpty() ? -1 : rinshanTiles.remove(rinshanTiles.size() - 1);

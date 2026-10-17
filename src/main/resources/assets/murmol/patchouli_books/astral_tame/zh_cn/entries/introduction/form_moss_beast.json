@@ -7,7 +7,7 @@
   "pages": [
     {
       "type": "patchouli:spotlight",
-      "item": "murmol:moss_beast_soul",
+      "item": "murmol:form_soul",
       "title": "苔叶兽",
       "text": "繁茂植物的聚合体，拥有如苔藓般$(thing)坚韧厚实的躯壳$(0)。风雨与野兽的侵扰都难以撼动它分毫——正如苔藓在岩上千年，任凭霜雪，不改其绿。"
           },

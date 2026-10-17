@@ -22,7 +22,7 @@ public class SilkmothForm extends FeralForm {
 				null,
 				ResourceLocation.fromNamespaceAndPath("murmol", "silkmoth"),
 				null,
-				() -> new ItemStack(MurmolModItems.SILKMOTH_SOUL.get()),
+				() -> mcr.murmol.item.FormSoulItem.forForm("silkmoth"),
 				ResourceLocation.fromNamespaceAndPath("murmol", "get_silkmoth"),
 				null,
 				List.of(

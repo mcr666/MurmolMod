@@ -1,0 +1,24 @@
+{
+  "id": "form_luohong",
+  "type": "form",
+  "title": "落瓣春花",
+  "icon": "murmol:form_soul#spring_flower",
+  "category": "forms",
+  "advancement": "murmol:unlock/spring_flower",
+  "sort": 0,
+  "attributes": [
+    "最大生命值 -4",
+    "移动速度 +25%",
+    "攻击速度 +0.3",
+    "跳跃力 +0.2",
+    "体型 -25%",
+    "周围作物生长加速",
+    "周围动物繁殖加快"
+  ],
+  "offering": [
+    ["minecraft:pink_petals", "minecraft:oxeye_daisy"],
+    ["minecraft:wheat_seeds", "minecraft:bone_meal"]
+  ],
+  "text": "春花狐龙由各朝诗人笔下的春共同汇集而生。体型娇小，行动敏捷，正如春色般来去匆匆。$(br)周围的作物会受春气滋养而加速生长，附近的动物也更易进入繁殖状态。",
+  "biography": "春花不觉小，处处人类找。$(br)夜来幻翼声，落瓣知多少。$(br)野性云俱黑，江船落红吟。$(br)小看小动物，茎过血条零。"
+}

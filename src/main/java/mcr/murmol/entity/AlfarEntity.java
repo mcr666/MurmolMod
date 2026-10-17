@@ -21,6 +21,7 @@ import net.minecraft.world.entity.*;
 import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.sounds.SoundEvent;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.level.ServerBossEvent;
 import net.minecraft.resources.ResourceLocation;
@@ -28,12 +29,14 @@ import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.util.RandomSource;
+import net.minecraft.util.Mth;
+import net.minecraft.advancements.AdvancementHolder;
+import net.minecraft.advancements.AdvancementProgress;
 
-import mcr.murmol.procedures.AlfarspttProcedure;
-import mcr.murmol.procedures.AlfarattdistanceProcedure;
-import mcr.murmol.procedures.AlfarattProcedure;
-import mcr.murmol.procedures.AlfarShiTiSiWangShiProcedure;
+import mcr.murmol.MurmolMod;
 
 public class AlfarEntity extends Monster implements RangedAttackMob {
 	public static final EntityDataAccessor<Boolean> DATA_spattack = SynchedEntityData.defineId(AlfarEntity.class, EntityDataSerializers.BOOLEAN);
@@ -65,7 +68,7 @@ public class AlfarEntity extends Monster implements RangedAttackMob {
 				double z = AlfarEntity.this.getZ();
 				Entity entity = AlfarEntity.this;
 				Level world = AlfarEntity.this.level();
-				return super.canUse() && AlfarattdistanceProcedure.execute(entity);
+				return super.canUse() && AlfarEntity.targetDistanceAtLeast(entity);
 			}
 
 			@Override
@@ -75,7 +78,7 @@ public class AlfarEntity extends Monster implements RangedAttackMob {
 				double z = AlfarEntity.this.getZ();
 				Entity entity = AlfarEntity.this;
 				Level world = AlfarEntity.this.level();
-				return super.canContinueToUse() && AlfarattdistanceProcedure.execute(entity);
+				return super.canContinueToUse() && AlfarEntity.targetDistanceAtLeast(entity);
 			}
 		});
 		this.goalSelector.addGoal(2, new MeleeAttackGoal(this, 1.2, true) {
@@ -91,7 +94,7 @@ public class AlfarEntity extends Monster implements RangedAttackMob {
 				double z = AlfarEntity.this.getZ();
 				Entity entity = AlfarEntity.this;
 				Level world = AlfarEntity.this.level();
-				return super.canUse() && AlfarattdistanceProcedure.execute(entity);
+				return super.canUse() && AlfarEntity.targetDistanceAtLeast(entity);
 			}
 
 			@Override
@@ -101,7 +104,7 @@ public class AlfarEntity extends Monster implements RangedAttackMob {
 				double z = AlfarEntity.this.getZ();
 				Entity entity = AlfarEntity.this;
 				Level world = AlfarEntity.this.level();
-				return super.canContinueToUse() && AlfarattdistanceProcedure.execute(entity);
+				return super.canContinueToUse() && AlfarEntity.targetDistanceAtLeast(entity);
 			}
 
 		});
@@ -165,7 +168,7 @@ public class AlfarEntity extends Monster implements RangedAttackMob {
 	@Override
 	public void die(DamageSource source) {
 		super.die(source);
-		AlfarShiTiSiWangShiProcedure.execute(source.getEntity());
+		grantKillAchievement(source.getEntity());
 	}
 
 	@Override
@@ -185,7 +188,7 @@ public class AlfarEntity extends Monster implements RangedAttackMob {
 	public void tick() {
 		super.tick();
 		if (this.level().isClientSide()) {
-			this.animationState0.animateWhen(AlfarattProcedure.execute(this), this.tickCount);
+			this.animationState0.animateWhen(isSwinging(this), this.tickCount);
 			this.animationState2.animateWhen(true, this.tickCount);
 		}
 	}
@@ -193,7 +196,7 @@ public class AlfarEntity extends Monster implements RangedAttackMob {
 	@Override
 	public void baseTick() {
 		super.baseTick();
-		AlfarspttProcedure.execute(this.level(), this);
+		specialAttack();
 	}
 
 	@Override
@@ -253,5 +256,62 @@ public class AlfarEntity extends Monster implements RangedAttackMob {
 		builder = builder.add(Attributes.KNOCKBACK_RESISTANCE, 0.5);
 		builder = builder.add(Attributes.ATTACK_KNOCKBACK, 1.8);
 		return builder;
+	}
+
+	/** AI 判定：目标距离 ≥3（用于追击/攻击目标的选择） */
+	private static boolean targetDistanceAtLeast(Entity entity) {
+		if (entity instanceof Mob mob && mob.getTarget() != null) {
+			return mob.getTarget().position().distanceTo(entity.position()) >= 3;
+		}
+		return true;
+	}
+
+	/** 动画判定：是否正在挥砍 */
+	private static boolean isSwinging(Entity entity) {
+		return entity instanceof LivingEntity liv && liv.swinging;
+	}
+
+	/** 死亡时授予击杀者 killalfar 成就 */
+	private static void grantKillAchievement(Entity sourceentity) {
+		if (sourceentity instanceof ServerPlayer _player) {
+			AdvancementHolder _adv = _player.server.getAdvancements().get(ResourceLocation.parse("murmol:killalfar"));
+			if (_adv != null) {
+				AdvancementProgress _ap = _player.getAdvancements().getOrStartProgress(_adv);
+				if (!_ap.isDone()) {
+					for (String criteria : _ap.getRemainingCriteria())
+						_player.getAdvancements().award(_adv, criteria);
+				}
+			}
+		}
+	}
+
+	/** 特殊攻击：DATA_spattack 期间随机触发，向目标连续召唤 5 道延时闪电 */
+	private void specialAttack() {
+		if (!this.getEntityData().get(AlfarEntity.DATA_spattack)) {
+			return;
+		}
+		if (Mth.nextInt(RandomSource.create(), 1, 150) != 1) {
+			return;
+		}
+		LivingEntity target = this.getTarget();
+		if (target == null) {
+			return;
+		}
+		this.getEntityData().set(AlfarEntity.DATA_spattack, false);
+		double i = 20;
+		for (int _i1 = 0; _i1 < 5; _i1++) {
+			MurmolMod.queueServerWork((int) i, () -> {
+				LivingEntity tgt = this.getTarget();
+				if (tgt == null)
+					return;
+				if (this.level() instanceof ServerLevel _level) {
+					LightningBolt entityToSpawn = EntityType.LIGHTNING_BOLT.create(_level);
+					entityToSpawn.moveTo(Vec3.atBottomCenterOf(BlockPos.containing(tgt.getX(), tgt.getY(), tgt.getZ())));
+					_level.addFreshEntity(entityToSpawn);
+				}
+			});
+			i = i + 20;
+		}
+		MurmolMod.queueServerWork(200, () -> this.getEntityData().set(AlfarEntity.DATA_spattack, true));
 	}
 }

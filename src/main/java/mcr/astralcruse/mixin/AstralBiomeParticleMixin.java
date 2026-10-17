@@ -18,6 +18,10 @@ public abstract class AstralBiomeParticleMixin {
 
 	@Inject(method = "canSpawn", at = @At("HEAD"), cancellable = true)
 	private void astralCruse$gateBiomeParticles(RandomSource random, CallbackInfoReturnable<Boolean> cir) {
+		// 配置未加载时放行，避免主界面早期 tick 崩溃
+		if (!mcr.murmol.MurmolModConfig.SPEC.isLoaded()) {
+			return;
+		}
 		if (!mcr.murmol.MurmolModConfig.RENDER_BIOME_PARTICLES.get() && astralCruse$isMurmolParticle()) {
 			cir.setReturnValue(false);
 		}

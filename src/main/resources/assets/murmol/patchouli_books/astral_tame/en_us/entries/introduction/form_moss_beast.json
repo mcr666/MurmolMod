@@ -7,7 +7,7 @@
   "pages": [
     {
       "type": "patchouli:spotlight",
-      "item": "murmol:moss_beast_soul",
+      "item": "murmol:form_soul",
       "title": "Moss Beast",
       "text": "A living mass of flourishing plants, clad in a $(thing)tough, moss-like hide$(0). Neither storms nor beasts can shake it in the slightest — just as moss endures a thousand years upon the rock, its green unchanging through frost and snow."
     },

@@ -79,7 +79,7 @@ public class FeralFormModels {
 	@SubscribeEvent
 	public static void bakeModels(EntityRenderersEvent.AddLayers event) {
 		RENDER_CONTEXT = event.getContext();
-		bakeBodyModel(event, "luohong", LuohongModel.class);
+		bakeBodyModel(event, "spring_flower", LuohongModel.class);
 		bakeBodyModel(event, "chen_huang", ChenhuangModel.class);
 		bakeBodyModel(event, "moss_beast", LeafModel.class);
 		bakeBodyModel(event, "silkmoth", SilkmothModel.class);
@@ -87,11 +87,11 @@ public class FeralFormModels {
 		bakeBodyModel(event, "ferocious", mcr.murmol.client.model.FerociousModel.class);
 		bakeBodyModel(event, "dark_fury", mcr.murmol.client.model.DarkFuryModel.class);
 
-		bakeTailModel(event, "luohong_tail", Modelfurtals.class);
+		bakeTailModel(event, "spring_flower_tail", Modelfurtals.class);
 		bakeTailModel(event, "chen_huang_tail", ModelCHtail.class);
 		bakeTailModel(event, "moss_beast_tail", Modelleaftail.class);
 
-		bakeWholeModel(event, "wenyao");
+		bakeWholeModel(event, "wen_yao");
 	}
 
 	/** 烘焙整体替换模型（如文鳐纯鱼形）的根骨骼，不做 PlayerModel 包装 */

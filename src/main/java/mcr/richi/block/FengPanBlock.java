@@ -503,8 +503,8 @@ public class FengPanBlock extends Block {
 	// ==================================================================
 
 	/** 随机形态池（有独立烘焙模型且非人类的形态；形态同时决定 AI 流派） */
-	private static final String[] AVATAR_FORMS = { "luohong", "chen_huang", "moss_beast", "silkmoth", "komainu",
-			"wenyao", "ferocious", "dark_fury" };
+	private static final String[] AVATAR_FORMS = { "spring_flower", "chen_huang", "moss_beast", "silkmoth", "komainu",
+			"wen_yao", "ferocious", "dark_fury" };
 
 	/**
 	 * 牌局开始（deal）时解析各 AI 座位形象并存入状态（不生成任何实体）：
@@ -514,8 +514,8 @@ public class FengPanBlock extends Block {
 	 */
 	public static void resolveAvatars(net.minecraft.server.level.ServerLevel level, RichiTableState st) {
 		for (int seat = 0; seat < 4; seat++) {
-			// 等待阶段按预约标记判定（aiSeat 开局才赋值），对局中按 aiSeat 判定
-			boolean ai = st.phase == RichiTableState.PHASE_WAITING ? st.reservedAI[seat] : st.aiSeat[seat];
+			// 等待/终局阶段按预约标记判定（aiSeat 开局才赋值），对局中按 aiSeat 判定（终局未清理也能管理下一局预约）
+			boolean ai = st.phase == RichiTableState.PHASE_PLAYING ? st.aiSeat[seat] : st.reservedAI[seat];
 			if (!ai) {
 				st.aiAvatarForms[seat] = "";
 				st.aiAvatarNames[seat] = "";
@@ -535,11 +535,11 @@ public class FengPanBlock extends Block {
 			// 每座位独立模式；null/空 = 随机形态
 			String seatMode = st.aiAvatarModes[seat];
 			String mode = seatMode == null || seatMode.isEmpty() ? "random" : seatMode;
-			// 等待阶段的"随机"不揭示具体形态：用 stand 占位（客户端渲染盔甲架），开局才确定
+			// 等待/终局阶段的"随机"不揭示具体形态：用 stand 占位（客户端渲染盔甲架），开局才确定
 			String form = switch (mode) {
-				case "random" -> st.phase == RichiTableState.PHASE_WAITING
-						? "stand"
-						: AVATAR_FORMS[level.random.nextInt(AVATAR_FORMS.length)];
+				case "random" -> st.phase == RichiTableState.PHASE_PLAYING
+						? AVATAR_FORMS[level.random.nextInt(AVATAR_FORMS.length)]
+						: "stand";
 				case "human", "villager" -> mode;
 				default -> mode; // 指定形态
 			};

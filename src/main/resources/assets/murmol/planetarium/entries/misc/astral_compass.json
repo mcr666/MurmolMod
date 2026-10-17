@@ -1,0 +1,11 @@
+{
+  "id": "astral_compass",
+  "type": "item",
+  "title": "灵气指南针",
+  "icon": "murmol:astral_compass",
+  "category": "misc",
+  "sort": 0,
+  "craftingPattern": "   \n R \n   ",
+  "craftingKey": "{\"R\":\"minecraft:compass\"}",
+  "text": "唤星学会的产品，以指南针为底材锻造而成，针尖指向最近的**幻星瘟疫**。"
+}

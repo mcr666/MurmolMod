@@ -1,7 +1,6 @@
 {
   "replace": false,
   "values": [
-    "murmol:astral_armor_leggings",
-    "murmol:frost_armor_leggings"
+    "murmol:astral_armor_leggings"
   ]
 }

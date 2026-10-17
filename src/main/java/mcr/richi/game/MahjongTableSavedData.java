@@ -25,8 +25,8 @@ public final class MahjongTableSavedData extends SavedData {
 	private final Map<String, Entry> tables = new HashMap<>();
 
 	/** 一张风盘的可持久化设置（RichiTableState 中对应字段的快照） */
-	public record Entry(int gameType, int thinkIdx, int aiSpeedIdx, boolean openHand, boolean[] reservedAI,
-			String[] avatarModes) {
+	public record Entry(int gameType, int thinkIdx, int aiSpeedIdx, boolean openHand, boolean spectatorShow,
+			boolean[] reservedAI, String[] avatarModes) {
 	}
 
 	public MahjongTableSavedData() {
@@ -50,7 +50,8 @@ public final class MahjongTableSavedData extends SavedData {
 			String m = st.aiAvatarModes[i];
 			modes[i] = m == null ? "" : m;
 		}
-		tables.put(key(origin), new Entry(st.gameType, st.thinkIdx, st.aiSpeedIdx, st.openHand, reserved, modes));
+		tables.put(key(origin), new Entry(st.gameType, st.thinkIdx, st.aiSpeedIdx, st.openHand, st.spectatorShow,
+				reserved, modes));
 		setDirty();
 	}
 
@@ -63,6 +64,7 @@ public final class MahjongTableSavedData extends SavedData {
 		st.thinkIdx = e.thinkIdx();
 		st.aiSpeedIdx = e.aiSpeedIdx();
 		st.openHand = e.openHand();
+		st.spectatorShow = e.spectatorShow();
 		for (int i = 0; i < 4; i++) {
 			st.reservedAI[i] = e.reservedAI()[i];
 			st.aiAvatarModes[i] = e.avatarModes()[i];
@@ -82,7 +84,7 @@ public final class MahjongTableSavedData extends SavedData {
 			for (int i = 0; i < 4 && i < list.size(); i++)
 				modes[i] = list.getString(i);
 			data.tables.put(k, new Entry(t.getInt("g"), t.getInt("t"), t.getInt("s"), t.getBoolean("o"),
-					reserved, modes));
+					t.getBoolean("v"), reserved, modes));
 		}
 		return data;
 	}
@@ -96,6 +98,7 @@ public final class MahjongTableSavedData extends SavedData {
 			t.putInt("t", en.thinkIdx());
 			t.putInt("s", en.aiSpeedIdx());
 			t.putBoolean("o", en.openHand());
+			t.putBoolean("v", en.spectatorShow());
 			int mask = 0;
 			ListTag list = new ListTag();
 			for (int i = 0; i < 4; i++) {

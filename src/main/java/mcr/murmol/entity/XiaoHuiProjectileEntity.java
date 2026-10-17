@@ -23,8 +23,10 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.core.registries.BuiltInRegistries;
 
-import mcr.murmol.procedures.PratilexiaohuiProcedure;
-import mcr.murmol.procedures.Booming8Procedure;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.core.particles.SimpleParticleType;
+
+import mcr.murmol.init.MurmolModParticleTypes;
 import mcr.murmol.init.MurmolModItems;
 import mcr.murmol.init.MurmolModEntities;
 
@@ -91,27 +93,39 @@ public class XiaoHuiProjectileEntity extends AbstractArrow implements ItemSuppli
 	@Override
 	public void playerTouch(Player entity) {
 		super.playerTouch(entity);
-		Booming8Procedure.execute(this.level(), this.getX(), this.getY(), this.getZ());
+		boom(this.getX(), this.getY(), this.getZ());
 	}
 
 	@Override
 	public void onHitEntity(EntityHitResult entityHitResult) {
 		super.onHitEntity(entityHitResult);
-		Booming8Procedure.execute(this.level(), this.getX(), this.getY(), this.getZ());
+		boom(this.getX(), this.getY(), this.getZ());
 	}
 
 	@Override
 	public void onHitBlock(BlockHitResult blockHitResult) {
 		super.onHitBlock(blockHitResult);
-		Booming8Procedure.execute(this.level(), blockHitResult.getBlockPos().getX(), blockHitResult.getBlockPos().getY(), blockHitResult.getBlockPos().getZ());
+		boom(blockHitResult.getBlockPos().getX(), blockHitResult.getBlockPos().getY(), blockHitResult.getBlockPos().getZ());
 	}
 
 	@Override
 	public void tick() {
 		super.tick();
-		PratilexiaohuiProcedure.execute(this.level(), this.getX(), this.getY(), this.getZ());
+		emitParticles(this.getX(), this.getY(), this.getZ());
 		if (this.inGround)
 			this.discard();
+	}
+
+	/** 命中/触碰时产生半径 2 的实体爆炸 */
+	private void boom(double x, double y, double z) {
+		if (this.level() instanceof Level _level && !_level.isClientSide())
+			_level.explode(null, x, y, z, 2, Level.ExplosionInteraction.MOB);
+	}
+
+	/** 飞行每刻散发八向粒子 */
+	private void emitParticles(double x, double y, double z) {
+		if (this.level() instanceof ServerLevel _level)
+			_level.sendParticles((SimpleParticleType) (MurmolModParticleTypes.EIGHTPARTICLE.get()), x, y, z, 5, 1, 1, 1, 0.1);
 	}
 
 	public static XiaoHuiProjectileEntity shoot(Level world, LivingEntity entity, RandomSource source) {

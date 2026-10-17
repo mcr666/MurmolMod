@@ -11,7 +11,6 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
-import mcr.murmol.entity.MurmolNpcEntity;
 import mcr.richi.block.FengPanBlock;
 import mcr.richi.game.riichi.RiichiBot;
 import mcr.richi.game.riichi.RiichiGame;
@@ -51,16 +50,16 @@ public final class MahjongLobby {
 					setReservedAI(sp, origin, st, extra, false);
 			}
 			case MahjongLobbyPayloads.ACT_SET_TYPE -> {
-				// 等待/终局阶段均可改（终局改设置 = 为下一局准备）
-				if (canManage(sp) && st.phase != RichiTableState.PHASE_PLAYING && extra >= 0 && extra <= 2) {
+				// 对局设置仅等待阶段可改（对局中/终局结算间隙不可调整，避免结算期改规则）
+				if (canManage(sp) && st.phase == RichiTableState.PHASE_WAITING && extra >= 0 && extra <= 2) {
 					st.gameType = extra;
 					saveSettings(sp, origin, st);
 					broadcastSync(sp.serverLevel(), origin, st);
 				}
 			}
 			case MahjongLobbyPayloads.ACT_SET_THINK -> {
-				// 思考时间档位切换（等待/终局阶段）：extra = 档位索引
-				if (canManage(sp) && st.phase != RichiTableState.PHASE_PLAYING
+				// 思考时间档位切换（仅等待阶段）：extra = 档位索引
+				if (canManage(sp) && st.phase == RichiTableState.PHASE_WAITING
 						&& extra >= 0 && extra < RichiTableState.THINK_PRESETS.length) {
 					st.thinkIdx = extra;
 					saveSettings(sp, origin, st);
@@ -68,8 +67,8 @@ public final class MahjongLobby {
 				}
 			}
 			case MahjongLobbyPayloads.ACT_SET_SPEED -> {
-				// AI 打牌速度档（等待/终局阶段）：extra = 0 快 / 1 中 / 2 慢
-				if (canManage(sp) && st.phase != RichiTableState.PHASE_PLAYING
+				// AI 打牌速度档（仅等待阶段）：extra = 0 快 / 1 中 / 2 慢
+				if (canManage(sp) && st.phase == RichiTableState.PHASE_WAITING
 						&& extra >= 0 && extra < RichiTableState.AI_SPEED_MUL.length) {
 					st.aiSpeedIdx = extra;
 					saveSettings(sp, origin, st);
@@ -83,6 +82,13 @@ public final class MahjongLobby {
 					RichiTableState fresh = RichiTableManager.reset(level, origin); // 清实体 + 删对局
 					java.util.Arrays.fill(fresh.reservedAI, false); // AI 预约席一并清空
 					RichiTableSync.broadcastGone(level, origin); // 客户端清掉牌面 + AI 假玩家/盔甲架
+					// 解除所有参牌者（女仆）钉位：清桌后实体不再定住（保留排队资格，下一局开局重新入座）
+					for (String uid : fresh.npcUuids) {
+						net.minecraft.world.entity.Entity e = level.getEntity(java.util.UUID.fromString(uid));
+						MahjongParticipant p = e == null ? null : MahjongParticipantRegistry.of(e);
+						if (p != null)
+							p.unpin();
+					}
 					broadcastSync(level, origin, fresh);
 					sp.displayClientMessage(Component.translatable("message.richi.clear_done"), true);
 				}
@@ -118,8 +124,8 @@ public final class MahjongLobby {
 				}
 			}
 			case MahjongLobbyPayloads.ACT_SET_AVATAR_SEAT -> {
-				// extra = 座位<<16 | 模式索引（无全局形象：索引越界 = 随机 → 置 null）
-				if (canManage(sp) && st.phase == RichiTableState.PHASE_WAITING) {
+				// extra = 座位<<16 | 模式索引（无全局形象：索引越界 = 随机 → 置 null）；等待/终局阶段均可
+				if (canManage(sp) && st.phase != RichiTableState.PHASE_PLAYING) {
 					int seat = extra >> 16;
 					int modeIdx = extra & 0xFFFF;
 					if (seat >= 0 && seat <= 3) {
@@ -132,9 +138,30 @@ public final class MahjongLobby {
 					}
 				}
 			}
-			case MahjongLobbyPayloads.ACT_SET_OPEN -> {
+			case MahjongLobbyPayloads.ACT_SET_AVATAR_STYLE -> {
+				// extra = 座位<<16 | 风格索引：选择风格后随机从符合该风格的形象中选一个；等待/终局阶段均可
 				if (canManage(sp) && st.phase != RichiTableState.PHASE_PLAYING) {
+					int seat = extra >> 16;
+					int styleIdx = extra & 0xFFFF;
+					if (seat >= 0 && seat <= 3 && styleIdx >= 0 && styleIdx < MahjongLobby.AVATAR_STYLES.length) {
+						String[] group = MahjongLobby.AVATAR_STYLES[styleIdx];
+						st.aiAvatarModes[seat] = group[sp.serverLevel().random.nextInt(group.length)];
+						st.avatarsDirty = true;
+						saveSettings(sp, origin, st);
+						broadcastSync(sp.serverLevel(), origin, st);
+					}
+				}
+			}
+			case MahjongLobbyPayloads.ACT_SET_OPEN -> {
+				if (canManage(sp) && st.phase == RichiTableState.PHASE_WAITING) {
 					st.openHand = extra == 1;
+					saveSettings(sp, origin, st);
+					broadcastSync(sp.serverLevel(), origin, st);
+				}
+			}
+			case MahjongLobbyPayloads.ACT_SET_SPECTATOR -> {
+				if (canManage(sp) && st.phase == RichiTableState.PHASE_WAITING) {
+					st.spectatorShow = extra == 1;
 					saveSettings(sp, origin, st);
 					broadcastSync(sp.serverLevel(), origin, st);
 				}
@@ -179,9 +206,10 @@ public final class MahjongLobby {
 						if (st.npcUuids.contains(q)) {
 							st.queue.remove(q);
 							Entity e = level.getEntity(java.util.UUID.fromString(q));
-							if (e instanceof MurmolNpcEntity npc)
-								npc.unpin();
-							sp.displayClientMessage(Component.literal("§6<幻星麻雀>§r 已请出等候队列中的 Murmol"), true);
+							MahjongParticipant p = e == null ? null : MahjongParticipantRegistry.of(e);
+							if (p != null)
+								p.unpin();
+							sp.displayClientMessage(Component.literal("§6<幻星麻雀>§r 已请出等候队列中的参牌者"), true);
 							break;
 						}
 				}
@@ -217,10 +245,15 @@ public final class MahjongLobby {
 		return n;
 	}
 
-	/** 手动开局：管理员（2 级权限）或队首；空位自动补 AI。终局未清桌也可直接重开（重开会重置点数/本场） */
+	/** 手动开局：管理员（2 级权限）或队首；空位自动补 AI。终局未清桌也可直接重开（重开会重置点数/本场）。
+	 *  未安排任何座位（无人排队且未预约 AI）时无法开局。 */
 	private static void tryStart(ServerPlayer sp, BlockPos origin, RichiTableState st) {
 		if (st.phase == RichiTableState.PHASE_PLAYING)
 			return;
+		if (st.queue.isEmpty() && aiCount(st.reservedAI) == 0) {
+			sp.displayClientMessage(Component.translatable("message.richi.lobby_no_seats"), true);
+			return;
+		}
 		boolean isHead = !st.queue.isEmpty() && st.queue.get(0).equals(sp.getUUID().toString());
 		if (!canManage(sp) && !isHead) {
 			sp.displayClientMessage(Component.translatable("message.richi.lobby_no_perm"), true);
@@ -249,18 +282,28 @@ public final class MahjongLobby {
 						entries.add(new Entry(RiichiBot.aiUuid(seat), true));
 				for (String uuid : st.queue)
 					entries.add(new Entry(uuid, st.npcUuids.contains(uuid))); // NPC 排队视作 AI 座位
-			// 每局随机洗牌入座（避免同一玩家永远坐东，也不按排队顺序）；RandomSource 不兼容 Collections.shuffle，手写 Fisher-Yates
-			for (int i = entries.size() - 1; i > 0; i--) {
+			// 每局随机洗牌入座：洗 4 个座位号，把入场者放进随机座位（避免单人/少人时永远坐东=庄家，也不按排队顺序）；
+			// 空位再补 AI。RandomSource 不兼容 Collections.shuffle，手写 Fisher-Yates。
+			int[] seatOrder = { 0, 1, 2, 3 };
+			for (int i = seatOrder.length - 1; i > 0; i--) {
 				int j = level.random.nextInt(i + 1);
-				Entry tmp = entries.get(i);
-				entries.set(i, entries.get(j));
-				entries.set(j, tmp);
+				int t = seatOrder[i];
+				seatOrder[i] = seatOrder[j];
+				seatOrder[j] = t;
 			}
 			java.util.Arrays.fill(st.players, null);
 			java.util.Arrays.fill(st.aiSeat, false);
-			for (int seat = 0; seat < 4 && seat < entries.size(); seat++) {
-				st.players[seat] = entries.get(seat).uuid();
-				st.aiSeat[seat] = entries.get(seat).ai();
+			int n = Math.min(entries.size(), 4);
+			for (int i = 0; i < n; i++) {
+				int seat = seatOrder[i];
+				Entry en = entries.get(i);
+				// AI 座位 uuid 随实际座位生成（AI 名按座位显示）；NPC/女仆排队座位直接存实体 uuid，
+				// 供 pinNpcSeats 钉位与 endGame 终局回归定位真实实体
+				if (en.ai() && !st.npcUuids.contains(en.uuid()))
+					st.players[seat] = RiichiBot.aiUuid(seat);
+				else
+					st.players[seat] = en.uuid();
+				st.aiSeat[seat] = en.ai();
 			}
 			st.gamesStarted++;
 		// 空位补 AI
@@ -296,33 +339,39 @@ public final class MahjongLobby {
 		broadcastSync(level, origin, st);
 	}
 
-	/** 对局中的 NPC 座位：把真实 NPC 实体钉在座位站位（面向桌心），取代客户端假玩家形象 */
+	/** 对局中的参牌者座位：把真实参牌者实体钉在座位站位（面向桌心），取代客户端假玩家形象 */
 	private static void pinNpcSeats(ServerLevel level, BlockPos origin, RichiTableState st) {
 		for (int seat = 0; seat < 4; seat++) {
 			String uuid = st.players[seat];
 			if (uuid == null || !st.npcUuids.contains(uuid))
 				continue;
 			Entity e = level.getEntity(java.util.UUID.fromString(uuid));
-			if (e instanceof MurmolNpcEntity npc) {
-				Vec3 pos = FengPanBlock.seatStandPos(level, origin, seat);
-				Vec3 center = FengPanBlock.tableCenter(level, origin);
-				float yaw = (float) Math.toDegrees(Math.atan2(-(center.x - pos.x), center.z - pos.z));
-				npc.pinForGame(pos, yaw); // 对局钉定：面向桌心，不注视玩家
-			}
+			MahjongParticipant p = e == null ? null : MahjongParticipantRegistry.of(e);
+			if (p == null)
+				continue;
+			Vec3 pos = FengPanBlock.seatStandPos(level, origin, seat);
+			Vec3 center = FengPanBlock.tableCenter(level, origin);
+			float yaw = (float) Math.toDegrees(Math.atan2(-(center.x - pos.x), center.z - pos.z));
+			p.pinForGame(pos, yaw); // 对局钉定：面向桌心，不注视玩家
 		}
 	}
 
 	// ==================================================================
-	// Murmol NPC 参战
+	// 参牌者（NPC / 女仆等）参战
 	// ==================================================================
 
-	/** NPC 加入指定桌等候队列（/murmol mahjong npc join 调用；距离与实体校验在命令侧）。
-	 *  每桌限一名 NPC；占据方式与玩家相同（队列 UUID）；满员时顶替 AI 预约（可被移出）。 */
-	public static boolean npcJoinTable(ServerLevel level, MurmolNpcEntity npc, BlockPos origin) {
+	/** 参牌者加入指定桌等候队列（/murmol npc join 与右键确认调用；距离与实体校验在调用侧）。
+	 *  经 {@link MahjongParticipantRegistry} 把实体解析为参牌者，解析不到则拒绝。
+	 *  每桌参牌者上限 {@link RichiTableState#MAX_NPC_SEATS}（放开多女仆）；占据方式与玩家相同（队列 UUID）；
+	 *  满员时顶替 AI 预约或队内参牌者（可被移出）。 */
+	public static boolean npcJoinTable(ServerLevel level, Entity npc, BlockPos origin) {
+		MahjongParticipant p = MahjongParticipantRegistry.of(npc);
+		if (p == null)
+			return false;
 		RichiTableState st = RichiTableManager.get(origin);
 		if (st == null || !(level.getBlockState(origin).getBlock() instanceof FengPanBlock)
 				|| st.phase == RichiTableState.PHASE_PLAYING || st.queue.contains(npc.getStringUUID())
-				|| !st.npcUuids.isEmpty()) // 同一牌局只能有一名 NPC
+				|| st.npcUuids.size() >= RichiTableState.MAX_NPC_SEATS)
 			return false;
 		String uuid = npc.getStringUUID();
 		if (st.queue.size() + aiCount(st.reservedAI) >= 4) {
@@ -333,13 +382,14 @@ public final class MahjongLobby {
 			if (freed >= 0) {
 				st.reservedAI[freed] = false;
 			} else {
-				// 满队：顶替队内另一名 NPC
+				// 满队：顶替队内另一名参牌者
 				for (String q : new ArrayList<>(st.queue))
 					if (st.npcUuids.contains(q)) {
 						st.queue.remove(q);
 						Entity other = level.getEntity(java.util.UUID.fromString(q));
-						if (other instanceof MurmolNpcEntity otherNpc)
-							otherNpc.unpin();
+						MahjongParticipant otherP = other == null ? null : MahjongParticipantRegistry.of(other);
+						if (otherP != null)
+							otherP.unpin();
 						break;
 					}
 				if (!st.npcUuids.contains(uuid) && st.queue.size() + aiCount(st.reservedAI) >= 4)
@@ -348,15 +398,15 @@ public final class MahjongLobby {
 		}
 		st.queue.add(uuid);
 		st.npcUuids.add(uuid);
-		npc.setQueuedTable(origin.asLong());
-		npc.pinAt(npc.position(), npc.getYRot()); // 等候期间原地停驻
+		p.setQueuedTable(origin.asLong());
+		p.pinWaiting(npc.position(), npc.getYRot()); // 等候期间原地停驻
 		updateQueueDisplay(level, origin, st);
 		broadcastSync(level, origin, st);
 		return true;
 	}
 
-	/** NPC 退出队列/牌局（右键再点或队列被顶替）：清桌状态并解除钉定 */
-	public static void leaveNpc(ServerLevel level, MurmolNpcEntity npc) {
+	/** 参牌者退出队列/牌局（右键再点或队列被顶替）：清桌状态并解除钉定 */
+	public static void leaveNpc(ServerLevel level, Entity npc) {
 		String uuid = npc.getStringUUID();
 		for (BlockPos origin : RichiTableManager.originsIn(level)) {
 			RichiTableState st = RichiTableManager.get(origin);
@@ -377,7 +427,11 @@ public final class MahjongLobby {
 				broadcastSync(level, origin, st);
 			}
 		}
-		npc.unpin();
+		MahjongParticipant p = MahjongParticipantRegistry.of(npc);
+		if (p != null) {
+			p.unpin();
+			p.setQueuedTable(-1); // 退出牌桌后重置排队标记，避免参牌行为误判为"仍在队列"而假死不再入队
+		}
 	}
 
 	// ==================================================================
@@ -438,11 +492,15 @@ public final class MahjongLobby {
 		}
 	}
 
-	/** 某座位是否需要 AI Marker：对局中/终局 aiSeat；等待阶段 reservedAI 且未被玩家队列占据 */
+	/** 某座位是否需要 AI Marker：对局中 aiSeat（参牌者除外）；等待/终局阶段 reservedAI（与座位展示一致，终局未清桌也能管理） */
 	private static boolean needsAiMarker(RichiTableState st, int seat) {
-		if (st.phase == RichiTableState.PHASE_PLAYING || st.phase == RichiTableState.PHASE_FINISHED)
-			return st.aiSeat[seat]; // npcUuids 也走 aiSeat=true（开局分配时设置）
-		// 等待阶段：reservedAI 且该座位没被真实玩家占（queue 里的 UUID 开局才分配到 players[]）
+		if (st.phase == RichiTableState.PHASE_PLAYING) {
+			// 参牌者（女仆/NPC）座位：真实实体钉在座位，无需 AI Marker 代理
+			if (st.players[seat] != null && st.npcUuids.contains(st.players[seat]))
+				return false;
+			return st.aiSeat[seat];
+		}
+		// 等待/终局阶段：reservedAI（queue 里的 UUID 开局才分配到 players[]）
 		return st.reservedAI[seat];
 	}
 
@@ -473,8 +531,21 @@ public final class MahjongLobby {
 	// ==================================================================
 
 	/** AI 形象模式（管理界面按座位循环切换，null = 随机；形态同时决定 AI 流派；顺序：随机 > 人类 > 各形态） */
-	public static final String[] AVATAR_MODES = { "random", "human", "luohong", "chen_huang",
-			"moss_beast", "silkmoth", "komainu", "wenyao", "ferocious", "dark_fury", "villager" };
+	public static final String[] AVATAR_MODES = { "random", "human", "spring_flower", "chen_huang",
+			"moss_beast", "silkmoth", "komainu", "wen_yao", "ferocious", "dark_fury", "villager" };
+
+	/**
+	 * AI 风格（流派）→ 可随机的形象组：选择风格后从符合该风格的形象中随机选一个（顺序与
+	 * RiichiBot.flowOfAvatar 的流派索引一致；AVATAR_STYLES[s] 内都是流派 s 的形象）。
+	 */
+	public static final String[][] AVATAR_STYLES = {
+			{ "chen_huang" }, // 0 一般流
+			{ "spring_flower" }, // 1 野猪流
+			{ "moss_beast" }, // 2 门清流
+			{ "wen_yao" }, // 3 御无双
+			{ "komainu", "ferocious", "dark_fury" }, // 4 魂天流
+			{ "silkmoth" }, // 5 闪电流
+	};
 
 	/** 管理权限：2 级权限（OP/单人作弊） */
 	public static boolean canManage(ServerPlayer sp) {
@@ -528,11 +599,11 @@ public final class MahjongLobby {
 	}
 
 	/**
-	 * 预约/取消 AI 座位（等待阶段）。
+	 * 预约/取消 AI 座位（等待/终局阶段）。
 	 * 座位已被队列玩家占据（非预约座位按序分配给排队玩家）时不能预约为 AI。
 	 */
 	private static void setReservedAI(ServerPlayer sp, BlockPos origin, RichiTableState st, int seat, boolean on) {
-		if (st.phase != RichiTableState.PHASE_WAITING || seat < 0 || seat > 3)
+		if (st.phase == RichiTableState.PHASE_PLAYING || seat < 0 || seat > 3)
 			return;
 		if (on && seatTakenByQueue(st, seat)) {
 			sp.displayClientMessage(
@@ -620,9 +691,12 @@ public final class MahjongLobby {
 	}
 
 	private static String playerName(ServerLevel level, RichiTableState pst, String uuid) {
-		// NPC 参战者直接显示 Murmol（uuid 是生物实体 id，不可读）
-		if (pst != null && pst.npcUuids.contains(uuid))
-			return "Murmol";
+		// 参牌者（NPC/女仆）直接显示其参牌者名（uuid 是生物实体 id，不可读）
+		if (pst != null && pst.npcUuids.contains(uuid)) {
+			Entity e = level.getEntity(java.util.UUID.fromString(uuid));
+			MahjongParticipant p = e == null ? null : MahjongParticipantRegistry.of(e);
+			return p != null ? p.participantName() : "NPC";
+		}
 		try {
 			ServerPlayer p = level.getServer().getPlayerList().getPlayer(java.util.UUID.fromString(uuid));
 			if (p != null)
@@ -638,9 +712,9 @@ public final class MahjongLobby {
 
 	public static void broadcastSync(ServerLevel level, BlockPos origin, RichiTableState st) {
 		syncAiMarkers(level, origin, st);
-		// 等待阶段有预约 AI：解析形象（惰性，预约变化后自动重算）并广播桌面快照，
-		// 客户端在大厅即可渲染 AI 假玩家
-		if (st.phase == RichiTableState.PHASE_WAITING) {
+		// 等待/终局阶段有预约 AI：解析形象（惰性，预约变化后自动重算）并广播桌面快照，
+		// 客户端在大厅即可渲染 AI 假玩家（终局不点清理也能看到/调整下一局预约形象）
+		if (st.phase != RichiTableState.PHASE_PLAYING) {
 			if (st.avatarsDirty) {
 				mcr.richi.block.FengPanBlock.resolveAvatars(level, st); // 仅预约/形象变化后解析一次
 				st.avatarsDirty = false;
@@ -653,11 +727,15 @@ public final class MahjongLobby {
 		String[] seatNames = new String[4];
 		java.util.Arrays.fill(seatNames, ""); // 空座位必须给非 null（writeUtf(null) 会断连）
 		int aiMask = 0;
-		boolean playing = st.phase != RichiTableState.PHASE_WAITING;
+		// 对局中显示实际入座玩家；等待/终局阶段显示下一局的预约与队列占位（终局未清桌也可管理）
+		boolean playing = st.phase == RichiTableState.PHASE_PLAYING;
 		for (int seat = 0; seat < 4; seat++) {
 			if (playing) {
 				boolean ai = st.aiSeat[seat];
-				if (ai) {
+				// 参牌者（女仆/NPC）座位优先显示其名字（aiSeat=true 但非 AI，不标 AI 徽章）
+				if (st.players[seat] != null && st.npcUuids.contains(st.players[seat])) {
+					seatNames[seat] = playerName(level, st, st.players[seat]);
+				} else if (ai) {
 					aiMask |= 1 << seat;
 					seatNames[seat] = RiichiBot.aiName(seat);
 				} else if (st.players[seat] != null) {
@@ -698,7 +776,7 @@ public final class MahjongLobby {
 			net.neoforged.neoforge.network.PacketDistributor.sendToPlayer(p,
 					new MahjongLobbyPayloads.SyncMessage(origin.asLong(), st.phase,
 						java.util.Arrays.asList(seatNames), aiMask, queueNames, canManage(p), st.gameType,
-						voteCount, st.openHand, seatModes, seatFlows, st.thinkIdx, st.aiSpeedIdx));
+						voteCount, st.openHand, st.spectatorShow, seatModes, seatFlows, st.thinkIdx, st.aiSpeedIdx));
 		}
 		// 悬浮提示随状态同步：等待期显示（空队列给加入提示），其它阶段清除
 		if (st.phase == RichiTableState.PHASE_WAITING)

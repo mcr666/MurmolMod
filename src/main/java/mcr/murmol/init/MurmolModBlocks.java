@@ -14,8 +14,6 @@ import mcr.murmol.MurmolMod;
 public class MurmolModBlocks {
 	public static final DeferredRegister.Blocks REGISTRY = DeferredRegister.createBlocks(MurmolMod.MODID);
 	public static final DeferredBlock<Block> MAGIC_CRYSTAL_CLUSTER;
-	public static final DeferredBlock<Block> ICE_FLOWER_WILD;
-	public static final DeferredBlock<Block> ICE_SHARP_ORE;
 	public static final DeferredBlock<Block> ASTRAL_DIRT;
 	public static final DeferredBlock<Block> ASTRAL_STONE;
 	public static final DeferredBlock<Block> COBBLED_ASTRAL_STONE;
@@ -27,8 +25,6 @@ public class MurmolModBlocks {
 	public static final DeferredBlock<Block> ASTRAL_BLOCK;
 	static {
 		MAGIC_CRYSTAL_CLUSTER = REGISTRY.register("magic_crystal_cluster", MagicCrystalClusterBlock::new);
-		ICE_FLOWER_WILD = REGISTRY.register("ice_flower_wild", IceFlowerPlantBlock::new);
-		ICE_SHARP_ORE = REGISTRY.register("ice_sharp_ore", IceSharpOreBlock::new);
 		ASTRAL_DIRT = REGISTRY.register("astral_dirt", AstraldirtBlock::new);
 		ASTRAL_STONE = REGISTRY.register("astral_stone", AstralstoneBlock::new);
 		COBBLED_ASTRAL_STONE = REGISTRY.register("cobbled_astral_stone", CobbledastralstoneBlock::new);
@@ -57,7 +53,8 @@ public class MurmolModBlocks {
 					.isSuffocating((state, level, pos) -> false)
 					.isViewBlocking((state, level, pos) -> false)));
 
-	// 星辉火把/灯笼：发光粒子用灵魂火火焰（蓝青色），配合蓝紫染色贴图呈现蓝紫光
+	// 星辉火把/灯笼已移除
+	/*
 	public static final DeferredBlock<Block> ASTRAL_TORCH = REGISTRY.register("astral_torch",
 			() -> new net.minecraft.world.level.block.TorchBlock(net.minecraft.core.particles.ParticleTypes.SOUL_FIRE_FLAME,
 					Block.Properties.of().noCollission().instabreak().randomTicks()
@@ -72,6 +69,7 @@ public class MurmolModBlocks {
 			() -> new net.minecraft.world.level.block.LanternBlock(Block.Properties.of()
 					.mapColor(net.minecraft.world.level.material.MapColor.METAL).forceSolidOn().strength(3.5F)
 					.sound(net.minecraft.world.level.block.SoundType.LANTERN).lightLevel(state -> 15).noCollission()));
+	*/
 	public static final DeferredBlock<Block> ASTRAL_PLANKS_SLAB = REGISTRY.register("astral_planks_slab",
 			() -> new net.minecraft.world.level.block.SlabBlock(Block.Properties.of()
 					.mapColor(net.minecraft.world.level.material.MapColor.WOOD).sound(net.minecraft.world.level.block.SoundType.WOOD)

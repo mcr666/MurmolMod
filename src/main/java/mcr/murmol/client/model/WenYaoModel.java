@@ -16,14 +16,14 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 
 /**
- * 文鳐（WenYao）形态整体替换模型。层位置与 WenyaoForm 的 wholeModelLayer（murmol/wenyao）一致。
+ * 文鳐（WenYao）形态整体替换模型。层位置与 WenyaoForm 的 wholeModelLayer（murmol/wen_yao）一致。
  * 纯鱼形模型，不包装 PlayerModel：渲染时直接取消原版玩家模型，
  * 由 FeralFormRenderer 渲染本模型根骨骼并驱动 fish_idle/fish_moving_land/fish_moving_swim/fish_flying 动画。
  */
 public class WenYaoModel<T extends Entity> extends EntityModel<T> {
 
 	public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(
-			ResourceLocation.fromNamespaceAndPath("murmol", "wenyao"), "main");
+			ResourceLocation.fromNamespaceAndPath("murmol", "wen_yao"), "main");
 
 	private final ModelPart body;
 

@@ -1,0 +1,50 @@
+{
+  "categories": [
+    {
+      "id": "intro",
+      "title": "基础",
+      "entries": [
+        "intro/welcome",
+        "intro/plague",
+		"intro/hi",
+        "intro/transform"
+      ]
+    },
+    {
+      "id": "forms",
+      "title": "形态",
+      "entries": [
+        "forms/forms_more",
+        "forms/form_luohong",
+        "forms/form_chen_huang",
+        "forms/form_moss_beast",
+        "forms/form_silkmoth",
+        "forms/form_komainu",
+        "forms/form_wenyao",
+        "forms/form_ferocious",
+        "forms/form_dark_fury"
+      ]
+    },
+    {
+      "id": "misc",
+      "title": "杂项",
+      "entries": [
+        "misc/astral_compass",
+        "misc/planetarium",
+        "misc/spirit_table",
+        "misc/two_principles",
+        "misc/potions",
+        "misc/enchantments"
+      ]
+    },
+    {
+      "id": "mahjong",
+      "title": "唤星麻雀",
+      "entries": [
+        "mahjong/mahjong",
+        "mahjong/yaku",
+        "mahjong/feng_pan"
+      ]
+    }
+  ]
+}

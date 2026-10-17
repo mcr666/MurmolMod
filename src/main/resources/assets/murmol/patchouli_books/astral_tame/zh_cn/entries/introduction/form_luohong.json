@@ -1,5 +1,5 @@
 {
-  "name": "落瓣春花",
+  "name": "春花狐龙",
   "icon": "minecraft:pink_petals",
   "category": "murmol:fengyang_classic",
   "sortnum": 1,
@@ -7,14 +7,14 @@
   "pages": [
     {
       "type": "patchouli:spotlight",
-      "item": "murmol:luohong_soul",
-      "title": "落瓣春花",
-      "text": "春去春又回，花落花再开。传说落瓣春花是荒野对春天最后的执念所化：每当第一朵春花凋零，它的身形便会随之绽放。花瓣纷纷扬扬，绕着它盘旋不去，如一场永不停歇的花雨。"
+      "item": "murmol:form_soul",
+      "title": "春花狐龙",
+      "text": "春去春又回，花落花再开。传说春花狐龙是荒野对春天最后的执念所化：每当第一朵春花凋零，它的身形便会随之绽放。花瓣纷纷扬扬，绕着它盘旋不去，如一场永不停歇的花雨。"
     },
     {
       "type": "patchouli:crafting",
       "title": "传颂之物",
-      "recipe": "murmol:scrap_luohong_soul",
+      "recipe": "murmol:scrap_spring_flower_soul",
       "text": "结缘之祭物。"
     },
     {

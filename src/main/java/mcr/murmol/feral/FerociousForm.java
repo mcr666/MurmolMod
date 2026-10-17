@@ -26,7 +26,7 @@ public class FerociousForm extends FeralForm {
 				null,
 				ResourceLocation.fromNamespaceAndPath("murmol", "ferocious"),
 				null,
-				() -> new ItemStack(MurmolModItems.FEROCIOUS_SOUL.get()),
+				() -> mcr.murmol.item.FormSoulItem.forForm("ferocious"),
 				ResourceLocation.fromNamespaceAndPath("murmol", "get_ferocious"),
 				Map.of(
 							Attributes.MAX_HEALTH, new AttributeModifier(ResourceLocation.fromNamespaceAndPath("murmol", "tf"), 10, AttributeModifier.Operation.ADD_VALUE),
@@ -44,5 +44,7 @@ public class FerociousForm extends FeralForm {
 		enableHoverFlight();
 		// 专属动画文件（feral_* 四足姿态 + tail_idle/tail_walk/wings_idle/wings_flying）
 		setAnimationFile(ResourceLocation.fromNamespaceAndPath("murmol", "player_animations/ferocious_anim.json"));
+		// 狰食性：只吃肉食，吃素食/其他按坏食物处理
+		setDiet(FormDiet.CARNIVORE);
 	}
 }

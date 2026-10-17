@@ -22,8 +22,8 @@ public class MahjongLobbyScreen extends Screen {
 
 	/** AI 形象模式显示键（顺序与 MahjongLobby.AVATAR_MODES 一致：随机 > 人类 > 各形态） */
 	private static final String[] AVATAR_KEYS = { "gui.richi.lobby.av_random", "gui.richi.lobby.av_human",
-			"gui.richi.lobby.av_luohong", "gui.richi.lobby.av_chen_huang", "gui.richi.lobby.av_moss_beast",
-			"gui.richi.lobby.av_silkmoth", "gui.richi.lobby.av_komainu", "gui.richi.lobby.av_wenyao",
+			"gui.richi.lobby.av_spring_flower", "gui.richi.lobby.av_chen_huang", "gui.richi.lobby.av_moss_beast",
+			"gui.richi.lobby.av_silkmoth", "gui.richi.lobby.av_komainu", "gui.richi.lobby.av_wen_yao",
 			"gui.richi.lobby.av_ferocious", "gui.richi.lobby.av_dark_fury", "gui.richi.lobby.av_villager" };
 
 	private final BlockPos origin;
@@ -47,6 +47,7 @@ public class MahjongLobbyScreen extends Screen {
 		int oldThink = this.sync != null ? this.sync.thinkIdx() : -1;
 		int oldSpeed = this.sync != null ? this.sync.aiSpeedIdx() : -1;
 		boolean oldOpen = this.sync != null && this.sync.openHand();
+		boolean oldSpectator = this.sync != null && this.sync.spectatorShow();
 		boolean oldInQueue = this.sync != null && !this.sync.queueNames().isEmpty()
 				&& this.minecraft != null && this.minecraft.player != null
 				&& this.sync.queueNames().contains(this.minecraft.player.getGameProfile().getName());
@@ -58,7 +59,8 @@ public class MahjongLobbyScreen extends Screen {
 				|| (this.sync != null && this.sync.thinkIdx() != oldThink)
 				|| (this.sync != null && this.sync.aiSpeedIdx() != oldSpeed)
 				|| (this.sync != null && newInQueue != oldInQueue)
-				|| (this.sync != null && this.sync.openHand() != oldOpen))
+				|| (this.sync != null && this.sync.openHand() != oldOpen)
+				|| (this.sync != null && this.sync.spectatorShow() != oldSpectator))
 			rebuildButtons();
 	}
 
@@ -75,6 +77,18 @@ public class MahjongLobbyScreen extends Screen {
 		return this.sync.queueNames().stream().anyMatch(name::equals);
 	}
 
+	/** 是否已安排至少一个座位（有人排队或已预约 AI），否则「开始对局」置灰不可点 */
+	private boolean startable() {
+		if (this.sync == null)
+			return false;
+		if (!this.sync.queueNames().isEmpty())
+			return true;
+		for (int s = 0; s < 4; s++)
+			if (this.sync.seatAI()[s])
+				return true;
+		return false;
+	}
+
 	private void send(int action, int extra) {
 		net.neoforged.neoforge.network.PacketDistributor.sendToServer(
 				new MahjongLobbyPayloads.ActionMessage(origin.asLong(), action, extra));
@@ -84,13 +98,19 @@ public class MahjongLobbyScreen extends Screen {
 	// 灰色半透明按钮（与座位/列表行同款样式，替代原版 Button）
 	// ==================================================================
 
-	private record UiBtn(int x, int y, int w, int h, java.util.function.Supplier<String> label, Runnable action) {
+	private record UiBtn(int x, int y, int w, int h, java.util.function.Supplier<String> label, Runnable action,
+			boolean enabled) {
 	}
 
 	private final java.util.List<UiBtn> btns = new java.util.ArrayList<>();
 
 	private void addBtn(int x, int y, int w, int h, java.util.function.Supplier<String> label, Runnable action) {
-		this.btns.add(new UiBtn(x, y, w, h, label, action));
+		this.btns.add(new UiBtn(x, y, w, h, label, action, true));
+	}
+
+	private void addBtn(int x, int y, int w, int h, java.util.function.Supplier<String> label, Runnable action,
+			boolean enabled) {
+		this.btns.add(new UiBtn(x, y, w, h, label, action, enabled));
 	}
 
 	@Override
@@ -128,15 +148,15 @@ public class MahjongLobbyScreen extends Screen {
 				() -> {
 					send(MahjongLobbyPayloads.ACT_START, 0);
 					onClose(); // 开局后关闭界面，直接看发牌
-				});
+				},
+				startable() /* 未安排座位（无人排队且未预约 AI）时不可开始，置灰 */);
 		boolean finished = this.sync.canManage() && this.sync.phase() == PHASE_FINISHED;
 		addBtn(colLX, y + 40, colW, 18,
 				() -> Component.translatable("gui.richi.lobby.btn_paipu").getString(),
 				PaipuListScreen::open);
-		// 右列：游戏设置列表（管理员·等待/终局阶段均可；点击整行循环切换）
-		boolean adminIdle = this.sync.canManage()
-				&& (this.sync.phase() == PHASE_WAITING || this.sync.phase() == PHASE_FINISHED);
-		if (adminIdle) {
+		// 右列：游戏设置列表（管理员·仅等待阶段可改；对局中/终局结算间隙不可调整，点击整行循环切换）
+		boolean adminWaiting = this.sync.canManage() && this.sync.phase() == PHASE_WAITING;
+		if (adminWaiting) {
 			String[] typeKeys = { "gui.richi.lobby.type_single", "gui.richi.lobby.type_east", "gui.richi.lobby.type_full" };
 			int type = Math.floorMod(this.sync.gameType(), 3);
 			addBtn(colRX, queueTop + 12, colW, 18,
@@ -164,11 +184,17 @@ public class MahjongLobbyScreen extends Screen {
 							Component.translatable(this.sync.openHand() ? "gui.richi.lobby.open_on"
 									: "gui.richi.lobby.open_off").getString()).getString(),
 					() -> send(MahjongLobbyPayloads.ACT_SET_OPEN, this.sync.openHand() ? 0 : 1));
-			if (finished)
-				addBtn(colRX, queueTop + 96, colW, 18,
-						() -> Component.translatable("gui.richi.lobby.btn_clear").getString(),
-						() -> send(MahjongLobbyPayloads.ACT_CLEAR, 0));
+			addBtn(colRX, queueTop + 92, colW, 18,
+					() -> Component.translatable("gui.richi.lobby.btn_spectator",
+							Component.translatable(this.sync.spectatorShow() ? "gui.richi.lobby.open_on"
+									: "gui.richi.lobby.open_off").getString()).getString(),
+					() -> send(MahjongLobbyPayloads.ACT_SET_SPECTATOR, this.sync.spectatorShow() ? 0 : 1));
 		}
+		// 终局结算间隙：对局设置不可调整，右列仅保留"清理桌子"（队列/AI 管理仍在左列与座位区可用）
+		if (finished)
+			addBtn(colRX, queueTop + 12, colW, 18,
+					() -> Component.translatable("gui.richi.lobby.btn_clear").getString(),
+					() -> send(MahjongLobbyPayloads.ACT_CLEAR, 0));
 	}
 
 	@Override
@@ -220,8 +246,8 @@ public class MahjongLobbyScreen extends Screen {
 				String flow = flowLabel(this.sync.seatAvatarModes()[seat]);
 				graphics.drawString(font, flow, left + PANEL_W + 8, y + 6, 0x80C8C8, false);
 			}
-			// 悬停提示（仅等待阶段：空座预约 AI / 已预约座位循环形象）
-			if (hovered && this.sync.phase() == PHASE_WAITING)
+			// 悬停提示（仅等待/终局阶段：空座预约 AI / 已预约座位循环形象）
+			if (hovered && this.sync.phase() != PHASE_PLAYING)
 				hoverHint = Component.translatable(
 						this.sync.seatAI()[seat] ? "gui.richi.lobby.hint_avatar_cycle" : "gui.richi.lobby.hint_reserve")
 						.getString();
@@ -253,12 +279,14 @@ public class MahjongLobbyScreen extends Screen {
 					Component.translatable("gui.richi.lobby.settings").getString(),
 					colRX, queueTop, 0xAAAAAA, false);
 
-		// 灰色半透明按钮（与列表行同款样式：悬停高亮）
+		// 灰色半透明按钮（与列表行同款样式：悬停高亮；禁用 = 暗灰文字不可点）
 		for (UiBtn b : this.btns) {
-			boolean hov = mouseX >= b.x() && mouseX < b.x() + b.w() && mouseY >= b.y() && mouseY < b.y() + b.h();
+			boolean hov = b.enabled() && mouseX >= b.x() && mouseX < b.x() + b.w()
+					&& mouseY >= b.y() && mouseY < b.y() + b.h();
 			graphics.fill(b.x(), b.y(), b.x() + b.w(), b.y() + b.h(), hov ? 0x509090C0 : 0x30A0A0A0);
 			String label = b.label().get();
-			graphics.drawString(font, label, b.x() + (b.w() - font.width(label)) / 2, b.y() + 5, 0xFFFFFF, false);
+			graphics.drawString(font, label, b.x() + (b.w() - font.width(label)) / 2, b.y() + 5,
+					b.enabled() ? 0xFFFFFF : 0x808080, false);
 		}
 
 		// 阶段提示：对局中 = 投票进度（面板居中，投票按钮下方）；终局 = 右列（设置/清理桌子下方；非管理员在右列顶部）
@@ -269,12 +297,12 @@ public class MahjongLobbyScreen extends Screen {
 			default -> "";
 		};
 		if (!phase.isEmpty()) {
-			boolean adminIdleNow = this.sync.canManage() && this.sync.phase() != PHASE_PLAYING;
 			if (this.sync.phase() == PHASE_PLAYING)
 				graphics.drawCenteredString(font, phase, this.width / 2, queueTop + 96, 0xFFAA55);
 			else
-				graphics.drawCenteredString(font, phase, colRX + colW / 2, adminIdleNow ? queueTop + 116 : queueTop + 12,
-						0xFFAA55);
+				// 等待阶段：设置列表下方；终局：清理桌子按钮下方（对局设置已隐藏）
+				graphics.drawCenteredString(font, phase, colRX + colW / 2,
+						this.sync.phase() == PHASE_FINISHED ? queueTop + 36 : queueTop + 116, 0xFFAA55);
 		}
 
 		// 对局中：面板右侧外信息框，显示各 AI 座位的牌风流派
@@ -299,24 +327,33 @@ public class MahjongLobbyScreen extends Screen {
 		}
 
 		// 座位 AI 类型快速选择列表（最后绘制，盖住队列/按钮；右键座位弹出，显示顺序见 pickerOrder）
-		if (this.pickerSeat >= 0 && this.sync.seatAI()[this.pickerSeat] && this.sync.phase() == PHASE_WAITING) {
+		if (this.pickerSeat >= 0 && this.sync.seatAI()[this.pickerSeat] && this.sync.phase() != PHASE_PLAYING) {
 			int px = left + 64, py = pickerTop();
 			int[] order = pickerOrder();
 			graphics.fill(px - 4, py, px + PICK_W + 4, py + pickerH(), 0xFF101018); // 背景不透明
 			graphics.renderOutline(px - 4, py, PICK_W + 8, pickerH(), 0x505000FF); // 描边
 			String cur = this.sync.seatAvatarModes()[this.pickerSeat];
 			for (int row = 0; row < order.length; row++) {
-				int mode = order[row]; // -1 = 移除 AI，否则 AVATAR_MODES 下标
+				int mode = order[row]; // -1 = 移除 AI；>= STYLE_OFFSET = 风格；否则 AVATAR_MODES 下标
 				int ey = py + 3 + row * PICK_ROW;
 				int eyBottom = ey + PICK_ROW;
 				if (mouseY >= ey && mouseY < eyBottom)
 					graphics.fill(px - 2, ey, px + PICK_W + 2, eyBottom, 0x405088FF);
 				boolean isRemove = mode < 0;
-				String label = isRemove
-						? Component.translatable("gui.richi.lobby.picker_remove").getString()
-						: Component.translatable(AVATAR_KEYS[mode]).getString();
-				int color = isRemove ? 0xFF8080
-						: mcr.richi.game.MahjongLobby.AVATAR_MODES[mode].equals(cur) ? 0xFFCC66 : 0xFFFFFF;
+				boolean isStyle = mode >= STYLE_OFFSET;
+				String label;
+				int color;
+				if (isRemove) {
+					label = Component.translatable("gui.richi.lobby.picker_remove").getString();
+					color = 0xFF8080;
+				} else if (isStyle) {
+					int s = mode - STYLE_OFFSET;
+					label = Component.translatable(STYLE_KEYS[s]).getString();
+					color = styleMatches(s, cur) ? 0xFFCC66 : 0xFFFFFF;
+				} else {
+					label = Component.translatable(AVATAR_KEYS[mode]).getString();
+					color = mcr.richi.game.MahjongLobby.AVATAR_MODES[mode].equals(cur) ? 0xFFCC66 : 0xFFFFFF;
+				}
 				graphics.drawString(font, label, px + 2, ey + 2, color, false);
 			}
 		}
@@ -356,9 +393,9 @@ public class MahjongLobbyScreen extends Screen {
 	private String flowLabel(String mode) {
 		String key = switch (mode == null ? "" : mode) {
 			case "chen_huang" -> "flow_general";
-			case "luohong" -> "flow_boar";
+			case "spring_flower" -> "flow_boar";
 			case "moss_beast" -> "flow_quiet";
-			case "wenyao" -> "flow_musou";
+			case "wen_yao" -> "flow_musou";
 			case "komainu" -> "flow_kouten";
 			case "ferocious" -> "flow_kouten";
 			case "dark_fury" -> "flow_kouten";
@@ -374,16 +411,17 @@ public class MahjongLobbyScreen extends Screen {
 			// 灰色半透明按钮（列表样式）命中
 			if (this.pickerSeat < 0 && button == 0) {
 				for (UiBtn b : this.btns) {
-					if (mouseX >= b.x() && mouseX < b.x() + b.w() && mouseY >= b.y() && mouseY < b.y() + b.h()) {
+					if (b.enabled() && mouseX >= b.x() && mouseX < b.x() + b.w() && mouseY >= b.y()
+							&& mouseY < b.y() + b.h()) {
 						b.action().run();
 						return true;
 					}
 				}
 			}
 		}
-		// 仅等待阶段允许操作座位行：左击空座 = 预约 AI；右击已预约 AI 座位 = 打开类型快速选择列表
-		// （列表含全部形象模式 + 移除 AI）；左击已预约座位 = 循环切换（保留快捷操作）
-		if (this.sync != null && this.sync.canManage() && this.sync.phase() == PHASE_WAITING) {
+		// 仅等待/终局阶段允许操作座位行（终局未点清理也可调整下一局 AI）：左击空座 = 预约 AI；
+		// 右击已预约 AI 座位 = 打开类型快速选择列表（列表含全部风格/形象 + 移除 AI）；左击已预约座位 = 循环切换
+		if (this.sync != null && this.sync.canManage() && this.sync.phase() != PHASE_PLAYING) {
 			int left = this.width / 2 - PANEL_W / 2;
 			int top = this.height / 2 - 100;
 			if (this.pickerSeat >= 0) {
@@ -395,13 +433,26 @@ public class MahjongLobbyScreen extends Screen {
 				if (button == 1 && this.sync.seatAI()[seat]) {
 					this.pickerSeat = seat; // 右键：打开快速选择列表
 				} else if (button == 0 && this.sync.seatAI()[seat]) {
+					// 左击循环：沿选择列表（人类/村民/随机/风格…）循环切换；未知（随机/空）= 从随机开始
 					String cur = this.sync.seatAvatarModes()[seat];
-					int idx = 0; // 空/未知 = 随机
-					for (int i = 0; i < mcr.richi.game.MahjongLobby.AVATAR_MODES.length; i++)
-						if (mcr.richi.game.MahjongLobby.AVATAR_MODES[i].equals(cur))
-							idx = i;
-					int next = (idx + 1) % mcr.richi.game.MahjongLobby.AVATAR_MODES.length;
-					send(MahjongLobbyPayloads.ACT_SET_AVATAR_SEAT, (seat << 16) | next);
+					int[] order = cycleOrder();
+					int start = 0;
+					boolean matched = false;
+					for (int i = 0; i < order.length; i++)
+						if (order[i] >= STYLE_OFFSET ? styleMatches(order[i] - STYLE_OFFSET, cur)
+								: mcr.richi.game.MahjongLobby.AVATAR_MODES[order[i]].equals(cur)) {
+							start = i;
+							matched = true;
+							break;
+						}
+					if (!matched) // 随机/未知：定位「随机」条目为起点
+						for (int i = 0; i < order.length; i++)
+							if (order[i] >= 0 && order[i] < STYLE_OFFSET
+									&& "random".equals(mcr.richi.game.MahjongLobby.AVATAR_MODES[order[i]])) {
+								start = i;
+								break;
+							}
+					sendEntry(seat, order[(start + 1) % order.length]);
 				} else if (button == 0
 						&& (this.sync.seatNames()[seat] == null || this.sync.seatNames()[seat].isEmpty())) {
 					// 仅空座可预约（队列玩家占用的座位显示名字，不可替换为 AI）
@@ -417,11 +468,17 @@ public class MahjongLobbyScreen extends Screen {
 	// 座位 AI 类型快速选择列表（右键座位弹出）
 	// ==================================================================
 
-	/** 弹出列表的座位（-1 = 关闭）；条目按 PICKER_ORDER 显示 */
+	/** 弹出列表的座位（-1 = 关闭）；条目按 pickerOrder 显示 */
 	private int pickerSeat = -1;
 	private static final int PICK_ROW = 13, PICK_W = 128;
+	/** 风格条目编码偏移：>= STYLE_OFFSET 的条目为风格（值 - STYLE_OFFSET = AVATAR_STYLES 下标） */
+	private static final int STYLE_OFFSET = 1000;
+	/** 风格显示键（与 MahjongLobby.AVATAR_STYLES 顺序一致：一般流/野猪流/门清流/御无双/魂天流/闪电流） */
+	private static final String[] STYLE_KEYS = { "gui.richi.lobby.flow_general", "gui.richi.lobby.flow_boar",
+			"gui.richi.lobby.flow_quiet", "gui.richi.lobby.flow_musou", "gui.richi.lobby.flow_kouten",
+			"gui.richi.lobby.flow_flash" };
 
-	/** 弹出列表显示顺序（值 = AVATAR_MODES 下标，-1 = 移除 AI）：移除AI > 人类 > 村民 > 随机 > 其余形态 */
+	/** 弹出列表显示顺序：移除AI > 人类 > 村民 > 随机 > 各风格（选择风格后随机从符合风格的形象中选一个） */
 	private static int[] pickerOrder() {
 		String[] modes = mcr.richi.game.MahjongLobby.AVATAR_MODES;
 		int human = -1, villager = -1, random = -1;
@@ -432,7 +489,7 @@ public class MahjongLobbyScreen extends Screen {
 				case "random" -> random = i;
 			}
 		}
-		int[] order = new int[modes.length + 1];
+		int[] order = new int[3 + mcr.richi.game.MahjongLobby.AVATAR_STYLES.length + 1];
 		int n = 0;
 		order[n++] = -1; // 移除 AI
 		if (human >= 0)
@@ -441,10 +498,37 @@ public class MahjongLobbyScreen extends Screen {
 			order[n++] = villager;
 		if (random >= 0)
 			order[n++] = random;
-		for (int i = 0; i < modes.length; i++)
-			if (i != human && i != villager && i != random)
-				order[n++] = i;
+		for (int s = 0; s < mcr.richi.game.MahjongLobby.AVATAR_STYLES.length; s++)
+			order[n++] = STYLE_OFFSET + s;
 		return order;
+	}
+
+	/** 左击循环条目（去掉开头的移除项）：人类 > 村民 > 随机 > 各风格 */
+	private static int[] cycleOrder() {
+		int[] order = pickerOrder();
+		int[] c = new int[order.length - 1];
+		System.arraycopy(order, 1, c, 0, c.length);
+		return c;
+	}
+
+	/** 当前形象是否属于风格 s（风格 = 该流派的可随机形象组） */
+	private static boolean styleMatches(int s, String cur) {
+		if (s < 0 || s >= mcr.richi.game.MahjongLobby.AVATAR_STYLES.length || cur == null)
+			return false;
+		for (String f : mcr.richi.game.MahjongLobby.AVATAR_STYLES[s])
+			if (f.equals(cur))
+				return true;
+		return false;
+	}
+
+	/** 按条目编码发送：-1 = 移除 AI；风格 = ACT_SET_AVATAR_STYLE；其余 = ACT_SET_AVATAR_SEAT */
+	private void sendEntry(int seat, int entry) {
+		if (entry < 0)
+			send(MahjongLobbyPayloads.ACT_REMOVE_AI, seat);
+		else if (entry >= STYLE_OFFSET)
+			send(MahjongLobbyPayloads.ACT_SET_AVATAR_STYLE, (seat << 16) | (entry - STYLE_OFFSET));
+		else
+			send(MahjongLobbyPayloads.ACT_SET_AVATAR_SEAT, (seat << 16) | entry);
 	}
 
 	/** 列表几何（顶部对齐座位行下方，底部溢出时上移） */
@@ -464,13 +548,8 @@ public class MahjongLobbyScreen extends Screen {
 		int[] order = pickerOrder();
 		if (mouseX >= px && mouseX < px + PICK_W && mouseY >= py) {
 			int row = (int) ((mouseY - py - 3) / PICK_ROW);
-			if (row >= 0 && row < order.length) {
-				int mode = order[row]; // -1 = 移除 AI
-				if (mode < 0)
-					send(MahjongLobbyPayloads.ACT_REMOVE_AI, seat);
-				else
-					send(MahjongLobbyPayloads.ACT_SET_AVATAR_SEAT, (seat << 16) | mode);
-			}
+			if (row >= 0 && row < order.length)
+				sendEntry(seat, order[row]); // -1 移除 AI / 风格 → 随机形象 / 其余直接设形态
 		}
 	}
 

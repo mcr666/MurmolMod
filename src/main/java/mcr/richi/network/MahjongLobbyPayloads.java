@@ -31,18 +31,20 @@ public class MahjongLobbyPayloads {
 	/** 座位/队列状态快照（客户端只读）；seatFlows：AI 座位流派索引，非 AI = -1；thinkIdx：思考时间档位；aiSpeedIdx：AI 速度档 */
 	public record LobbySync(int phase, String[] seatNames, boolean[] seatAI,
 			List<String> queueNames, boolean canManage, int gameType, int voteCount,
-			boolean openHand, String[] seatAvatarModes, int[] seatFlows, int thinkIdx, int aiSpeedIdx) {
+			boolean openHand, boolean spectatorShow, String[] seatAvatarModes, int[] seatFlows, int thinkIdx,
+			int aiSpeedIdx) {
 	}
 
 	/** C→S 动作类型 */
 	public static final int ACT_JOIN_QUEUE = 0, ACT_LEAVE_QUEUE = 1, ACT_START = 2,
 			ACT_ADD_AI = 3, ACT_REMOVE_AI = 4, ACT_KICK = 5, ACT_SET_TYPE = 6, ACT_CLEAR = 7,
-			ACT_VOTE_END = 8, ACT_SET_OPEN = 10, ACT_SET_AVATAR_SEAT = 12, ACT_SET_THINK = 13, ACT_SET_SPEED = 14;
+			ACT_VOTE_END = 8, ACT_SET_OPEN = 10, ACT_SET_AVATAR_SEAT = 12, ACT_SET_THINK = 13, ACT_SET_SPEED = 14,
+			ACT_SET_AVATAR_STYLE = 15, ACT_SET_SPECTATOR = 16;
 
 	public record SyncMessage(long originPacked, int phase, List<String> seatNames, int aiMask,
 			List<String> queueNames, boolean canManage, int gameType, int voteCount,
-			boolean openHand, List<String> seatAvatarModes, List<Integer> seatFlows, int thinkIdx,
-			int aiSpeedIdx) implements CustomPacketPayload {
+			boolean openHand, boolean spectatorShow, List<String> seatAvatarModes, List<Integer> seatFlows,
+			int thinkIdx, int aiSpeedIdx) implements CustomPacketPayload {
 		public static final Type<SyncMessage> TYPE = new Type<>(
 				ResourceLocation.fromNamespaceAndPath(MurmolMod.MODID, "richi_lobby_sync"));
 
@@ -72,8 +74,8 @@ public class MahjongLobbyPayloads {
 					CLIENT_SYNC.put(message.originPacked(),
 							new LobbySync(message.phase(), names, ai, message.queueNames(),
 									message.canManage(), message.gameType(), message.voteCount(),
-									message.openHand(), seatModes, seatFlows, message.thinkIdx(),
-									message.aiSpeedIdx()));
+									message.openHand(), message.spectatorShow(), seatModes, seatFlows,
+									message.thinkIdx(), message.aiSpeedIdx()));
 				});
 			}
 		}
@@ -148,6 +150,7 @@ public class MahjongLobbyPayloads {
 		buf.writeVarInt(msg.gameType());
 		buf.writeVarInt(msg.voteCount());
 		buf.writeBoolean(msg.openHand());
+		buf.writeBoolean(msg.spectatorShow());
 		for (int i = 0; i < 4; i++) {
 			String mode = msg.seatAvatarModes().get(i);
 			buf.writeUtf(mode == null ? "" : mode, 32);
@@ -173,6 +176,7 @@ public class MahjongLobbyPayloads {
 		int gameType = buf.readVarInt();
 		int voteCount = buf.readVarInt();
 		boolean openHand = buf.readBoolean();
+		boolean spectatorShow = buf.readBoolean();
 		List<String> seatModes = new ArrayList<>(4);
 		for (int i = 0; i < 4; i++)
 			seatModes.add(buf.readUtf(32));
@@ -180,7 +184,7 @@ public class MahjongLobbyPayloads {
 		for (int i = 0; i < 4; i++)
 			seatFlows.add(buf.readVarInt());
 		return new SyncMessage(origin, phase, seats, aiMask, queue, canManage, gameType, voteCount,
-				openHand, seatModes, seatFlows, buf.readVarInt(), buf.readVarInt());
+				openHand, spectatorShow, seatModes, seatFlows, buf.readVarInt(), buf.readVarInt());
 	}
 
 	public static void register() {

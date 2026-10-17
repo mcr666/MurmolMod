@@ -9,11 +9,14 @@
     "PlayerRespawnLogicMixin",
     "RecipeManagerMixin",
     "PetrifyEffectInvisibleMixin",
-    "EntityWaterBubbleMixin"
+    "EntityWaterBubbleMixin",
+    "ItemFoodPropertiesMixin",
+    "ItemPlantUseMixin"
   ],
   "client": [
     "MusicManagerMixin",
-    "client.LocalPlayerWaterBubbleMixin"
+    "client.LocalPlayerWaterBubbleMixin",
+    "client.SchrodingerArmorInvisibleMixin"
   ],
   "injectors": {
     "defaultRequire": 1
